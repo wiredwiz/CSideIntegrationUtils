@@ -3,6 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSideIntegrationUtils", "CSideIntegrationUtils.csproj", "{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Style Enforcer", "Code Style Enforcer", "{0BB9C820-B5D0-4EEA-9D81-22035E453EC0}"
+	ProjectSection(SolutionItems) = preProject
+		Code Style Enforcer\ImplementationRules.xml = Code Style Enforcer\ImplementationRules.xml
+		Code Style Enforcer\NameRules.xml = Code Style Enforcer\NameRules.xml
+		Code Style Enforcer\VisibilityRules.xml = Code Style Enforcer\VisibilityRules.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -21,5 +28,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		CodeStyleEnforcer_RulesLocation = 1
+		CodeStyleEnforcer_Active = -1
 	EndGlobalSection
 EndGlobal
