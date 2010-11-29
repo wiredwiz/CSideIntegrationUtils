@@ -82,7 +82,18 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
 		#endregion Properties 
 
-		#region Constructors/Deconstructors (3) 
+		#region Constructors/Deconstructors (4) 
+
+      /// <summary>
+      /// Initializes a new instance of the CSideEventArgs class.
+      /// </summary>
+      public CSideEventArgs(ServerType previousServerType, string previousServer, ServerType currentServerType, string currentServer)
+      {
+         CurrentServer = currentServer;
+         CurrentServerType = currentServerType;
+         PreviousServer = previousServer;
+         PreviousServerType = previousServerType;
+      }
 
       /// <summary>
       /// Initializes a new instance of the CSideEventArgs class.

@@ -26,7 +26,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    /// </summary>
    internal class ApplicationEventSubscriber : INSApplicationEvents
    {
-      #region Non-Public Fields (6)
+		#region Non-Public Fields (5) 
 
       private Client _Client;
       private UCOMIConnectionPoint _ConnectionPoint;
@@ -34,9 +34,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private Guid _IID = new Guid("50000004-0000-1000-0004-0000836BD2D2");
       private int _ReferenceCount;
 
-      #endregion Non-Public Fields
+		#endregion Non-Public Fields 
 
-      #region Constructors/Deconstructors (1)
+		#region Constructors/Deconstructors (1) 
 
       /// <summary>
       /// Initializes a new instance of the ApplicationEventSubscriber class.
@@ -47,11 +47,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          _Client = client;
       }
 
-      #endregion Constructors/Deconstructors
+		#endregion Constructors/Deconstructors 
 
-      #region Methods (3)
+		#region Methods (2) 
 
-      // Public Methods (2) 
+		// Public Methods (2) 
 
       /// <summary>
       /// Begins advising the linked Client of new events from the source.
@@ -86,7 +86,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
-      #endregion Methods
+		#endregion Methods 
+
+
 
       #region INSApplicationEvents Members
 
@@ -155,17 +157,25 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Called when the database and/or company of the subscribed Navision client changes.
+      /// Called when the database, server and/or company of the subscribed Navision client changes.
       /// </summary>
       /// <returns>An <see cref="System.Int32"/> representing an error code</returns>
       public int OnCompanyDBChange()
       {
          string previousDatabase = _Client.PreviousDatabase;
          string previousCompany = _Client.PreviousCompany;
+         ServerType previousServerType = _Client.PreviousServerType;
+         string previousServer = _Client.PreviousServer;
          string currentDatabase = _Client.Database;
          string currentCompany = _Client.Company;
+         ServerType currentServerType = _Client.ServerType;
+         string currentServer = _Client.Server;
          _Client.PreviousDatabase = currentDatabase;
          _Client.PreviousCompany = currentCompany;
+         _Client.PreviousServerType = currentServerType;
+         _Client.PreviousServer = currentServer;
+         if ((previousServer != currentServer) || (previousServerType != currentServerType))
+            ThreadPool.QueueUserWorkItem(RaiseServerChangeEvent, new CSideEventArgs(previousServerType, previousServer, currentServerType, currentServer));
          if (previousDatabase != currentDatabase)
             ThreadPool.QueueUserWorkItem(RaiseDatabaseChangeEvent, new CSideEventArgs(ChangeEventType.Database, previousDatabase, currentDatabase));
          if (previousCompany != currentCompany)
@@ -191,6 +201,14 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          _Client.RaiseDatabaseChanged(state as CSideEventArgs);
       }
 
+      /// <summary>
+      /// Raises the ServerChanged event.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      private void RaiseServerChangeEvent(object state)
+      {
+         _Client.RaiseServerChanged(state as CSideEventArgs);
+      }
       #endregion
    }
 }
