@@ -94,7 +94,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       #region Events (6)
 
       /// <summary>
-      /// Occurs when the client instance is [activated].
+      /// Occurs when the client instance gains focus.
       /// </summary>
       public event EventHandler<CSideEventArgs> Activated
       {
@@ -117,7 +117,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Occurs when [company changed].
+      /// Occurs when the client instance changes company.
       /// </summary>
       public event EventHandler<CSideEventArgs> CompanyChanged
       {
@@ -140,7 +140,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Occurs when [database changed].
+      /// Occurs when the client instance changes database.
       /// </summary>
       public event EventHandler<CSideEventArgs> DatabaseChanged
       {
@@ -163,7 +163,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Occurs when the client instance is [deactivated].
+      /// Occurs when the client instance loses focus.
       /// </summary>
       public event EventHandler<CSideEventArgs> Deactivated
       {
@@ -208,6 +208,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
+      /// <summary>
+      /// Occurs when the client instance changes server.
+      /// </summary>
       public event EventHandler<CSideEventArgs> ServerChanged
       {
          add
@@ -719,7 +722,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Reads the specified object to a stream.
       /// </summary>
       /// <param name="navObjectType">Type of the Navision object.</param>
-      /// <param name="objectId">The object ID.</param>
+      /// <param name="objectID">The object ID.</param>
       /// <returns>A <see cref="System.IO.MemoryStream"/> containing the text for the specified object</returns>
       public MemoryStream ReadObjectToStream(NavObjectType navObjectType, int objectID)
       {

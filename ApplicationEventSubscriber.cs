@@ -49,12 +49,73 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
 		#endregion Constructors/Deconstructors 
 
-		#region Methods (2) 
+		#region Methods (8) 
 
+		// Private Methods (6) 
+
+      /// <summary>
+      /// A stub to raise the Activated event on a worker thread.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
+      private void RaiseActivateEvent(object state)
+      {
+         _Client.RaiseActivated(state as CSideEventArgs);
+      }
+
+      /// <summary>
+      /// A stub to raise the CompanyChanged event on a worker thread.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
+      private void RaiseCompanyChangeEvent(object state)
+      {
+         _Client.RaiseCompanyChanged(state as CSideEventArgs);
+      }
+
+      /// <summary>
+      /// A stub to raise the DatabaseChanged event on a worker thread.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
+      private void RaiseDatabaseChangeEvent(object state)
+      {
+         _Client.RaiseDatabaseChanged(state as CSideEventArgs);
+      }
+
+      /// <summary>
+      /// A stub to raise the Deactivated event on a worker thread.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
+      private void RaiseDeactivateEvent(object state)
+      {
+         _Client.RaiseDeactivated(state as CSideEventArgs);
+      }
+
+      /// <summary>
+      /// A stub to raise the FormOpened event on a worker thread.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
+      private void RaiseFormOpenEvent(object state)
+      {
+         _Client.RaiseFormOpened(state as CSideEventArgs);
+      }
+
+      /// <summary>
+      /// A stub to raise the ServerChanged event on a worker thread.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
+      private void RaiseServerChangeEvent(object state)
+      {
+         _Client.RaiseServerChanged(state as CSideEventArgs);
+      }
 		// Public Methods (2) 
 
       /// <summary>
-      /// Begins advising the linked Client of new events from the source.
+      /// Begins advising the linked <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> of new events from the source.
       /// </summary>
       /// <param name="source">The source.</param>
       public void Advise(ref IObjectDesigner source)
@@ -70,7 +131,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Stops advising the linked Client of new events.
+      /// Stops advising the linked <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> of new events.
       /// </summary>
       public void Unadvise()
       {
@@ -88,8 +149,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
 		#endregion Methods 
 
-
-
       #region INSApplicationEvents Members
 
       /// <summary>
@@ -101,15 +160,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          ThreadPool.QueueUserWorkItem(RaiseFormOpenEvent, new CSideEventArgs(new Form(_Client, form)));
          return 0;
-      }
-
-      /// <summary>
-      /// A stub to raise the FormOpen event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void RaiseFormOpenEvent(object state)
-      {
-         _Client.RaiseFormOpened(state as CSideEventArgs);
       }
 
       /// <summary>
@@ -139,29 +189,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// A stub to raise the Activated event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void RaiseActivateEvent(object state)
-      {
-         _Client.RaiseActivated(state as CSideEventArgs);
-      }
-
-      /// <summary>
-      /// RA stub to raise the Deactivated event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void RaiseDeactivateEvent(object state)
-      {
-         _Client.RaiseDeactivated(state as CSideEventArgs);
-      }
-
-      /// <summary>
       /// Called when the database, server and/or company of the subscribed Navision client changes.
       /// </summary>
       /// <returns>An <see cref="System.Int32"/> representing an error code</returns>
       public int OnCompanyDBChange()
       {
+         // obtain previous settings
          string previousDatabase = _Client.PreviousDatabase;
          string previousCompany = _Client.PreviousCompany;
          ServerType previousServerType = _Client.PreviousServerType;
@@ -170,10 +203,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          string currentCompany = _Client.Company;
          ServerType currentServerType = _Client.ServerType;
          string currentServer = _Client.Server;
+         // set previous setting variables to the new values
          _Client.PreviousDatabase = currentDatabase;
          _Client.PreviousCompany = currentCompany;
          _Client.PreviousServerType = currentServerType;
          _Client.PreviousServer = currentServer;
+         // determine if the previous values are different from any of our newer ones and trigger appropriate events
          if ((previousServer != currentServer) || (previousServerType != currentServerType))
             ThreadPool.QueueUserWorkItem(RaiseServerChangeEvent, new CSideEventArgs(previousServerType, previousServer, currentServerType, currentServer));
          if (previousDatabase != currentDatabase)
@@ -183,32 +218,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return 0;
       }
 
-      /// <summary>
-      /// Raises the CompanyChanged event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void RaiseCompanyChangeEvent(object state)
-      {
-         _Client.RaiseCompanyChanged(state as CSideEventArgs);
-      }
-
-      /// <summary>
-      /// Raises the DatabaseChanged event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void RaiseDatabaseChangeEvent(object state)
-      {
-         _Client.RaiseDatabaseChanged(state as CSideEventArgs);
-      }
-
-      /// <summary>
-      /// Raises the ServerChanged event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void RaiseServerChangeEvent(object state)
-      {
-         _Client.RaiseServerChanged(state as CSideEventArgs);
-      }
       #endregion
    }
 }

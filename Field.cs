@@ -34,16 +34,40 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private string _Type;
       private int _Unknown;
 
+      /// <summary>
+      /// Gets the caption.
+      /// </summary>
+      /// <value>The caption.</value>
       public string Caption { get { return _Caption; } }
 
+      /// <summary>
+      /// Gets the ID.
+      /// </summary>
+      /// <value>The ID.</value>
       public int ID { get { return _ID; } }
 
+      /// <summary>
+      /// Gets the length.
+      /// </summary>
+      /// <value>The length.</value>
       public int Length { get { return _Length; } }
 
+      /// <summary>
+      /// Gets the name.
+      /// </summary>
+      /// <value>The name.</value>
       public string Name { get { return _Name; } }
 
+      /// <summary>
+      /// Gets the type.
+      /// </summary>
+      /// <value>The type.</value>
       public string Type { get { return _Type; } }
 
+      /// <summary>
+      /// Gets the unknown.
+      /// </summary>
+      /// <value>The unknown.</value>
       public int Unknown { get { return _Unknown; } }
 
 		#endregion Data Members 
