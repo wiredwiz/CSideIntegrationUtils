@@ -273,7 +273,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <returns>A list of designer objects corresponding to running client instances</returns>
       /// <remarks>If there are multiple instances with the same database and company, only the first is exposed</remarks>
-      protected static List<object> GetActiveClientList()
+      internal static List<object> GetActiveClientList()
       {
          List<object> clientList = new List<object>();
 
@@ -366,7 +366,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="prot">The address of an IRunningObjectTable* pointer variable that receives the interface pointer to the local ROT.
       /// When the function is successful, the caller is responsible for calling Release on the interface pointer. If an error occurs, *pprot is undefined.</param>
       [DllImport("ole32.dll")]
-      protected static extern void GetRunningObjectTable(int reserved, out IRunningObjectTable prot);
+      internal static extern void GetRunningObjectTable(int reserved, out IRunningObjectTable prot);
 
       /// <summary>
       /// Gets the specific running Navision client instance that corresponds to the supplied server/database/company.
@@ -870,7 +870,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Gets the objects in the database the client is attached.
+      /// Gets the objects in the database the client is attached to.
       /// </summary>
       /// <value>The objects.</value>
       public Dictionary<NavObjectType, Dictionary<int, Object>> Objects
