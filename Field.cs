@@ -65,7 +65,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public string Type { get { return _Type; } }
 
       /// <summary>
-      /// Gets the unknown.
+      /// The purpose of this value is currently unknown.  Hopefully it can be discovered and documented later
       /// </summary>
       /// <value>The unknown.</value>
       public int Unknown { get { return _Unknown; } }
