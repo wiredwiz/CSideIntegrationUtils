@@ -24,7 +24,7 @@
     <NamespaceSummaries>
       <NamespaceSummaryItem name="Org.Edgerunner.Dynamics.Nav.CSide" isDocumented="True">A collection of .Net wrapper classes and data structures for interacting with client instances of Microsoft Dynamics Nav ®</NamespaceSummaryItem>
     </NamespaceSummaries>
-    <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Internals, Protected, SealedProtected</VisibleItems>
+    <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</VisibleItems>
     <HelpTitle>C/Side Integration Utilities</HelpTitle>
     <CopyrightText>Copyright 2010 Thaddeus L Ryker</CopyrightText>
     <FeedbackEMailAddress>thad%40edgerunner.org</FeedbackEMailAddress>
