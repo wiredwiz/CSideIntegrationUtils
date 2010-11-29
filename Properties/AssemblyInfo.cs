@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Edgerunner.org")]
 [assembly: AssemblyProduct("C/Side Integration Utilities")]
-[assembly: AssemblyCopyright("Copyright © Edgerunner.org 2010")]
+[assembly: AssemblyCopyright("Copyright © Thaddeus L Ryker 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
