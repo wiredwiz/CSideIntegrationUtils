@@ -31,6 +31,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Company change event
       /// </summary>
-      Company
+      Company,
+      /// <summary>
+      /// Server change event
+      /// </summary>
+      Server
    }
 }

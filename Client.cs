@@ -30,7 +30,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    /// </summary>
    public class Client : IDisposable
    {
-		#region Non-Public Fields (12) 
+      #region Non-Public Fields (16)
 
       private SynchronizationContext _Context;
       private EventHandler<CSideEventArgs> _Deactivated;
@@ -43,14 +43,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private EventHandler<CSideEventArgs> _Activated;
       private EventHandler<CSideEventArgs> _DatabaseChanged;
       private EventHandler<CSideEventArgs> _CompanyChanged;
+      private EventHandler<CSideEventArgs> _ServerChanged;
       internal string PreviousCompany;
       internal string PreviousDatabase;
+      internal ServerType PreviousServerType;
+      internal string PreviousServer;
 
-		#endregion Non-Public Fields 
+      #endregion Non-Public Fields
 
-		#region Constructors/Deconstructors (3) 
+      #region Constructors/Deconstructors (3)
 
-      
+
       /// <summary>
       /// Initializes a new instance of the <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> class.
       /// </summary>
@@ -60,6 +63,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          _objectDesigner = objectDesigner;
          PreviousCompany = Company;
          PreviousDatabase = Database;
+         PreviousServerType = ServerType;
+         PreviousServer = Server;
          _Context = SynchronizationContext.Current;
          ConnectApplicationEvents();
       }
@@ -82,11 +87,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          Dispose(false);
       }
 
-		#endregion Constructors/Deconstructors 
+      #endregion Constructors/Deconstructors
 
-		#region Delegates and Events (5) 
+      #region Delegates and Events (6)
 
-		#region Events (5) 
+      #region Events (6)
 
       /// <summary>
       /// Occurs when the client instance is [activated].
@@ -202,13 +207,34 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
          }
       }
-		#endregion Events 
 
-		#endregion Delegates and Events 
+      public event EventHandler<CSideEventArgs> ServerChanged
+      {
+         add
+         {
+            if (_ServerChanged == null)		// First listener...
+            {
+               // TODO: If needed, add code to respond to the first event hook-up.
+            }
+            _ServerChanged = (EventHandler<CSideEventArgs>)Delegate.Combine(_ServerChanged, value);
+         }
+         remove
+         {
+            _ServerChanged = (EventHandler<CSideEventArgs>)Delegate.Remove(_ServerChanged, value);
+            if (_ServerChanged == null)  // No more listeners to this event
+            {
+               // TODO: Add code to clean up if necessary.
+            }
+         }
+      }
 
-		#region Other Methods (20) 
+      #endregion Events
 
-		// Static Methods (7) 
+      #endregion Delegates and Events
+
+      #region Other Methods (22)
+
+      // Static Methods (7) 
 
       /// <summary>
       /// Returns a pointer to an implementation of IBindCtx (a bind context object).
@@ -373,7 +399,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return client;
       }
 
-		// Private Methods (4) 
+      // Private Methods (7) 
 
       /// <summary>
       /// Creates a new <see cref="Org.Edgerunner.Dynamics.Nav.CSide.ApplicationEventSubscriber"/> and subscribes the Client instance to its events.
@@ -430,7 +456,16 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          _Deactivated(this, state as CSideEventArgs);
       }
 
-		// Internal Methods (3) 
+      /// <summary>
+      /// Posts the server changed event.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      private void PostServerChangedEvent(object state)
+      {
+         _ServerChanged(this, state as CSideEventArgs);
+      }
+
+      // Internal Methods (8) 
 
       /// <summary>
       /// Raises the Activated event.
@@ -456,7 +491,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          if (_CompanyChanged != null)
          {
             if (_Context != null)
-            	_Context.Post(PostCompanyChangedEvent, args);
+               _Context.Post(PostCompanyChangedEvent, args);
             else
                PostCompanyChangedEvent(args);
          }
@@ -471,7 +506,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          if (_DatabaseChanged != null)
          {
             if (_Context != null)
-            	_Context.Post(PostDatabaseChangedEvent, args);
+               _Context.Post(PostDatabaseChangedEvent, args);
             else
                PostDatabaseChangedEvent(args);
          }
@@ -500,6 +535,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          if (_FormOpened != null)
             _FormOpened(this, args);
+      }
+
+      /// <summary>
+      /// Raises the ServerChanged event.
+      /// </summary>
+      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
+      internal void RaiseServerChanged(CSideEventArgs args)
+      {
+         if (_ServerChanged != null)
+         {
+            if (_Context != null)
+               _Context.Post(PostServerChangedEvent, args);
+            else
+               PostServerChangedEvent(args);
+         }
       }
 
       /// <summary>
@@ -541,7 +591,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return stream;
       }
 
-		#endregion Methods 
+      #endregion Methods
 
       #region IObjectDesigner functionality
 
@@ -880,7 +930,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             return handle;
          }
       }
-      
+
 
       #endregion
 
