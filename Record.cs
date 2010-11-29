@@ -1,5 +1,5 @@
 ﻿//
-//Copyright 2010 Thaddeus L Ryker
+// Copyright 2010 Thaddeus L Ryker
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <param name="fieldNo">The field no.</param>
       /// <returns></returns>
-      public string GetFieldValue(int fieldNo)
+      internal string GetFieldValue(int fieldNo)
       {
          string fieldValue;
          int result = _Record.GetFieldValue(fieldNo, out fieldValue);
@@ -163,7 +163,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="fieldNo">The field no.</param>
       /// <param name="value">The value.</param>
       /// <param name="validate">if set to <c>true</c> [validate].</param>
-      public void SetFieldValue(int fieldNo, string value, bool validate)
+      internal void SetFieldValue(int fieldNo, string value, bool validate)
       {
          int result = _Record.SetFieldValue(fieldNo, value, validate);
          if (result != 0)

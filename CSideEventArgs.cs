@@ -1,7 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿//
+// Copyright 2010 Thaddeus L Ryker
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Dynamics Nav is a registered trademark of the Microsoft Corporation
+//
+using System;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
@@ -10,7 +24,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    /// </summary>
    public class CSideEventArgs : EventArgs
    {
-		#region Properties (5) 
+		#region Properties (9) 
 
       /// <summary>
       /// Gets or sets the current company.
@@ -23,6 +37,18 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <value>The current database.</value>
       public string CurrentDatabase { get; set; }
+
+      /// <summary>
+      /// Gets or sets the current server.
+      /// </summary>
+      /// <value>The current server.</value>
+      public string CurrentServer { get; set; }
+
+      /// <summary>
+      /// Gets or sets the type of the current server.
+      /// </summary>
+      /// <value>The type of the current server.</value>
+      public ServerType CurrentServerType { get; set; }
 
       /// <summary>
       /// Gets or sets the form.
@@ -41,6 +67,18 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <value>The previous database.</value>
       public string PreviousDatabase { get; set; }
+
+      /// <summary>
+      /// Gets or sets the previous server.
+      /// </summary>
+      /// <value>The previous server.</value>
+      public string PreviousServer { get; set; }
+
+      /// <summary>
+      /// Gets or sets the type of the previous server.
+      /// </summary>
+      /// <value>The type of the previous server.</value>
+      public ServerType PreviousServerType { get; set; }
 
 		#endregion Properties 
 
