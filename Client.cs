@@ -853,6 +853,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the tables in the database the client is attached.
       /// </summary>
       /// <value>The tables.</value>
+      /// <remarks>
+      /// The tables returned will include some (but not all) of the virtual tables in the database.
+      /// Some virtual tables that this will not include can still be obtained with a call to FetchTable().
+      /// </remarks>
       public Dictionary<Int32, Table> Tables
       {
          get
