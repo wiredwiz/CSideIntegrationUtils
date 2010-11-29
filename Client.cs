@@ -1,5 +1,5 @@
 //
-//Copyright 2010 Thaddeus L Ryker
+// Copyright 2010 Thaddeus L Ryker
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -569,7 +569,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Gets the company.
+      /// Gets the company name.
       /// </summary>
       /// <value>The company.</value>
       public string Company
@@ -586,7 +586,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Gets the database.
+      /// Gets the database name.
       /// </summary>
       /// <value>The database.</value>
       public string Database
@@ -603,7 +603,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Gets the server.
+      /// Gets the server name.
       /// </summary>
       /// <value>The server.</value>
       public string Server
