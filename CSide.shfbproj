@@ -18,8 +18,18 @@
     <HtmlHelpName>Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\bin\Release\Org.Edgerunner.Dynamics.Nav.CSide.dll" xmlns="" />
-<DocumentationSource sourceFile="..\bin\Release\Org.Edgerunner.Dynamics.Nav.CSide.XML" xmlns="" /></DocumentationSources>
+      <DocumentationSource sourceFile="bin\Release\Org.Edgerunner.Dynamics.Nav.CSide.dll" />
+<DocumentationSource sourceFile="bin\Release\Org.Edgerunner.Dynamics.Nav.CSide.XML" /></DocumentationSources>
+    <ProjectSummary>The C/Side Integration Utilities contains a series of .Net wrappers for communicating with a running instance of Microsoft Dynamics Nav &amp;#174%3b</ProjectSummary>
+    <NamespaceSummaries>
+      <NamespaceSummaryItem name="Org.Edgerunner.Dynamics.Nav.CSide" isDocumented="True">A collection of .Net wrapper classes and data structures for interacting with client instances of Microsoft Dynamics Nav ®</NamespaceSummaryItem>
+    </NamespaceSummaries>
+    <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Internals, Protected, SealedProtected</VisibleItems>
+    <HelpTitle>C/Side Integration Utilities</HelpTitle>
+    <CopyrightText>Copyright 2010 Thaddeus L Ryker</CopyrightText>
+    <FeedbackEMailAddress>thad%40edgerunner.org</FeedbackEMailAddress>
+    <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
+    <ProductTitle>C/Side Integration Utilities</ProductTitle>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional
