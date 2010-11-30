@@ -22,36 +22,56 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    /// <summary>
    /// Represents the value and data type of a field in a Dynamics Nav client instance
    /// </summary>
-   public struct FieldValue
+   public class FieldValue
    {
-		#region Data Members (4) 
+		#region Non-Public Fields (4) 
 
+      private string _DataType;
+      private Int32 _FieldNo;
       private readonly Record _Record;
+      private string _Value;
+
+		#endregion Non-Public Fields 
+
+		#region Properties (3) 
+
       /// <summary>
       /// Gets or sets the DataType of the field.
       /// </summary>
-      public readonly string DataType;
+      public string DataType
+      {
+         get { return _DataType; }
+      }
+
       /// <summary>
       /// Gets or sets the FieldNo of the field.
       /// </summary>
-      public readonly Int32 FieldNo;
-      private string _Value;
+      public Int32 FieldNo
+      {
+         get { return _FieldNo; }
+      }
+
       /// <summary>
       /// Gets or sets the value of the field.
       /// </summary>
       /// <value>The value.</value>
       public string Value
       {
-         get { return _Value; }
+         get
+         {
+            _Record.LazyLoadBackingRecord();
+            _Value = _Record.GetFieldValue(FieldNo);
+            return _Value;
+         }
          set
          {
             SetValue(value, false);
          }
       }
 
-		#endregion Data Members 
+		#endregion Properties 
 
-      #region Constructors/Deconstructors (1)
+		#region Constructors/Deconstructors (1) 
 
       /// <summary>
       /// Initializes a new instance of the Field structure.
@@ -62,14 +82,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="record"></param>
       public FieldValue(Int32 fieldNo, string value, string dataType, Record record)
       {
-         FieldNo = fieldNo;
+         _FieldNo = fieldNo;
          _Value = value;
-         DataType = dataType;
+         _DataType = dataType;
          _Record = record;
       }
-      #endregion
 
-		#region Methods (10) 
+		#endregion Constructors/Deconstructors 
+
+		#region Methods (11) 
+
+		// Private Methods (2) 
 
       /// <summary>
       /// Sets the value.
@@ -78,9 +101,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="validate">if set to <c>true</c> [validate].</param>
       private void SetValue(string value, bool validate)
       {
+         _Record.LazyLoadBackingRecord();
          _Value = value;
          _Record.SetFieldValue(FieldNo, value, validate);
       }
+		// Public Methods (9) 
 
       /// <summary>
       /// Sets the value.
@@ -121,7 +146,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                break;
             default:
                throw new CSideException(string.Format("Field no. {0} is not of type Integer or Option", FieldNo));
-         }        
+         }
       }
 
       /// <summary>

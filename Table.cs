@@ -185,7 +185,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public void SetFilter(Int32 fieldNo, string filterValue)
       {
          FetchBackingTableIfNeeded();
-         _Table.SetFilter(fieldNo, filterValue);
+         int result = _Table.SetFilter(fieldNo, filterValue);
+         if (result != 0)
+            throw CSideException.GetException(result);
       }
 
       /// <summary>
@@ -194,7 +196,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="record">The record.</param>
       public void Find(Record record)
       {
-         _Table.Find(record._Record);
+         int result = _Table.Find(record._Record);
+         if (result != 0)
+            throw CSideException.GetException(result);
       }
 
       /// <summary>
