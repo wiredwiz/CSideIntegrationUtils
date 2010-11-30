@@ -24,17 +24,26 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    /// </summary>
    public struct Filter
    {
-		#region Data Members (3) 
+		#region Data Members (5) 
 
+      private readonly Int32 _FieldNo;
+      private readonly Table _Table;
+      private readonly string _Value;
       /// <summary>
       /// Gets or sets the FieldNo
       /// </summary>
-      public readonly Int32 FieldNo;
-      private readonly Table _Table;
+      public Int32 FieldNo
+      {
+         get { return _FieldNo; }
+      }
+
       /// <summary>
       /// Gets or sets the Value.
       /// </summary>
-      public readonly string Value;
+      public string Value
+      {
+         get { return _Value; }
+      }
 
 		#endregion Data Members 
 
@@ -47,11 +56,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="record"></param>
       public Filter(Int32 fieldNo, string value, Table table)
       {
-         FieldNo = fieldNo;
-         Value = value;
+         _FieldNo = fieldNo;
+         _Value = value;
          _Table = table;
       }
       #endregion
-
    }
 }

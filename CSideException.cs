@@ -91,7 +91,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          if (hresult == 0)
             throw new Exception(String.Format("{0} is not a valid error HRESULT", hresult));
 
-         return Marshal.GetExceptionForHR(hresult);
+         Exception innerException = Marshal.GetExceptionForHR(hresult); 
+         return new CSideException(innerException.Message,innerException);
       }
 
 		#endregion Methods 

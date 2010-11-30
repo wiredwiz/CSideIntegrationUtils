@@ -90,12 +90,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Rehydrates the record with fresh and valid underlying INSRec instance.
       /// </summary>
-      internal void RehydrateRecord()
+      private void RehydrateRecord()
       {
          _Table.InitRecord(this);
          foreach (FieldValue field in _Fields.Values)
             _Record.SetFieldValue(field.FieldNo, field.Value, false);
          _Table.Find(this);
+      }
+
+      /// <summary>
+      /// Loads the matching INSRec for this record as needed.
+      /// </summary>
+      internal void LazyLoadBackingRecord()
+      {
+         if (_Record == null)
+            RehydrateRecord();
       }
 
       /// <summary>
@@ -115,7 +124,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       public void Delete()
       {
-         RehydrateRecord();
+         LazyLoadBackingRecord();
          _Table.DeleteRecord(this);
       }
 
@@ -146,6 +155,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       public void Insert()
       {
+         LazyLoadBackingRecord();
          _Table.InsertRecord(this);
       }
 
@@ -154,6 +164,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       public void Modify()
       {
+         LazyLoadBackingRecord();
          _Table.ModifyRecord(this);
       }
 
