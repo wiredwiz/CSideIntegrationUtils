@@ -80,7 +80,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="value"></param>
       /// <param name="dataType"></param>
       /// <param name="record"></param>
-      public FieldValue(Int32 fieldNo, string value, string dataType, Record record)
+      internal FieldValue(Int32 fieldNo, string value, string dataType, Record record)
       {
          _FieldNo = fieldNo;
          _Value = value;
