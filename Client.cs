@@ -66,7 +66,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          PreviousServerType = ServerType;
          PreviousServer = Server;
          _Context = SynchronizationContext.Current;
-         ConnectApplicationEvents();
+         lock (GetSyncObject())
+            ConnectApplicationEvents();
       }
 
       /// <summary>
@@ -235,6 +236,39 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       #endregion Delegates and Events
 
+      #region Locking support
+
+      private object _SyncLock;
+
+      internal object GetSyncObject()
+      {
+         if (_SyncLock == null)
+            _SyncLock = new object();
+         // first we attempt to fetch the window handle since it should have very little overhead
+         // if we fail with a RPC_E_CALL_REJECTED then we know the client is busy and we should wait
+         while (true)
+         {
+            try
+            {
+               INSHyperlink app = _objectDesigner as INSHyperlink;
+               Int32 handle;
+               if (app == null)
+                  throw new CSideException("Unable to determine client responsiveness");
+               app.GetNavWindowHandle(out handle);
+               // since we could retrieve the handle we know the client is responsive and return the sync object
+               return _SyncLock;
+            }
+            catch (COMException ex)
+            {
+               if (ex.Message.IndexOf("RPC_E_CALL_REJECTED") == -1)
+                  throw ex;
+            }
+            Thread.Sleep(500);
+         }
+      }
+
+      #endregion
+
       #region Other Methods (22)
 
       // Static Methods (7) 
@@ -384,18 +418,25 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             if (designer != null)
             {
-               string currentDatabase;
-               string currentServer;
-               string currentCompany;
-               designer.GetServerName(out currentServer);
-               designer.GetDatabaseName(out currentDatabase);
-               designer.GetCompanyName(out currentCompany);
-               if ((string.IsNullOrEmpty(server) || (!string.IsNullOrEmpty(currentServer) && (server == currentServer))) &&
-                  (string.IsNullOrEmpty(database) || (!string.IsNullOrEmpty(currentDatabase) && (database == currentDatabase))) &&
-                  (string.IsNullOrEmpty(company) || (!string.IsNullOrEmpty(currentCompany) && (company == currentCompany))))
+               try
                {
-                  client = GetClientWrapper(designer);
-                  break;
+                  string currentDatabase;
+                  string currentServer;
+                  string currentCompany;
+                  designer.GetServerName(out currentServer);
+                  designer.GetDatabaseName(out currentDatabase);
+                  designer.GetCompanyName(out currentCompany);
+                  if ((string.IsNullOrEmpty(server) || (!string.IsNullOrEmpty(currentServer) && (server == currentServer))) &&
+                     (string.IsNullOrEmpty(database) || (!string.IsNullOrEmpty(currentDatabase) && (database == currentDatabase))) &&
+                     (string.IsNullOrEmpty(company) || (!string.IsNullOrEmpty(currentCompany) && (company == currentCompany))))
+                  {
+                     client = GetClientWrapper(designer);
+                     break;
+                  }
+               }
+               catch (COMException ex)
+               {
+                  // unresponsive client, so we skip it for now
                }
             }
          }
@@ -605,9 +646,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="objectID">The object ID.</param>
       public void CompileObject(NavObjectType navObjectType, int objectID)
       {
-         int result = _objectDesigner.CompileObject((int)navObjectType, objectID);
-         if (result != 0)
-            throw CSideException.GetException(result);
+         lock (GetSyncObject())
+         {
+            int result = _objectDesigner.CompileObject((int)navObjectType, objectID);
+            if (result != 0)
+               throw CSideException.GetException(result);
+         }
       }
 
       /// <summary>
@@ -616,9 +660,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="filter">The filter.</param>
       public void CompileObjects(string filter)
       {
-         int result = _objectDesigner.CompileObjects(filter);
-         if (result != 0)
-            throw CSideException.GetException(result);
+         lock (GetSyncObject())
+         {
+            int result = _objectDesigner.CompileObjects(filter);
+            if (result != 0)
+               throw CSideException.GetException(result);
+         }
       }
 
       /// <summary>
@@ -629,12 +676,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
-            string companyName;
-            _objectDesigner.GetCompanyName(out companyName);
-            if (string.IsNullOrEmpty(companyName))
-               return string.Empty;
-            else
-               return companyName;
+            lock (GetSyncObject())
+            {
+               string companyName;
+               _objectDesigner.GetCompanyName(out companyName);
+               if (string.IsNullOrEmpty(companyName))
+                  return string.Empty;
+               else
+                  return companyName;
+            }
          }
       }
 
@@ -646,12 +696,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
-            string databaseName;
-            _objectDesigner.GetDatabaseName(out databaseName);
-            if (string.IsNullOrEmpty(databaseName))
-               return string.Empty;
-            else
-               return databaseName;
+            lock (GetSyncObject())
+            {
+               string databaseName;
+               _objectDesigner.GetDatabaseName(out databaseName);
+               if (string.IsNullOrEmpty(databaseName))
+                  return string.Empty;
+               else
+                  return databaseName;
+            }
          }
       }
 
@@ -663,12 +716,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
-            string serverName;
-            _objectDesigner.GetServerName(out serverName);
-            if (string.IsNullOrEmpty(serverName))
-               return string.Empty;
-            else
-               return serverName;
+            lock (GetSyncObject())
+            {
+               string serverName;
+               _objectDesigner.GetServerName(out serverName);
+               if (string.IsNullOrEmpty(serverName))
+                  return string.Empty;
+               else
+                  return serverName;
+            }
          }
       }
 
@@ -680,9 +736,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
-            int serverType = 0;
-            _objectDesigner.GetServerType(out serverType);
-            return (ServerType)serverType;
+            lock (GetSyncObject())
+            {
+               int serverType = 0;
+               _objectDesigner.GetServerType(out serverType);
+               return (ServerType)serverType;
+            }
          }
       }
 
@@ -694,11 +753,14 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
-            string csideVersion;
-            int result = _objectDesigner.GetCSIDEVersion(out csideVersion);
-            if (result != 0)
-               throw CSideException.GetException(result);
-            return csideVersion;
+            lock (GetSyncObject())
+            {
+               string csideVersion;
+               int result = _objectDesigner.GetCSIDEVersion(out csideVersion);
+               if (result != 0)
+                  throw CSideException.GetException(result);
+               return csideVersion;
+            }
          }
       }
 
@@ -710,11 +772,14 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
-            string appVersion;
-            int result = _objectDesigner.GetApplicationVersion(out appVersion);
-            if (result != 0)
-               throw CSideException.GetException(result);
-            return appVersion;
+            lock (GetSyncObject())
+            {
+               string appVersion;
+               int result = _objectDesigner.GetApplicationVersion(out appVersion);
+               if (result != 0)
+                  throw CSideException.GetException(result);
+               return appVersion;
+            }
          }
       }
 
@@ -726,12 +791,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>A <see cref="System.IO.MemoryStream"/> containing the text for the specified object</returns>
       public MemoryStream ReadObjectToStream(NavObjectType navObjectType, int objectID)
       {
-         IStream pOutStm = null;
-         CreateStreamOnHGlobal(0, true, out pOutStm);
-         int result = _objectDesigner.ReadObject((int)navObjectType, objectID, pOutStm);
-         if (result != 0)
-            throw CSideException.GetException(result);
-         return ToMemoryStream(pOutStm);
+         lock (GetSyncObject())
+         {
+            IStream pOutStm = null;
+            CreateStreamOnHGlobal(0, true, out pOutStm);
+            int result = _objectDesigner.ReadObject((int)navObjectType, objectID, pOutStm);
+            if (result != 0)
+               throw CSideException.GetException(result);
+            return ToMemoryStream(pOutStm);
+         }
       }
 
       /// <summary>
@@ -740,10 +808,13 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="stream">The stream containing the text for a Navision object.</param>
       public void WriteObjectFromStream(Stream stream)
       {
-         IStream source = ToIStream(stream);
-         int result = _objectDesigner.WriteObjects(source);
-         if (result != 0)
-            throw CSideException.GetException(result);
+         lock (GetSyncObject())
+         {
+            IStream source = ToIStream(stream);
+            int result = _objectDesigner.WriteObjects(source);
+            if (result != 0)
+               throw CSideException.GetException(result);
+         }
       }
       #endregion
 
@@ -756,12 +827,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>An instance of a <see cref="Org.Edgerunner.Dynamics.Nav.CSide.INSTable"/> or <c>null</c> if unable to get a reference</returns>
       internal INSTable GetTable(int tableID)
       {
-         INSTable table;
-         INSAppBase appBase = _objectDesigner as INSAppBase;
-         if (appBase == null)
-            return null;
-         appBase.GetTable(tableID, out table);
-         return table;
+         lock (GetSyncObject())
+         {
+            INSTable table;
+            INSAppBase appBase = _objectDesigner as INSAppBase;
+            if (appBase == null)
+               return null;
+            appBase.GetTable(tableID, out table);
+            return table;
+         }
       }
 
       /// <summary>
@@ -771,10 +845,13 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="tableID">The table ID.</param>
       internal void EnumTables(CallbackEnumerator enumerator, int tableID)
       {
-         INSAppBase appBase = _objectDesigner as INSAppBase;
-         if (appBase == null)
-            return;
-         appBase.EnumTables(enumerator, tableID);
+         lock (GetSyncObject())
+         {
+            INSAppBase appBase = _objectDesigner as INSAppBase;
+            if (appBase == null)
+               return;
+            appBase.EnumTables(enumerator, tableID);
+         }
       }
 
 
@@ -814,12 +891,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       public void BeginTransaction()
       {
-         INSAppBase appBase = _objectDesigner as INSAppBase;
-         if (appBase == null)
-            return;
-         int result = appBase.StartTrans();
-         if (result != 0)
-            throw CSideException.GetException(result);
+         lock (GetSyncObject())
+         {
+            INSAppBase appBase = _objectDesigner as INSAppBase;
+            if (appBase == null)
+               return;
+            int result = appBase.StartTrans();
+            if (result != 0)
+               throw CSideException.GetException(result);
+         }
       }
 
       /// <summary>
@@ -828,12 +908,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="message">The message to be displayed.</param>
       public void Error(string message)
       {
-         INSAppBase appBase = _objectDesigner as INSAppBase;
-         if (appBase == null)
-            return;
-         int result = appBase.Error(message);
-         if (result != 0)
-            throw CSideException.GetException(result);
+         lock (GetSyncObject())
+         {
+            INSAppBase appBase = _objectDesigner as INSAppBase;
+            if (appBase == null)
+               return;
+            int result = appBase.Error(message);
+            if (result != 0)
+               throw CSideException.GetException(result);
+         }
       }
 
       /// <summary>
@@ -843,10 +926,13 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>I added this method (which corresponds to proc6()) so that people could experiment with it</remarks>
       public void UnknownMethod(bool flag)
       {
-         INSAppBase appBase = _objectDesigner as INSAppBase;
-         if (appBase == null)
-            return;
-         appBase.proc6(flag);
+         lock (GetSyncObject())
+         {
+            INSAppBase appBase = _objectDesigner as INSAppBase;
+            if (appBase == null)
+               return;
+            appBase.proc6(flag);
+         }
       }
 
       /// <summary>
@@ -864,12 +950,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             // I toyed with adding caching logic here to lower the overhead of repeated fetches but there were too many
             // problems with responding to table deletes/additions/changes.  Might add something later Due to this overhead.
             // It is recommended that you use FetchTable() to get a specific table.
-            INSAppBase appBase = _objectDesigner as INSAppBase;
-            if (appBase == null)
-               return null;
-            CallbackEnumerator cbEnum = new CallbackEnumerator(this);
-            appBase.EnumTables(cbEnum, 0);
-            return cbEnum.Tables;
+            lock (GetSyncObject())
+            {
+               INSAppBase appBase = _objectDesigner as INSAppBase;
+               if (appBase == null)
+                  return null;
+               CallbackEnumerator cbEnum = new CallbackEnumerator(this);
+               appBase.EnumTables(cbEnum, 0);
+               return cbEnum.Tables;
+            }
          }
       }
 
@@ -881,26 +970,29 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
-            if (_Objects == null)
+            lock (GetSyncObject())
             {
-               // first we fetch the Object table
-               Table table = FetchTable(2000000001);
-               if (table == null)
-                  throw new CSideException("Unable to retrieve the Object table");
-               // Filter for blank company and objects of type other than tabledata
-               table.SetFilter(1, ">0");
-               table.SetFilter(2, "=''");
-               List<Record> records = table.FetchRecords();
-               _Objects = new Dictionary<NavObjectType, Dictionary<int, Object>>();
-               foreach (NavObjectType objectType in Enum.GetValues(typeof(NavObjectType)))
-                  _Objects.Add(objectType, new Dictionary<int, Object>());
-               foreach (Record record in records)
+               if (_Objects == null)
                {
-                  Object nObject = new Object(record);
-                  _Objects[nObject.Type].Add(nObject.ID, nObject); ;
+                  // first we fetch the Object table
+                  Table table = FetchTable(2000000001);
+                  if (table == null)
+                     throw new CSideException("Unable to retrieve the Object table");
+                  // Filter for blank company and objects of type other than tabledata
+                  table.SetFilter(1, ">0");
+                  table.SetFilter(2, "=''");
+                  List<Record> records = table.FetchRecords();
+                  _Objects = new Dictionary<NavObjectType, Dictionary<int, Object>>();
+                  foreach (NavObjectType objectType in Enum.GetValues(typeof(NavObjectType)))
+                     _Objects.Add(objectType, new Dictionary<int, Object>());
+                  foreach (Record record in records)
+                  {
+                     Object nObject = new Object(record);
+                     _Objects[nObject.Type].Add(nObject.ID, nObject); ;
+                  }
                }
+               return _Objects;
             }
-            return _Objects;
          }
       }
       #endregion
@@ -914,11 +1006,14 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>This hyperlink should be a navision hyperlink that corresponds to some object inside Navision</remarks>
       public void OpenLink(string link)
       {
-         if (string.IsNullOrEmpty(link))
-            return;
-         INSHyperlink app = _objectDesigner as INSHyperlink;
-         if (app != null)
-            app.Open(link);
+         lock (GetSyncObject())
+         {
+            if (string.IsNullOrEmpty(link))
+               return;
+            INSHyperlink app = _objectDesigner as INSHyperlink;
+            if (app != null)
+               app.Open(link);
+         }
       }
 
       /// <summary>
@@ -929,12 +1024,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
-            INSHyperlink app = _objectDesigner as INSHyperlink;
-            Int32 handle;
-            if (app == null)
-               return 0;
-            app.GetNavWindowHandle(out handle);
-            return handle;
+            lock (GetSyncObject())
+            {
+               INSHyperlink app = _objectDesigner as INSHyperlink;
+               Int32 handle;
+               if (app == null)
+                  return 0;
+               app.GetNavWindowHandle(out handle);
+               return handle;
+            }
          }
       }
 
@@ -951,14 +1049,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
-            INSApplication app = _objectDesigner as INSApplication;
-            if (app == null)
-               return null;
-            INSForm form;
-            int result = app.GetCurrentForm(out form);
-            if (result != 0)
-               throw CSideException.GetException(result);
-            return new Form(this, form);
+            lock (GetSyncObject())
+            {
+               INSApplication app = _objectDesigner as INSApplication;
+               if (app == null)
+                  return null;
+               INSForm form;
+               int result = app.GetCurrentForm(out form);
+               if (result != 0)
+                  throw CSideException.GetException(result);
+               return new Form(this, form);
+            }
          }
       }
       #endregion
