@@ -253,7 +253,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                INSHyperlink app = _objectDesigner as INSHyperlink;
                Int32 handle;
                if (app == null)
-                  throw new CSideException("Unable to determine client responsiveness");
+                  return _SyncLock;
+                  //throw new CSideException("Unable to determine client responsiveness");
                app.GetNavWindowHandle(out handle);
                // since we could retrieve the handle we know the client is responsive and return the sync object
                return _SyncLock;
