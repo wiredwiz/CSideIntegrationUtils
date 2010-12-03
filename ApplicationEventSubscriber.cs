@@ -26,7 +26,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    /// </summary>
    internal class ApplicationEventSubscriber : INSApplicationEvents
    {
-		#region Non-Public Fields (5) 
+      #region Non-Public Fields (5)
 
       private Client _Client;
       private UCOMIConnectionPoint _ConnectionPoint;
@@ -34,9 +34,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private Guid _IID = new Guid("50000004-0000-1000-0004-0000836BD2D2");
       private int _ReferenceCount;
 
-		#endregion Non-Public Fields 
+      #endregion Non-Public Fields
 
-		#region Constructors/Deconstructors (1) 
+      #region Constructors/Deconstructors (1)
 
       /// <summary>
       /// Initializes a new instance of the ApplicationEventSubscriber class.
@@ -47,11 +47,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          _Client = client;
       }
 
-		#endregion Constructors/Deconstructors 
+      #endregion Constructors/Deconstructors
 
-		#region Methods (8) 
+      #region Methods (8)
 
-		// Private Methods (6) 
+      // Private Methods (6) 
 
       /// <summary>
       /// A stub to raise the Activated event on a worker thread.
@@ -112,7 +112,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          _Client.RaiseServerChanged(state as CSideEventArgs);
       }
-		// Public Methods (2) 
+      // Public Methods (2) 
 
       /// <summary>
       /// Begins advising the linked <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> of new events from the source.
@@ -138,16 +138,26 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          //   Unsubscribe for connection point event upon last unadvise
          if (--_ReferenceCount == 0)
          {
-            _ConnectionPoint.Unadvise(_Cookie);
+            try
+            {
+               _ConnectionPoint.Unadvise(_Cookie);
 
-            //   Decrement RCW count and set reference to null
-            Marshal.ReleaseComObject(_ConnectionPoint);
-            _Cookie = 0;
-            _ConnectionPoint = null;
+               //   Decrement RCW count and set reference to null
+               Marshal.ReleaseComObject(_ConnectionPoint);
+            }
+            catch (InvalidComObjectException)
+            {
+               // already disposed of, so we'll ignore it and move on
+            }
+            finally
+            {
+               _Cookie = 0;
+               _ConnectionPoint = null;
+            }
          }
       }
 
-		#endregion Methods 
+      #endregion Methods
 
       #region INSApplicationEvents Members
 
