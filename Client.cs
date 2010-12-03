@@ -914,9 +914,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             INSAppBase appBase = _objectDesigner as INSAppBase;
             if (appBase == null)
                return;
-            int result = appBase.Error(message);
-            if (result != 0)
-               throw CSideException.GetException(result);
+            try
+            {
+               int result = appBase.Error(message);
+               if (result != 0)
+                  throw CSideException.GetException(result);
+            }
+            catch (COMException ex)
+            {
+               if (ex.Message != message)
+                  throw ex;
+            }
          }
       }
 
