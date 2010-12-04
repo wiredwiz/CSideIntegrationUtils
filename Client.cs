@@ -240,31 +240,65 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       private object _SyncLock;
 
+      /// <summary>
+      /// Gets the sync object to lock upon.
+      /// </summary>
+      /// <returns>An object to be used for all synchronization locks within the client.</returns>
       internal object GetSyncObject()
+      {
+         TimeSpan waitPeriod = TimeSpan.Zero;
+         return GetSyncObject(waitPeriod);
+      }
+
+      /// <summary>
+      /// Gets the sync object to lock upon.
+      /// </summary>
+      /// <param name="timeoutPeriod">The timeout period.</param>
+      /// <returns>An object to be used for all synchronization locks within the client.</returns>
+      /// <exception cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideException">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
+      internal object GetSyncObject(TimeSpan timeoutPeriod)
       {
          if (_SyncLock == null)
             _SyncLock = new object();
-         // first we attempt to fetch the window handle since it should have very little overhead
-         // if we fail with a RPC_E_CALL_REJECTED then we know the client is busy and we should wait
+         DateTime startTime = DateTime.Now;
+         // If the client is busy, we wait until it is not, then we return the synchronization lock object.
          while (true)
          {
+            if (IsBusy)
+               Thread.Sleep(500);
+            else
+               return _SyncLock;
+            if ((timeoutPeriod != TimeSpan.Zero) && ((startTime - DateTime.Now) > timeoutPeriod))
+               throw new CSideException("Timed out waiting for synchronization lock");
+         }
+      }
+
+      /// <summary>
+      /// Gets a value indicating whether this <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> instance is busy.
+      /// </summary>
+      /// <value><c>true</c> if this instance is busy; otherwise, <c>false</c>.</value>
+      public bool IsBusy
+      {
+         get
+         {
+            // We attempt to fetch the window handle since it should have very little overhead, and if successful we know the client is responding
             try
             {
                INSHyperlink app = _objectDesigner as INSHyperlink;
                Int32 handle;
+               // If we can't retrieve an INSHyperlink reference then the likely hood is that the client is no longer valid.
+               // In this case we will return false because the client isn't waiting for anything.  Validity issues should be handled elsewhere.
                if (app == null)
-                  return _SyncLock;
-                  //throw new CSideException("Unable to determine client responsiveness");
+                  return false;
                app.GetNavWindowHandle(out handle);
-               // since we could retrieve the handle we know the client is responsive and return the sync object
-               return _SyncLock;
             }
             catch (COMException ex)
             {
-               if (ex.Message.IndexOf("RPC_E_CALL_REJECTED") == -1)
-                  throw ex;
+               // we received a call rejected error which means the client is busy
+               if (ex.Message.IndexOf("RPC_E_CALL_REJECTED") != -1)
+                  return true;
             }
-            Thread.Sleep(500);
+            return false;
          }
       }
 
