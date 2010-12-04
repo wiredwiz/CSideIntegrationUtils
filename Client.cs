@@ -35,19 +35,20 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private SynchronizationContext _Context;
       private EventHandler<CSideEventArgs> _Deactivated;
       private EventHandler<CSideEventArgs> _FormOpened;
-      private IObjectDesigner _objectDesigner;
+      private IObjectDesigner _ObjectDesigner;
       private Dictionary<NavObjectType, Dictionary<int, Object>> _Objects;
       private ApplicationEventSubscriber _Subscriber;
+      // The GUID constant is left for reference of those reading the project, but it isn't actually used here.
       private const string NavisionClientInterfaceGUID = "50000004-0000-1000-0004-0000836BD2D2";
-      private static Hashtable ObjectMap;
+      private static Hashtable _ObjectMap;
       private EventHandler<CSideEventArgs> _Activated;
       private EventHandler<CSideEventArgs> _DatabaseChanged;
       private EventHandler<CSideEventArgs> _CompanyChanged;
       private EventHandler<CSideEventArgs> _ServerChanged;
-      internal string PreviousCompany;
-      internal string PreviousDatabase;
-      internal ServerType PreviousServerType;
-      internal string PreviousServer;
+      internal string _PreviousCompany;
+      internal string _PreviousDatabase;
+      internal ServerType _PreviousServerType;
+      internal string _PreviousServer;
 
       #endregion Non-Public Fields
 
@@ -60,11 +61,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="objectDesigner">The object designer.</param>
       internal Client(IObjectDesigner objectDesigner)
       {
-         _objectDesigner = objectDesigner;
-         PreviousCompany = Company;
-         PreviousDatabase = Database;
-         PreviousServerType = ServerType;
-         PreviousServer = Server;
+         _ObjectDesigner = objectDesigner;
+         _PreviousCompany = Company;
+         _PreviousDatabase = Database;
+         _PreviousServerType = ServerType;
+         _PreviousServer = Server;
          _Context = SynchronizationContext.Current;
          lock (GetSyncObject())
             ConnectApplicationEvents();
@@ -75,7 +76,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       static Client()
       {
-         ObjectMap = new Hashtable();
+         _ObjectMap = new Hashtable();
       }
 
 
@@ -284,7 +285,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             // We attempt to fetch the window handle since it should have very little overhead, and if successful we know the client is responding
             try
             {
-               INSHyperlink app = _objectDesigner as INSHyperlink;
+               INSHyperlink app = _ObjectDesigner as INSHyperlink;
                Int32 handle;
                // If we can't retrieve an INSHyperlink reference then the likely hood is that the client is no longer valid.
                // In this case we will return false because the client isn't waiting for anything.  Validity issues should be handled elsewhere.
@@ -419,11 +420,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>A CSide <see cref="Client"/></returns>
       private static Client GetClientWrapper(IObjectDesigner designer)
       {
-         Client client = ObjectMap[designer] as Client;
+         Client client = _ObjectMap[designer] as Client;
          if (client == null)
          {
             client = new Client(designer);
-            ObjectMap[designer] = client;
+            _ObjectMap[designer] = client;
          }
          return client;
       }
@@ -486,7 +487,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private void ConnectApplicationEvents()
       {
          _Subscriber = new ApplicationEventSubscriber(this);
-         _Subscriber.Advise(ref _objectDesigner);
+         _Subscriber.Advise(ref _ObjectDesigner);
       }
 
       /// <summary>
@@ -683,7 +684,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          lock (GetSyncObject())
          {
-            int result = _objectDesigner.CompileObject((int)navObjectType, objectID);
+            int result = _ObjectDesigner.CompileObject((int)navObjectType, objectID);
             if (result != 0)
                throw CSideException.GetException(result);
          }
@@ -697,7 +698,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          lock (GetSyncObject())
          {
-            int result = _objectDesigner.CompileObjects(filter);
+            int result = _ObjectDesigner.CompileObjects(filter);
             if (result != 0)
                throw CSideException.GetException(result);
          }
@@ -714,7 +715,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             lock (GetSyncObject())
             {
                string companyName;
-               _objectDesigner.GetCompanyName(out companyName);
+               _ObjectDesigner.GetCompanyName(out companyName);
                if (string.IsNullOrEmpty(companyName))
                   return string.Empty;
                else
@@ -734,7 +735,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             lock (GetSyncObject())
             {
                string databaseName;
-               _objectDesigner.GetDatabaseName(out databaseName);
+               _ObjectDesigner.GetDatabaseName(out databaseName);
                if (string.IsNullOrEmpty(databaseName))
                   return string.Empty;
                else
@@ -754,7 +755,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             lock (GetSyncObject())
             {
                string serverName;
-               _objectDesigner.GetServerName(out serverName);
+               _ObjectDesigner.GetServerName(out serverName);
                if (string.IsNullOrEmpty(serverName))
                   return string.Empty;
                else
@@ -774,7 +775,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             lock (GetSyncObject())
             {
                int serverType = 0;
-               _objectDesigner.GetServerType(out serverType);
+               _ObjectDesigner.GetServerType(out serverType);
                return (ServerType)serverType;
             }
          }
@@ -791,7 +792,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             lock (GetSyncObject())
             {
                string csideVersion;
-               int result = _objectDesigner.GetCSIDEVersion(out csideVersion);
+               int result = _ObjectDesigner.GetCSIDEVersion(out csideVersion);
                if (result != 0)
                   throw CSideException.GetException(result);
                return csideVersion;
@@ -810,7 +811,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             lock (GetSyncObject())
             {
                string appVersion;
-               int result = _objectDesigner.GetApplicationVersion(out appVersion);
+               int result = _ObjectDesigner.GetApplicationVersion(out appVersion);
                if (result != 0)
                   throw CSideException.GetException(result);
                return appVersion;
@@ -830,7 +831,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             IStream pOutStm = null;
             CreateStreamOnHGlobal(0, true, out pOutStm);
-            int result = _objectDesigner.ReadObject((int)navObjectType, objectID, pOutStm);
+            int result = _ObjectDesigner.ReadObject((int)navObjectType, objectID, pOutStm);
             if (result != 0)
                throw CSideException.GetException(result);
             return ToMemoryStream(pOutStm);
@@ -846,7 +847,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          lock (GetSyncObject())
          {
             IStream source = ToIStream(stream);
-            int result = _objectDesigner.WriteObjects(source);
+            int result = _ObjectDesigner.WriteObjects(source);
             if (result != 0)
                throw CSideException.GetException(result);
          }
@@ -865,7 +866,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          lock (GetSyncObject())
          {
             INSTable table;
-            INSAppBase appBase = _objectDesigner as INSAppBase;
+            INSAppBase appBase = _ObjectDesigner as INSAppBase;
             if (appBase == null)
                return null;
             appBase.GetTable(tableID, out table);
@@ -882,7 +883,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          lock (GetSyncObject())
          {
-            INSAppBase appBase = _objectDesigner as INSAppBase;
+            INSAppBase appBase = _ObjectDesigner as INSAppBase;
             if (appBase == null)
                return;
             appBase.EnumTables(enumerator, tableID);
@@ -901,7 +902,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          Table result;
          INSTable backingTable;
-         INSAppBase appBase = _objectDesigner as INSAppBase;
+         INSAppBase appBase = _ObjectDesigner as INSAppBase;
          if (appBase == null)
             return null;
          CallbackEnumerator cbEnum = new CallbackEnumerator(this);
@@ -928,7 +929,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          lock (GetSyncObject())
          {
-            INSAppBase appBase = _objectDesigner as INSAppBase;
+            INSAppBase appBase = _ObjectDesigner as INSAppBase;
             if (appBase == null)
                return;
             int result = appBase.StartTrans();
@@ -945,7 +946,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          lock (GetSyncObject())
          {
-            INSAppBase appBase = _objectDesigner as INSAppBase;
+            INSAppBase appBase = _ObjectDesigner as INSAppBase;
             if (appBase == null)
                return;
             try
@@ -971,7 +972,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          lock (GetSyncObject())
          {
-            INSAppBase appBase = _objectDesigner as INSAppBase;
+            INSAppBase appBase = _ObjectDesigner as INSAppBase;
             if (appBase == null)
                return;
             appBase.proc6(flag);
@@ -995,7 +996,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             // It is recommended that you use FetchTable() to get a specific table.
             lock (GetSyncObject())
             {
-               INSAppBase appBase = _objectDesigner as INSAppBase;
+               INSAppBase appBase = _ObjectDesigner as INSAppBase;
                if (appBase == null)
                   return null;
                CallbackEnumerator cbEnum = new CallbackEnumerator(this);
@@ -1053,7 +1054,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             if (string.IsNullOrEmpty(link))
                return;
-            INSHyperlink app = _objectDesigner as INSHyperlink;
+            INSHyperlink app = _ObjectDesigner as INSHyperlink;
             if (app != null)
                app.Open(link);
          }
@@ -1069,7 +1070,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             lock (GetSyncObject())
             {
-               INSHyperlink app = _objectDesigner as INSHyperlink;
+               INSHyperlink app = _ObjectDesigner as INSHyperlink;
                Int32 handle;
                if (app == null)
                   return 0;
@@ -1094,7 +1095,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             lock (GetSyncObject())
             {
-               INSApplication app = _objectDesigner as INSApplication;
+               INSApplication app = _ObjectDesigner as INSApplication;
                if (app == null)
                   return null;
                INSForm form;
@@ -1133,8 +1134,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
          // free unmanaged resources
          DisconnectApplicationEvents();
-         if (_objectDesigner != null)
-            Marshal.ReleaseComObject(_objectDesigner);
+         if (_ObjectDesigner != null)
+            Marshal.ReleaseComObject(_ObjectDesigner);
       }
       #endregion
    }
