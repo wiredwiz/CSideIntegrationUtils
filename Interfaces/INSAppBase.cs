@@ -26,7 +26,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       int GetTable([In] int a, [Out, MarshalAs(UnmanagedType.Interface)] out INSTable table);
       int GetInfos(out string servername, out string databasename, out string company, out string username);
       int StartTrans(); //start the write transaction in the client
-      int proc6([In] bool a);
+      int EndTransaction([In] bool commit);
       int Error([In] string message);  //Display error in client, roll back the transaction
       int EnumTables([In, MarshalAs(UnmanagedType.Interface)] INSCallbackEnum a, [In] int flag); //meaning of flag is not known for me yet
    }
