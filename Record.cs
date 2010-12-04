@@ -94,7 +94,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          _Table.InitRecord(this);
          foreach (FieldValue field in _Fields.Values)
-            _Record.SetFieldValue(field.FieldNo, field.Value, false);
+            _Record.SetFieldValue(field.FieldNo, field._Value, false);
          _Table.Find(this);
       }
 

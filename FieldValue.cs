@@ -26,10 +26,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    {
 		#region Non-Public Fields (4) 
 
-      private string _DataType;
-      private Int32 _FieldNo;
+      internal string _DataType;
+      internal Int32 _FieldNo;
       private readonly Record _Record;
-      private string _Value;
+      internal string _Value;
 
 		#endregion Non-Public Fields 
 

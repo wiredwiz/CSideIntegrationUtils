@@ -30,7 +30,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    /// </summary>
    public class Client : IDisposable
    {
-      #region Non-Public Fields (16)
+      #region Non-Public Fields (17)
 
       private SynchronizationContext _Context;
       private EventHandler<CSideEventArgs> _Deactivated;
@@ -49,6 +49,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       internal string _PreviousDatabase;
       internal ServerType _PreviousServerType;
       internal string _PreviousServer;
+      private bool _TransactionInProgress;
 
       #endregion Non-Public Fields
 
@@ -935,6 +936,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             int result = appBase.StartTrans();
             if (result != 0)
                throw CSideException.GetException(result);
+            _TransactionInProgress = true;
          }
       }
 
@@ -964,19 +966,31 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// The purpose of this method is currently unknown.  Hopefully this can be discovered and later documented
+      /// Ends current the transaction.
       /// </summary>
-      /// <param name="flag">if set to <c>true</c> [flag].</param>
-      /// <remarks>I added this method (which corresponds to proc6()) so that people could experiment with it</remarks>
-      public void UnknownMethod(bool flag)
+      /// <param name="commitChanges">if set to <c>true</c> commits any pending modifications.</param>
+      public void EndTransaction(bool commitChanges)
       {
          lock (GetSyncObject())
          {
+            _TransactionInProgress = false;
             INSAppBase appBase = _ObjectDesigner as INSAppBase;
             if (appBase == null)
                return;
-            appBase.proc6(flag);
+            appBase.EndTransaction(commitChanges);
          }
+      }
+
+      /// <summary>
+      /// Commits the current transaction and automatically begins a new one.
+      /// </summary>
+      /// <remarks>If you need to simply commit the current changes during a transaction, this method should be used rather than EndTransaction</remarks>
+      public void Commit()
+      {
+         bool inProgress = _TransactionInProgress;
+         EndTransaction(true);
+         if (inProgress)
+            BeginTransaction();
       }
 
       /// <summary>
