@@ -205,19 +205,19 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public int OnCompanyDBChange()
       {
          // obtain previous settings
-         string previousDatabase = _Client.PreviousDatabase;
-         string previousCompany = _Client.PreviousCompany;
-         ServerType previousServerType = _Client.PreviousServerType;
-         string previousServer = _Client.PreviousServer;
+         string previousDatabase = _Client._PreviousDatabase;
+         string previousCompany = _Client._PreviousCompany;
+         ServerType previousServerType = _Client._PreviousServerType;
+         string previousServer = _Client._PreviousServer;
          string currentDatabase = _Client.Database;
          string currentCompany = _Client.Company;
          ServerType currentServerType = _Client.ServerType;
          string currentServer = _Client.Server;
          // set previous setting variables to the new values
-         _Client.PreviousDatabase = currentDatabase;
-         _Client.PreviousCompany = currentCompany;
-         _Client.PreviousServerType = currentServerType;
-         _Client.PreviousServer = currentServer;
+         _Client._PreviousDatabase = currentDatabase;
+         _Client._PreviousCompany = currentCompany;
+         _Client._PreviousServerType = currentServerType;
+         _Client._PreviousServer = currentServer;
          // determine if the previous values are different from any of our newer ones and trigger appropriate events
          if ((previousServer != currentServer) || (previousServerType != currentServerType))
             ThreadPool.QueueUserWorkItem(RaiseServerChangeEvent, new CSideEventArgs(previousServerType, previousServer, currentServerType, currentServer));
