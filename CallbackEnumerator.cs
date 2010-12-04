@@ -112,7 +112,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>An <see cref="System.Int32"/> representing an error code</returns>
       public int NextRecord(INSRec record)
       {
-         Record rec = new Record(record, _Manager as Table);
+         // Do not pass in the record variable to our CSide.Record constructor because its lifetime expires at the end of this method
+         // Instead lazy loading will reconstitute a longer lifetime version later as is needed
+         Record rec = new Record(null, _Manager as Table);
          CallbackEnumerator cbEnum = new CallbackEnumerator(rec);
          record.EnumFieldValues(cbEnum);
          rec._Fields = cbEnum.FieldValues;
