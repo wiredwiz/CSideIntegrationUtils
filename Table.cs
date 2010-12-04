@@ -216,10 +216,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// The purpose of this method is unknown.  Hopefully someone will discover and document it.
       /// </summary>
-      /// <param name="value">The value.</param>
-      public void Proc13(out int value)
+      /// <returns>Unknown</returns>
+      public int Proc13()
       {
-         _Table.proc13(out value);
+         lock (_Client.GetSyncObject())
+         {
+            int value;
+            int result = _Table.proc13(out value);
+            if (result != 0)
+               throw CSideException.GetException(result);
+            return value;
+         }
       }
 
 		#endregion Methods 
