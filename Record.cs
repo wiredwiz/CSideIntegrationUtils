@@ -108,18 +108,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Refreshes the record data.
-      /// </summary>
-      /// <remarks>This should always be called before modifying the record in any way, or if you just want the most recent data</remarks>
-      public void Refresh()
-      {
-         RehydrateRecord();
-         CallbackEnumerator cbEnum = new CallbackEnumerator(this);
-         _Record.EnumFieldValues(cbEnum);
-         _Fields = cbEnum.FieldValues;
-      }
-
-      /// <summary>
       /// Deletes this instance.
       /// </summary>
       public void Delete()
