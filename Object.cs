@@ -30,15 +30,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
 		#endregion Non-Public Fields 
 
-      /// <summary>
-      /// Refreshes this object instance.
-      /// </summary>
-      /// <remarks>This should always be called before accessing any properties if you must have the most up to date information</remarks>
-      public void Refresh()
-      {
-         _Record.Refresh();
-      }
-
 		#region Properties (9) 
 
       /// <summary>
