@@ -32,7 +32,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private UCOMIConnectionPoint _ConnectionPoint;
       private int _Cookie;
       private Guid _IID = new Guid("50000004-0000-1000-0004-0000836BD2D2");
-      private int _ReferenceCount;
 
       #endregion Non-Public Fields
 
@@ -121,13 +120,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public void Advise(ref IObjectDesigner source)
       {
          //   Late bind connection point subscription
-         if (++_ReferenceCount == 1)
-         {
-            //   Subscribe for connection point event
-            UCOMIConnectionPointContainer ConnectionPointContainer = source as UCOMIConnectionPointContainer;
-            ConnectionPointContainer.FindConnectionPoint(ref _IID, out _ConnectionPoint);
-            _ConnectionPoint.Advise(this, out _Cookie);
-         }
+         //   Subscribe for connection point event
+         UCOMIConnectionPointContainer container = source as UCOMIConnectionPointContainer;
+         container.FindConnectionPoint(ref _IID, out _ConnectionPoint);
+         _ConnectionPoint.Advise(this, out _Cookie);
       }
 
       /// <summary>
@@ -136,25 +132,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public void Unadvise()
       {
          //   Unsubscribe for connection point event upon last unadvise
-         if (--_ReferenceCount == 0)
-         {
-            try
-            {
-               _ConnectionPoint.Unadvise(_Cookie);
+         _ConnectionPoint.Unadvise(_Cookie);
+         _Cookie = 0;
 
-               //   Decrement RCW count and set reference to null
-               Marshal.ReleaseComObject(_ConnectionPoint);
-            }
-            catch (InvalidComObjectException)
-            {
-               // already disposed of, so we'll ignore it and move on
-            }
-            finally
-            {
-               _Cookie = 0;
-               _ConnectionPoint = null;
-            }
-         }
+         // Decrement RCW count and set reference to null
+         Marshal.ReleaseComObject(_ConnectionPoint);
+         _ConnectionPoint = null;
       }
 
       #endregion Methods
