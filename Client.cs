@@ -276,7 +276,43 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Gets a value indicating whether this <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> instance is busy.
+      /// Gets a value indicating whether the Dynamics Nav client associated with this instance is running.
+      /// </summary>
+      /// <value>
+      /// 	<c>true</c> if this instance is running; otherwise, <c>false</c>.
+      /// </value>
+      public bool IsRunning
+      {
+         get
+         {
+            // We attempt to fetch the window handle since it should have very little overhead, and if successful we know the client is responding
+            try
+            {
+               INSHyperlink app = _ObjectDesigner as INSHyperlink;
+               Int32 handle;
+               // If we can't retrieve an INSHyperlink reference then the likely hood is that the client is no longer valid.
+               // In this case we will return false because the client isn't waiting for anything.  Validity issues should be handled elsewhere.
+               if (app == null)
+                  return false;
+               app.GetNavWindowHandle(out handle);
+            }
+            catch (COMException ex)
+            {
+               // we received a call rejected error which means the client is busy
+               if (ex.ErrorCode == -2147023174)
+                  return false;
+            }
+            catch (InvalidComObjectException)
+            {
+               return false;
+            }
+            return true;
+         }
+      }
+      
+
+      /// <summary>
+      /// Gets a value indicating whether the Dynamics Nav client associated with instance is busy.
       /// </summary>
       /// <value><c>true</c> if this instance is busy; otherwise, <c>false</c>.</value>
       public bool IsBusy
@@ -306,9 +342,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       #endregion
 
-      #region Other Methods (22)
+      #region Other Methods (24)
 
-      // Static Methods (7) 
+      // Static Methods (9) 
 
       /// <summary>
       /// Returns a pointer to an implementation of IBindCtx (a bind context object).
@@ -421,6 +457,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>A CSide <see cref="Client"/></returns>
       private static Client GetClientWrapper(IObjectDesigner designer)
       {
+         if (designer == null)
+            return null;
          Client client = _ObjectMap[designer] as Client;
          if (client == null)
          {
@@ -440,16 +478,28 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       internal static extern void GetRunningObjectTable(int reserved, out IRunningObjectTable prot);
 
       /// <summary>
-      /// Gets the specific running Navision client instance that corresponds to the supplied server/database/company.
+      /// Disposes of all <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> instances.
       /// </summary>
-      /// <param name="server">The server.  If server is an empty string or <c>null</c>, it is ignored</param>
-      /// <param name="database">The database.  If database is an empty string or <c>null</c>, it is ignored</param>
-      /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
-      /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> instance corresponding to the server/database/company given</returns>
-      public static Client GetSpecificClient(string server, string database, string company)
+      public static void Cleanup()
+      {
+         foreach (Client client in _ObjectMap.Values)
+         {
+            client.Dispose(true);
+         }
+         _ObjectMap.Clear();
+      }
+
+      /// <summary>
+      /// Gets the specific <see cref="Org.Edgerunner.Dynamics.Nav.CSide.IObjectDesigner"/> instance that corresponds to the supplied serverType/server/database/company.
+      /// </summary>
+      /// <param name="serverType">The server type.</param>
+      /// <param name="server">The server.</param>
+      /// <param name="database">The database.</param>
+      /// <param name="company">The company.</param>
+      /// <returns>The matching <see cref="Org.Edgerunner.Dynamics.Nav.CSide.IObjectDesigner"/>.</returns>
+      internal static IObjectDesigner GetSpecificDesigner(ServerType serverType, string server, string database, string company)
       {
          List<object> runningObjects = GetActiveClientList();
-         Client client = null;
 
          foreach (IObjectDesigner designer in runningObjects)
          {
@@ -458,17 +508,19 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                try
                {
                   string currentDatabase;
+                  int currentServerType;
                   string currentServer;
                   string currentCompany;
+                  designer.GetServerType(out currentServerType);
                   designer.GetServerName(out currentServer);
                   designer.GetDatabaseName(out currentDatabase);
                   designer.GetCompanyName(out currentCompany);
-                  if ((string.IsNullOrEmpty(server) || (!string.IsNullOrEmpty(currentServer) && (server == currentServer))) &&
+                  if (((currentServerType == (int)ServerType.Unknown) || ((currentServerType != (int)ServerType.Unknown) && ((int)serverType == currentServerType))) &&
+                     (string.IsNullOrEmpty(server) || (!string.IsNullOrEmpty(currentServer) && (server == currentServer))) &&
                      (string.IsNullOrEmpty(database) || (!string.IsNullOrEmpty(currentDatabase) && (database == currentDatabase))) &&
                      (string.IsNullOrEmpty(company) || (!string.IsNullOrEmpty(currentCompany) && (company == currentCompany))))
                   {
-                     client = GetClientWrapper(designer);
-                     break;
+                     return designer;
                   }
                }
                catch (COMException ex)
@@ -477,7 +529,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                }
             }
          }
-         return client;
+         return null;
+      }
+
+      /// <summary>
+      /// Gets the specific running Navision client instance that corresponds to the supplied serverType/server/database/company.
+      /// </summary>
+      /// <param name="serverType">The server type.</param>
+      /// <param name="server">The server.  If server is an empty string or <c>null</c>, it is ignored</param>
+      /// <param name="database">The database.  If database is an empty string or <c>null</c>, it is ignored</param>
+      /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
+      /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> instance corresponding to the server/database/company given</returns>
+      public static Client GetSpecificClient(ServerType serverType, string server, string database, string company)
+      {
+         IObjectDesigner designer = GetSpecificDesigner(serverType, server, database, company);
+         return GetClientWrapper(designer);
       }
 
       // Private Methods (7) 
@@ -496,8 +562,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       private void DisconnectApplicationEvents()
       {
-         if (_Subscriber != null)
-            _Subscriber.Unadvise();
+         if (IsRunning)
+            if (_Subscriber != null)
+               _Subscriber.Unadvise();
          _Subscriber = null;
       }
 
