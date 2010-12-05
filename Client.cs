@@ -1035,7 +1035,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Ends current the transaction.
       /// </summary>
-      /// <param name="commitChanges">if set to <c>true</c> commits any pending modifications.</param>
+      /// <param name="commitChanges">if set to <c>true</c> any pending modifications are committed, else they are discarded.</param>
       public void EndTransaction(bool commitChanges)
       {
          lock (GetSyncObject())
