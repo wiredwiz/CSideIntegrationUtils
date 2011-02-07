@@ -71,6 +71,7 @@
     <Compile Include="CallbackEnumerator.cs" />
     <Compile Include="ApplicationEventSubscriber.cs" />
     <Compile Include="ChangeEventType.cs" />
+    <Compile Include="CSideError.cs" />
     <Compile Include="CSideEventArgs.cs" />
     <Compile Include="CSideException.cs" />
     <Compile Include="Field.cs" />

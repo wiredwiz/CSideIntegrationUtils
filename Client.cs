@@ -29,7 +29,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    /// Represents an instance of a Dynamics Nav client
    /// </summary>
    public class Client : IDisposable
-   {
+   {      
       #region Non-Public Fields (17)
 
       private SynchronizationContext _Context;
@@ -63,13 +63,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       internal Client(IObjectDesigner objectDesigner)
       {
          _ObjectDesigner = objectDesigner;
-         _PreviousCompany = Company;
-         _PreviousDatabase = Database;
-         _PreviousServerType = ServerType;
-         _PreviousServer = Server;
          _Context = SynchronizationContext.Current;
-         lock (GetSyncObject())
-            ConnectApplicationEvents();
+         ThreadPool.QueueUserWorkItem(InitializeVolatileData);         
       }
 
       /// <summary>
@@ -88,6 +83,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       ~Client()
       {
          Dispose(false);
+      }
+
+      private void InitializeVolatileData(object state)
+      {
+         Thread.Sleep(200); // in case client has opening dialog that hasn't registered yet
+         _PreviousCompany = Company;
+         _PreviousDatabase = Database;
+         _PreviousServerType = ServerType;
+         _PreviousServer = Server;
+         lock (GetSyncObject())
+            ConnectApplicationEvents();
       }
 
       #endregion Constructors/Deconstructors
@@ -298,9 +304,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
             catch (COMException ex)
             {
-               // we received a call rejected error which means the client is busy
-               if (ex.ErrorCode == -2147023174)
-                  return false;
+               // we received a call rejected or retry later error which means the client is busy
+               if ((ex.ErrorCode == CSideError.RPC_E_CALL_REJECTED) ||
+                   (ex.ErrorCode == CSideError.RPC_E_SERVERCALL_RETRYLATER))
+                  return true;
             }
             catch (InvalidComObjectException)
             {
@@ -332,8 +339,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
             catch (COMException ex)
             {
-               // we received a call rejected error which means the client is busy
-               if (ex.Message.IndexOf("RPC_E_CALL_REJECTED") != -1)
+               if ((ex.ErrorCode == CSideError.RPC_E_CALL_REJECTED) ||
+                   (ex.ErrorCode == CSideError.RPC_E_SERVERCALL_RETRYLATER))
                   return true;
             }
             return false;
