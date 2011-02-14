@@ -906,7 +906,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             IStream pOutStm = null;
             CreateStreamOnHGlobal(0, true, out pOutStm);
-            int result = _ObjectDesigner.ReadObject((int)navObjectType, objectID, pOutStm);
+            // We Use ReadObjects() here instead of ReadObject() because ReadObject() is very buggy and outputs bad files
+            int result = _ObjectDesigner.ReadObjects(string.Format("WHERE(Type=CONST({0}),ID=CONST({1}))", (int)navObjectType, objectID), pOutStm);
             if (result != 0)
                throw CSideException.GetException(result);
             return ToMemoryStream(pOutStm);

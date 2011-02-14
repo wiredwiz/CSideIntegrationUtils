@@ -25,6 +25,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
     internal interface IObjectDesigner
     {
         [PreserveSig, DispId(1)]
+        // ReadObject has bugs and should be avoided.  Instead, ReadObjects should be used
         int ReadObject([In] int objectType, [In] int objectId, [In] IStream destination);
         [PreserveSig, DispId(2)]
         int ReadObjects([In] string filter, [In] IStream destination);
