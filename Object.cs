@@ -131,6 +131,37 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
+      public bool Locked
+      {
+         get
+         {
+            try
+            {
+               return (int.Parse(_Record.FieldValues[40].Value) == 1);
+            }
+            catch (System.Collections.Generic.KeyNotFoundException ex)
+            {
+               return false;
+            }
+         }
+      }
+
+      public string LockedBy
+      {
+         get
+         {
+            try
+            {
+               return _Record.FieldValues[50].Value;
+
+            }
+            catch (System.Collections.Generic.KeyNotFoundException ex)
+            {
+               return string.Empty;
+            }
+         }
+      }
+
 		#endregion Properties 
 
 		#region Constructors/Deconstructors (1) 

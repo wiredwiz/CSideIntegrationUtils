@@ -21,7 +21,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    public static class CSideError
    {
-      public const int RPC_E_CALL_REJECTED = -2147023174;
+      public const int RPC_E_SERVERFAULT = -2147023174;
+      public const int RPC_E_CALL_REJECTED = -2147418111;
       public const int RPC_E_SERVERCALL_RETRYLATER = -2147417846;
    }
 }
