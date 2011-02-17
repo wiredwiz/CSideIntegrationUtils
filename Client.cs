@@ -29,8 +29,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    /// Represents an instance of a Dynamics Nav client
    /// </summary>
    public class Client : IDisposable
-   {      
-      #region Non-Public Fields (17)
+   {
+      #region Non-Public Fields (18)
 
       private SynchronizationContext _Context;
       private EventHandler<CSideEventArgs> _Deactivated;
@@ -50,6 +50,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       internal ServerType _PreviousServerType;
       internal string _PreviousServer;
       private bool _TransactionInProgress;
+      private bool _UseEvents;
 
       #endregion Non-Public Fields
 
@@ -61,10 +62,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <param name="objectDesigner">The object designer.</param>
       internal Client(IObjectDesigner objectDesigner)
+         : this(objectDesigner, true)
+      {
+      }
+
+      /// <summary>
+      /// Initializes a new instance of the Client class.
+      /// </summary>
+      /// <param name="objectDesigner"></param>
+      /// <param name="useEvents"></param>
+      internal Client(IObjectDesigner objectDesigner, bool useEvents)
       {
          _ObjectDesigner = objectDesigner;
+         _UseEvents = useEvents;
          _Context = SynchronizationContext.Current;
-         ThreadPool.QueueUserWorkItem(InitializeVolatileData);         
+         ThreadPool.QueueUserWorkItem(InitializeVolatileData);
       }
 
       /// <summary>
@@ -92,8 +104,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          _PreviousDatabase = Database;
          _PreviousServerType = ServerType;
          _PreviousServer = Server;
-         lock (GetSyncObject())
-            ConnectApplicationEvents();
+         if (_UseEvents)
+            lock (GetSyncObject())
+               ConnectApplicationEvents();
       }
 
       #endregion Constructors/Deconstructors
@@ -316,7 +329,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             return true;
          }
       }
-      
+
 
       /// <summary>
       /// Gets a value indicating whether the Dynamics Nav client associated with instance is busy.
@@ -440,8 +453,20 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Gets the current running Navision client instances.
       /// </summary>
-      /// <returns>A List of CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/>s</returns>
+      /// <returns>A List of CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see>s</returns>
       public static List<Client> GetClients()
+      {
+         return GetClients(true);
+      }
+
+      /// <summary>
+      /// Gets the current running Navision client instances.
+      /// </summary>
+      /// <returns>A List of CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see>s</returns>
+      /// <param name="useEvents">Indicates whether client event triggers should be hooked</param>
+      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter.
+      /// This means if you wish to be absolutely certain you should cleanup any existing client instances.</remarks>
+      public static List<Client> GetClients(bool useEvents)
       {
          List<object> runningObjects = GetActiveClientList();
          List<Client> sessions = new List<Client>();
@@ -450,7 +475,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             if (designer != null)
             {
-               Client client = GetClientWrapper(designer);
+               Client client = GetClientWrapper(designer, false);
                sessions.Add(client);
             }
          }
@@ -464,17 +489,29 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>A CSide <see cref="Client"/></returns>
       private static Client GetClientWrapper(IObjectDesigner designer)
       {
+         return GetClientWrapper(designer, true);
+      }
+
+      /// <summary>
+      /// Gets the current client wrapper for a given designer instance.  If one doesn't exist, a new one is created.
+      /// </summary>
+      /// <returns>A CSide <see cref="Client"></see></returns>
+      /// <param name="designer">The running object table designer instance to get a wrapper for.</param>
+      /// <param name="useEvents">Indicates whether the client should hook event triggers</param>
+      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter.
+      /// This means if you wish to be absolutely certain you should cleanup any existing client instances.</remarks>
+      private static Client GetClientWrapper(IObjectDesigner designer, bool useEvents)
+      {
          if (designer == null)
             return null;
          Client client = _ObjectMap[designer] as Client;
          if (client == null)
          {
-            client = new Client(designer);
+            client = new Client(designer, useEvents);
             _ObjectMap[designer] = client;
          }
          return client;
       }
-
       /// <summary>
       /// Returns a pointer to the IRunningObjectTable interface on the local running object table (ROT).
       /// </summary>
@@ -546,11 +583,29 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="server">The server.  If server is an empty string or <c>null</c>, it is ignored</param>
       /// <param name="database">The database.  If database is an empty string or <c>null</c>, it is ignored</param>
       /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
-      /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> instance corresponding to the server/database/company given</returns>
+      /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
+      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter.
+      /// This means if you wish to be absolutely certain you should cleanup any existing client instances.</remarks>
       public static Client GetSpecificClient(ServerType serverType, string server, string database, string company)
       {
+         return GetSpecificClient(serverType, server, database, company, true);
+      }
+
+      /// <summary>
+      /// Gets the specific running Navision client instance that corresponds to the supplied serverType/server/database/company.
+      /// </summary>
+      /// <param name="serverType">The server type.</param>
+      /// <param name="server">The server.  If server is an empty string or <c>null</c>, it is ignored</param>
+      /// <param name="database">The database.  If database is an empty string or <c>null</c>, it is ignored</param>
+      /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
+      /// <param name="useEvents">Indicates whether event triggers should be hooked</param>
+      /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
+      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter.
+      /// This means if you wish to be absolutely certain you should cleanup any existing client instances</remarks>
+      public static Client GetSpecificClient(ServerType serverType, string server, string database, string company, bool useEvents)
+      {
          IObjectDesigner designer = GetSpecificDesigner(serverType, server, database, company);
-         return GetClientWrapper(designer);
+         return GetClientWrapper(designer, useEvents);
       }
 
       // Private Methods (7) 
@@ -1128,6 +1183,36 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
          }
       }
+
+      public Dictionary<int, Object> FetchSpecificObject(int objectType, int objectID)
+      {
+         lock (GetSyncObject())
+         {
+            Dictionary<int, Object> objects = new Dictionary<int, Object>();
+            // first we fetch the Object table
+            Table table = FetchTable(2000000001);
+            if (table == null)
+               throw new CSideException("Unable to retrieve the Object table");
+            // Filter for blank company and objects of type other than tabledata
+            table.SetFilter(1, String.Format("={0}", objectType));
+            table.SetFilter(2, "=''");
+            if (objectID != 0)
+               table.SetFilter(3, String.Format("={0}", objectID));
+            List<Record> records = table.FetchRecords();
+            foreach (Record record in records)
+            {
+               Object nObject = new Object(record);
+               objects[nObject.ID] = nObject;
+            }
+            return objects;
+         }
+      }
+
+      public Dictionary<int, Object> FetchSpecificObject(int objectType)
+      {
+         int objectID = 0;
+         return FetchSpecificObject(objectType, objectID);
+      }
       #endregion
 
       #region INSHyperlink functionality
@@ -1222,7 +1307,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                      navObject.Dispose();
          }
          // free unmanaged resources
-         DisconnectApplicationEvents();
+         if (_UseEvents)
+            DisconnectApplicationEvents();
          if (_ObjectDesigner != null)
             Marshal.ReleaseComObject(_ObjectDesigner);
       }

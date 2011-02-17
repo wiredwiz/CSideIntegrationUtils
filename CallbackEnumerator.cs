@@ -17,6 +17,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
@@ -101,7 +102,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          _Records = new List<Record>();
       }
 
-		#endregion Constructors/Deconstructors 
+      #endregion Constructors/Deconstructors
+
+      private string CleanTimeValue(string value)
+      {
+         Regex regex = new Regex("(\\d{1,2}:\\d{1,2}:\\d{1,2})([.]\\d+)?(\\w*)",
+                           RegexOptions.CultureInvariant
+                           | RegexOptions.Compiled
+                           );
+
+         return regex.Replace(value, "$1$3");
+      }
 
       #region INSCallbackEnum Members
 
@@ -131,6 +142,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>An <see cref="System.Int32"/> representing an error code</returns>
       public int NextFieldValue(int fieldNo, string fieldValue, string dataType)
       {
+         if (dataType == "Time")
+            fieldValue = CleanTimeValue(fieldValue);
          _FieldValues.Add(fieldNo, new FieldValue(fieldNo, fieldValue, dataType, _Manager as Record));
          return 0;
       }
