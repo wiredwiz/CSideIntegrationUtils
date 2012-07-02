@@ -1,8 +1,6 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSideIntegrationUtils", "CSideIntegrationUtils.csproj", "{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}"
-EndProject
+
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Style Enforcer", "Code Style Enforcer", "{0BB9C820-B5D0-4EEA-9D81-22035E453EC0}"
 	ProjectSection(SolutionItems) = preProject
 		Code Style Enforcer\ImplementationRules.xml = Code Style Enforcer\ImplementationRules.xml
@@ -10,11 +8,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Style Enforcer", "Code
 		Code Style Enforcer\VisibilityRules.xml = Code Style Enforcer\VisibilityRules.xml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSideIntegrationUtils", "CSideIntegrationUtils.csproj", "{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}"
+EndProject
 Global
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
@@ -36,11 +32,11 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		CodeStyleEnforcer_RulesLocation = 1
-		CodeStyleEnforcer_Active = -1
-		BuildVersion_UpdateAssemblyVersion = True
-		BuildVersion_UpdateFileVersion = True
-		BuildVersion_BuildVersioningStyle = None.None.YearStamp.MonthAndDayStamp
 		BuildVersion_ConfigurationName = Release
+		BuildVersion_BuildVersioningStyle = None.None.YearStamp.MonthAndDayStamp
+		BuildVersion_UpdateFileVersion = True
+		BuildVersion_UpdateAssemblyVersion = True
+		CodeStyleEnforcer_Active = -1
+		CodeStyleEnforcer_RulesLocation = 1
 	EndGlobalSection
 EndGlobal
