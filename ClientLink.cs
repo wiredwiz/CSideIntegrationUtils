@@ -28,7 +28,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          Parse(link);
       }
 
-      public ServerType ServerType { get; set; }
+      public ConnectionServerType ServerType { get; set; }
       public string Server { get; set; }
       public string Database { get; set; }
       public string Company { get; set; }
@@ -39,7 +39,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public bool ForceNewInstance { get; set; }
       public bool NtAuthentication { get; set; }
       public string TempPath { get; set; }
-      public NetType NetType { get; set; }
+      public ConnectionNetType NetType { get; set; }
       public int ObjectCache { get; set; }
       public bool CommitCache { get; set; }
 
@@ -85,10 +85,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public override string ToString()
       {
          var link = new StringBuilder();
-         if (ServerType == ServerType.NAVISION && !string.IsNullOrEmpty(Database))
+         if (ServerType == ConnectionServerType.NAVISION && !string.IsNullOrEmpty(Database))
             link.AppendFormat("navision://client/run?servertype=NAVISION&database={0}&company={1}", Database, Company);
          else
-            link.AppendFormat("navision://client/run?servertype={0}&servername={1}&database={2}&company={3}", Enum.GetName(typeof(ServerType), ServerType), Server, Database, Company);
+            link.AppendFormat("navision://client/run?servertype={0}&servername={1}&database={2}&company={3}", Enum.GetName(typeof(ConnectionServerType), ServerType), Server, Database, Company);
          if (!string.IsNullOrEmpty(Target))
             link.Append(string.Format("&target={0}", Target));
          if (!string.IsNullOrEmpty(View))
@@ -99,15 +99,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             link.Append(string.Format("&requestform={0}", RequestForm ? "Yes" : "no"));
          if (ForceNewInstance)
             link.Append(string.Format("&forcenewinstance={0}", ForceNewInstance ? "Yes" : "no"));
-         if ((ServerType == ServerType.MSSQL) && NtAuthentication)
+         if ((ServerType == ConnectionServerType.MSSQL) && NtAuthentication)
             link.Append(string.Format("&ntauthentication={0}", NtAuthentication ? "Yes" : "no"));
          if (!string.IsNullOrEmpty(TempPath))
             link.Append(string.Format("&temppath={0}", TempPath));
-         if (NetType != NetType.@default)
-            link.Append(string.Format("nettype={0}", Enum.GetName(typeof(NetType), NetType)));
+         if (NetType != ConnectionNetType.@default)
+            link.Append(string.Format("nettype={0}", Enum.GetName(typeof(ConnectionNetType), NetType)));
          if (ObjectCache != 0)
             link.Append(string.Format("objectcache={0}", ObjectCache));
-         if ((ServerType == ServerType.NAVISION) && !CommitCache)
+         if ((ServerType == ConnectionServerType.NAVISION) && !CommitCache)
             link.Append(string.Format("&commitcache={0}", CommitCache ? "Yes" : "no"));
          return link.ToString();
       }
@@ -213,35 +213,35 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return result;
       }
 
-      private ServerType ParseServerTypeParameter(string value)
+      private ConnectionServerType ParseServerTypeParameter(string value)
       {
          switch (value.ToUpperInvariant())
          {
             case "MSSQL":
-               return ServerType.MSSQL;
+               return ConnectionServerType.MSSQL;
             case "NAVISION":
-               return ServerType.NAVISION;
+               return ConnectionServerType.NAVISION;
             default:
                throw new Exception(string.Format("'{0}' is not a valid option for parameter flag ServerType\nValid values are 'MSSQL' or 'NAVISION'", value));
          }
       }
 
-      private NetType ParseNetTypeParameter(string value)
+      private ConnectionNetType ParseNetTypeParameter(string value)
       {
          switch (value.ToLowerInvariant())
          {
             case "default":
-               return NetType.@default;
+               return ConnectionNetType.@default;
             case "namedpipes":
-               return NetType.namedpipes;
+               return ConnectionNetType.namedpipes;
             case "sockets":
-               return NetType.sockets;
+               return ConnectionNetType.sockets;
             case "tcp":
-               return NetType.tcp;
+               return ConnectionNetType.tcp;
             case "tcps":
-               return NetType.tcps;
+               return ConnectionNetType.tcps;
             case "netb":
-               return NetType.netb;
+               return ConnectionNetType.netb;
             default:
                throw new Exception(string.Format("'{0}' is not a valid option for parameter flag NetType\nValid values are 'default', 'namedpipes', 'sockets', 'tcp', 'tcps', or 'netb'", value));
          }
@@ -289,7 +289,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return true;
       }
 
-      public enum NetType
+      public enum ConnectionNetType
       {
          @default,
          tcp,
@@ -299,7 +299,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          sockets
       }
 
-      public enum ServerType
+      public enum ConnectionServerType
       {
          MSSQL,
          NAVISION
