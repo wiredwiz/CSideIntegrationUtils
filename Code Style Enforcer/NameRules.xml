@@ -1,139 +1,77 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Rules xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="2.2.34.0" xmlns="http://joel.fjorden.se/CodeStyleEnforcer">
-  <Rule CodeType="ReadonlyField">
-    <Prefix>_</Prefix>
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
-  </Rule>
-  <Rule CodeType="ConstantField">
-    <Prefix />
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
-  </Rule>
+<Rules xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="3.5.17.0" xmlns="http://joel.fjorden.se/CodeStyleEnforcer">
   <Rule CodeType="Field">
+    <Overrides>
+      <Item>
+        <Key>
+          <Modifier>
+            <Modifiers>Const</Modifiers>
+            <Visibility>All</Visibility>
+          </Modifier>
+        </Key>
+        <Value>
+          <Rule CodeType="Field" />
+        </Value>
+      </Item>
+      <Item>
+        <Key>
+          <Modifier>
+            <Modifiers>Readonly Static</Modifiers>
+            <Visibility>Public Internal</Visibility>
+          </Modifier>
+        </Key>
+        <Value>
+          <Rule CodeType="Field" />
+        </Value>
+      </Item>
+    </Overrides>
     <Prefix>_</Prefix>
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
-  </Rule>
-  <Rule CodeType="PrivateReadonlyField">
-    <Prefix>_</Prefix>
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
+    <AllowDigits>true</AllowDigits>
+    <AllowUnderscore>true</AllowUnderscore>
   </Rule>
   <Rule CodeType="Variable">
-    <Prefix />
-    <Suffix />
     <Case>Camel</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
   </Rule>
-  <Rule CodeType="EnumerationValue">
-    <Prefix />
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
+  <Rule CodeType="Parameter">
+    <Case>Camel</Case>
+    <AllowDigits>true</AllowDigits>
   </Rule>
-  <Rule CodeType="Class">
-    <Prefix />
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
+  <Rule CodeType="Property" />
+  <Rule CodeType="Method">
+    <Overrides>
+      <Item>
+        <Key>
+          <Modifier>
+            <Modifiers>Async</Modifiers>
+            <Visibility>All</Visibility>
+          </Modifier>
+        </Key>
+        <Value>
+          <Rule CodeType="Method">
+            <Suffix>Async</Suffix>
+          </Rule>
+        </Value>
+      </Item>
+    </Overrides>
+  </Rule>
+  <Rule CodeType="EventHandler">
+    <Prefix>On</Prefix>
+  </Rule>
+  <Rule CodeType="EnumerationValue" />
+  <Rule CodeType="Enumeration">
+    <AllowDigits>true</AllowDigits>
+    <AllowUnderscore>true</AllowUnderscore>
   </Rule>
   <Rule CodeType="Interface">
     <Prefix>I</Prefix>
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
   </Rule>
-  <Rule CodeType="Structure">
-    <Prefix />
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
-  </Rule>
-  <Rule CodeType="Enumeration">
-    <Prefix />
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>true</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
-  </Rule>
-  <Rule CodeType="Delegate">
-    <Prefix />
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
-  </Rule>
+  <Rule CodeType="Structure" />
+  <Rule CodeType="Class" />
+  <Rule CodeType="Delegate" />
   <Rule CodeType="Exception">
-    <Prefix />
     <Suffix>Exception</Suffix>
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
   </Rule>
   <Rule CodeType="Attribute">
-    <Prefix />
     <Suffix>Attribute</Suffix>
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
-  </Rule>
-  <Rule CodeType="Method">
-    <Prefix />
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
-  </Rule>
-  <Rule CodeType="Parameter">
-    <Prefix />
-    <Suffix />
-    <Case>Camel</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
-  </Rule>
-  <Rule CodeType="EventHandler">
-    <Prefix />
-    <Suffix>Handler</Suffix>
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
-  </Rule>
-  <Rule CodeType="Property">
-    <Prefix />
-    <Suffix />
-    <Case>Pascal</Case>
-    <AllowDigits>false</AllowDigits>
-    <AllowUnderscore>false</AllowUnderscore>
-    <AllowAccentedCharacters>true</AllowAccentedCharacters>
   </Rule>
 </Rules>
