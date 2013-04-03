@@ -6,9 +6,14 @@ using System.Runtime.InteropServices;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
-   [ComVisible(true)]
-   [ClassInterface(ClassInterfaceType.AutoDual)]
-   [Guid("948db886-b66f-4f40-bbb2-25f4e23d56bf")]
+
+   /// <summary>A class for parsing or building navision client links in a structured fashion</summary>
+   /// <keywords>
+   /// 	<keyword>Client</keyword>
+   /// 	<keyword flags="">Url</keyword>
+   /// 	<keyword>Link</keyword>
+   /// </keywords>
+   /// <seealso cref="!:http://msdn.microsoft.com/en-us/library/dd338856.aspx">Composing URLs</seealso>
    public class ClientLink
    {
       /// <summary>
@@ -28,21 +33,65 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          Parse(link);
       }
 
+      /// <summary>Indicates which server to connect to.</summary>
       public ConnectionServerType ServerType { get; set; }
+      /// <summary>Indicates which database server to which the Classic client or Microsoft Dynamics NAV Server connects.</summary>
       public string Server { get; set; }
+      /// <summary>Indicates which database file to access.</summary>
       public string Database { get; set; }
+      /// <summary>Indicates which company to open.</summary>
       public string Company { get; set; }
+      /// <summary>
+      /// 	<para>Indicates which object to run. Valid argument values are the following:</para>
+      /// 	<list type="bullet">
+      /// 		<item>
+      /// 			<para>form <em>xxx</em></para>
+      /// 		</item>
+      /// 		<item>
+      /// 			<para>form<em>xxx</em></para>
+      /// 		</item>
+      /// 		<item>
+      /// 			<para>Form <em>xxx</em></para>
+      /// 		</item>
+      /// 		<item>
+      /// 			<para>Form<em>xxx</em></para>
+      /// 		</item>
+      /// 		<item>
+      /// 			<para>report <em>xxx</em></para>
+      /// 		</item>
+      /// 		<item>
+      /// 			<para>report<em>xxx</em></para>
+      /// 		</item>
+      /// 		<item>
+      /// 			<para>Report <em>xxx</em></para>
+      /// 		</item>
+      /// 		<item>
+      /// 			<para>Report<em>xxx</em></para>
+      /// 		</item>
+      /// 	</list>
+      /// 	<para>Where <em>xxx</em> is either the object number or object name.</para>
+      /// </summary>
       public string Target { get; set; }
+      /// <summary>Indicates which filter to set. The format is the same as for the SourceTableView Property on a form.</summary>
       public string View { get; set; }
+      /// <summary>Indicates which record to select. The format is the same as for the SourceTablePlacement Property on a form.</summary>
       public string Position { get; set; }
+      /// <summary>Indicates whether a report should display its request form. The default value is no.</summary>
       public bool RequestForm { get; set; }
+      /// <summary>Indicates whether a new instance of the Classic client should be started regardless of whether a suitable instance is running. The default value is no.</summary>
       public bool ForceNewInstance { get; set; }
+      /// <summary>Indicates whether to use windows login authentication.  The default is database login.</summary>
       public bool NtAuthentication { get; set; }
+      /// <summary>Indicates the folder path to be used as the temp folder for the client.</summary>
       public string TempPath { get; set; }
+      /// <summary>Indicates the NetType to use for the client instance.</summary>
       public ConnectionNetType NetType { get; set; }
+      /// <summary>Indicates the size of the object cache to use.</summary>
       public int ObjectCache { get; set; }
+      /// <summary>Indicates whether commit cache should be active.</summary>
       public bool CommitCache { get; set; }
 
+      /// <summary>Attempts to open a Navision client instance using the link data contained within the current ClientLink instance.</summary>
       public void Open()
       {
          Client client = null;
@@ -82,6 +131,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
       }
 
+      /// <summary>Returns a constructed Navision client link string containing data from the current ClientLink instance.</summary>
       public override string ToString()
       {
          var link = new StringBuilder();
@@ -112,6 +162,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return link.ToString();
       }
 
+      /// <summary>
+      ///  Attempts to parse the provided Navision client link and populate the current instance with the parameter data
+      /// </summary>
+      /// <param name="link">A valid Navision client link</param>
+      /// <param name="message">A message that describes the reason for a failed parse.</param>
+      /// <returns>True if the provided link was valid Navision client link that parsed properly, False otherwise</returns>
       public bool Parse(string link, out string message)
       {
          message = string.Empty;
@@ -186,6 +242,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return true;
       }
 
+      /// <summary>
+      ///  Attempts to parse the provided Navision client link and populate the current instance with the parameter data
+      /// </summary>
+      /// <param name="link">A valid Navision client link</param>
+      /// <returns>True if the provided link was valid Navision client link that parsed properly, False otherwise</returns>
       public bool Parse(string link)
       {
          string result;
@@ -275,7 +336,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return parameterData.ToString();
       }
 
-      [ComVisible(false)]
       private bool ParseRunParameter(string runParameter, out string key, out string value)
       {
          key = string.Empty;
