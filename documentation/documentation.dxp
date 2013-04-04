@@ -17,11 +17,27 @@
   <AutoDocFiles />
   <ContentFromProjectPlugin />
   <Filters>
-    <ExcludedItems />
+    <ExcludedItems>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.ApplicationEventSubscriber</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.CallbackEnumerator</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.INSApplicationEvents</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.IErrorInfo</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.INSApplication</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.INSAppBase</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.INSRec</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.IObjectDesigner</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.INSCallbackEnum</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.INSTable</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.INSHyperlink</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.INSForm</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.INSMenuButtonEvents</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.INSMenuButton</ExcludedItem>
+      <ExcludedItem>Org.Edgerunner.Dynamics.Nav.CSide~Org.Edgerunner.Dynamics.Nav.CSide.INSHook</ExcludedItem>
+    </ExcludedItems>
   </Filters>
   <ComProjectPlugin />
   <AjaxProjectPlugin />
-  <DotNetAssemblies AddFiltersForPrivateTypes="true">
+  <DotNetAssemblies>
     <Assembly FileName="..\bin\Release\Org.Edgerunner.Dynamics.Nav.CSide.dll" RootTypeName="" />
   </DotNetAssemblies>
   <DatabaseProjectPlugin>
@@ -65,6 +81,11 @@
     <TopicCategories>
       <TopicCategory Id="-" AutoIndex="false">
         <Caption m="2009-09-11T10:57:19.7639331Z">(Un-categorized)</Caption>
+        <ChildTopicCategories />
+        <Topics />
+      </TopicCategory>
+      <TopicCategory Id="CONTENTSNIPPETS" AutoIndex="false">
+        <Caption m="2013-04-04T03:09:25.6839074Z">Content Snippets</Caption>
         <ChildTopicCategories />
         <Topics />
       </TopicCategory>
@@ -283,7 +304,7 @@
         <DiagramItemMaxRecurse>3</DiagramItemMaxRecurse>
         <GenerateDiagrams>true</GenerateDiagrams>
         <IsOverrideTemplateDiagramStyleEnabled>false</IsOverrideTemplateDiagramStyleEnabled>
-        <TemplateName></TemplateName>
+        <TemplateName>2012 Style</TemplateName>
         <IncludeBreadcrumbs>true</IncludeBreadcrumbs>
         <SourceContentUsage>Merge</SourceContentUsage>
         <UseSourceContent>true</UseSourceContent>
@@ -311,7 +332,7 @@
         <IsHelp3SigningEnabled>false</IsHelp3SigningEnabled>
         <IsHelp3ValidationEnabled>false</IsHelp3ValidationEnabled>
         <IsHelp3KeywordsEnabled>false</IsHelp3KeywordsEnabled>
-        <BrowserHelpTemplateName></BrowserHelpTemplateName>
+        <BrowserHelpTemplateName>2012 Style</BrowserHelpTemplateName>
         <IsCustomHtmlHelpWindowSettings>false</IsCustomHtmlHelpWindowSettings>
         <CustomHtmlHelpWindowSettings>
           <IsExpandVisible>true</IsExpandVisible>
