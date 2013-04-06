@@ -697,6 +697,18 @@
       <OutputDirectory></OutputDirectory>
     </ProjectProfile>
   </ProjectProfiles>
+  <BuildConfigurations>
+    <BuildConfiguration Id="14b14be3-37c3-4483-b8e1-eb8ea23b3292" Name="Normal">
+      <BuildConfigurationItems>
+        <BuildConfigurationItem ProjectProfileId="6b2cfb6d-7340-49af-9cfb-d31ec7a4a0d5" IsIncluded="true">
+          <ProjectLocale CultureId="-" />
+        </BuildConfigurationItem>
+        <BuildConfigurationItem ProjectProfileId="39caa9b0-295d-4fcc-9037-4bc5f2195e31" IsIncluded="false">
+          <ProjectLocale CultureId="-" />
+        </BuildConfigurationItem>
+      </BuildConfigurationItems>
+    </BuildConfiguration>
+  </BuildConfigurations>
   <HelpContextIDHeaderFile></HelpContextIDHeaderFile>
   <PrimaryLocale CultureId="-">
     <ExportDateTime></ExportDateTime>
