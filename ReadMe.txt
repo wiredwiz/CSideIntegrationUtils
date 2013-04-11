@@ -8,7 +8,7 @@ This bug only happens when the client events are subscribed to, and I suspect it
 CHANGE LOG
 
 Version 1.1 Alpha
-----------------
+-----------------
 Added IsBusy property to Client class
 Added IsRunning property to Client class
 Added Locking to the Client methods
@@ -23,3 +23,16 @@ Removed Refresh method from Record Class since lazy loading makes it pointless
 Made minor changes to various methods and variables
 Fixed bug where Client.Dispose() would not dispose properly
 Fixed bug where Error method on the Client would cause an exception to be immediately thrown
+
+Version 1.2 Alpha
+-----------------
+Created constants for error codes
+Added parameter to constructor parameter to control whether the client isntance would bind to client events
+Fixed bug in client ReadObjectToStream() method
+Added FetchSpecificObject() method to client
+Corrected formatting for Time values in record data
+Added Locked and LockedBy fields to Object class
+
+Version 1.3 Alpha
+-----------------
+Added ClientLink class
