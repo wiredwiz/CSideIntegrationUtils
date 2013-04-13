@@ -539,7 +539,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="database">The database.</param>
       /// <param name="company">The company.</param>
       /// <returns>The matching <see cref="Org.Edgerunner.Dynamics.Nav.CSide.IObjectDesigner"/>.</returns>
-      internal static IObjectDesigner GetSpecificDesigner(ServerType serverType, string server, string database, string company)
+      internal static IObjectDesigner GetDesigner(ServerType serverType, string server, string database, string company)
       {
          List<object> runningObjects = GetActiveClientList();
 
@@ -584,9 +584,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
       /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter.
       /// This means if you wish to be absolutely certain you should cleanup any existing client instances.</remarks>
-      public static Client GetSpecificClient(ServerType serverType, string server, string database, string company)
+      public static Client GetClient(ServerType serverType, string server, string database, string company)
       {
-         return GetSpecificClient(serverType, server, database, company, true);
+         return GetClient(serverType, server, database, company, true);
       }
 
       /// <summary>
@@ -600,9 +600,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
       /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter.
       /// This means if you wish to be absolutely certain you should cleanup any existing client instances</remarks>
-      public static Client GetSpecificClient(ServerType serverType, string server, string database, string company, bool useEvents)
+      public static Client GetClient(ServerType serverType, string server, string database, string company, bool useEvents)
       {
-         IObjectDesigner designer = GetSpecificDesigner(serverType, server, database, company);
+         IObjectDesigner designer = GetDesigner(serverType, server, database, company);
          return GetClientWrapper(designer, useEvents);
       }
 
