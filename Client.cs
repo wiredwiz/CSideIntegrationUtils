@@ -1230,7 +1230,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Opens the hyperlink within the Navision client instance.
       /// </summary>
       /// <param name="link">The hyperlink.</param>
-      /// <remarks>This hyperlink should be a navision hyperlink that corresponds to some object inside Navision</remarks>
+      /// <remarks>This hyperlink should be a navision hyperlink (begins with navision://client/run?). It can contain</remarks>
       public void OpenLink(string link)
       {
          lock (GetSyncObject())
