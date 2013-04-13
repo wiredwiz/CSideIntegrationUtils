@@ -123,7 +123,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private void FetchBackingTableIfNeeded()
       {
          if (_Table == null)
-            _Table = _Client.GetTable(TableID);
+            _Table = _Client.GetTableInternal(TableID);
       }
 		// Internal Methods (1) 
 

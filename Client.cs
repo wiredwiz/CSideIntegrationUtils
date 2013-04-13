@@ -990,7 +990,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <param name="tableNo">The table ID.</param>
       /// <returns>An instance of a <see cref="Org.Edgerunner.Dynamics.Nav.CSide.INSTable"/> or <c>null</c> if unable to get a reference</returns>
-      internal INSTable GetTable(int tableID)
+      internal INSTable GetTableInternal(int tableID)
       {
          lock (GetSyncObject())
          {
@@ -1230,7 +1230,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Opens the hyperlink within the Navision client instance.
       /// </summary>
       /// <param name="link">The hyperlink.</param>
-      /// <remarks>This hyperlink should be a navision hyperlink (begins with navision://client/run?). It can contain</remarks>
+      /// <remarks>This hyperlink should be a navision hyperlink (begins with navision://client/run?). It may contain instructions to open a specific form or report as well as a
+      /// pointer to a specific record.  You may use the <see cref="ClientLink"/> class to easily construct valid client links.</remarks>
       public void OpenLink(string link)
       {
          lock (GetSyncObject())
