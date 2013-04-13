@@ -27,7 +27,7 @@ Fixed bug where Error method on the Client would cause an exception to be immedi
 Version 1.2 Alpha
 -----------------
 Created constants for error codes
-Added parameter to constructor parameter to control whether the client isntance would bind to client events
+Added parameter to constructor to control whether the client instance would bind to client events
 Fixed bug in client ReadObjectToStream() method
 Added FetchSpecificObject() method to client
 Corrected formatting for Time values in record data
@@ -36,7 +36,6 @@ Added Locked and LockedBy fields to Object class
 Version 1.3 Alpha
 -----------------
 Added ClientLink class
-
 Version 1.4 Alpha
 -----------------
 Renamed Client.FetchSpecificObjects methods to GetObjects and GetObject
