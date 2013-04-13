@@ -1,0 +1,45 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Style Enforcer", "Code Style Enforcer", "{0BB9C820-B5D0-4EEA-9D81-22035E453EC0}"
+	ProjectSection(SolutionItems) = preProject
+		Code Style Enforcer\ImplementationRules.xml = Code Style Enforcer\ImplementationRules.xml
+		Code Style Enforcer\NameRules.xml = Code Style Enforcer\NameRules.xml
+		Code Style Enforcer\VisibilityRules.xml = Code Style Enforcer\VisibilityRules.xml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSideIntegrationUtils", "CSideIntegrationUtils.csproj", "{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}"
+EndProject
+Global
+	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+		Description = C/Side Integration Utilities
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}.Debug|x86.ActiveCfg = Debug|x86
+		{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}.Debug|x86.Build.0 = Debug|x86
+		{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}.Release|x86.ActiveCfg = Release|x86
+		{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		BuildVersion_ConfigurationName = Any
+		BuildVersion_BuildVersioningStyle = None.None.None.None
+		BuildVersion_UpdateFileVersion = False
+		BuildVersion_UpdateAssemblyVersion = False
+		CodeStyleEnforcer_Active = -1
+		CodeStyleEnforcer_RulesLocation = 1
+	EndGlobalSection
+EndGlobal
