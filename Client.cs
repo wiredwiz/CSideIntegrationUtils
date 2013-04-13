@@ -19,6 +19,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
@@ -97,6 +98,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          Dispose(false);
       }
 
+      /// <summary>Intitializes data about the current client instance for use in comparison for change events.</summary>
       private void InitializeVolatileData(object state)
       {
          Thread.Sleep(200); // in case client has opening dialog that hasn't registered yet
@@ -450,22 +452,18 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
 
-      /// <summary>
-      /// Gets the current running Navision client instances.
-      /// </summary>
+      /// <summary>Gets a List of the current running Navision client instances.</summary>
       /// <returns>A List of CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see>s</returns>
       public static List<Client> GetClients()
       {
          return GetClients(true);
       }
 
-      /// <summary>
-      /// Gets the current running Navision client instances.
-      /// </summary>
-      /// <returns>A List of CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see>s</returns>
+      /// <summary>Gets a List of the current running Navision client instances.</summary>
       /// <param name="useEvents">Indicates whether client event triggers should be hooked</param>
       /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter.
       /// This means if you wish to be absolutely certain you should cleanup any existing client instances.</remarks>
+      /// <returns>A List of CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see>s</returns>
       public static List<Client> GetClients(bool useEvents)
       {
          List<object> runningObjects = GetActiveClientList();
@@ -1029,7 +1027,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>A <see cref="Table"/> instance</returns>
       /// <remarks>Attempts to retrieve the table name via EnumTables(), but some table names cannot be obtained this way.
       /// If the name cannot be retrieved then it is set to "[Name Unavailable]".  This is usually only for some virtual tables.</remarks>
-      public Table FetchTable(int tableID)
+      public Table GetTable(int tableID)
       {
          Table result;
          INSTable backingTable;
@@ -1163,12 +1161,13 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                if (_Objects == null)
                {
                   // first we fetch the Object table
-                  Table table = FetchTable(2000000001);
+                  Table table = GetTable(2000000001);
                   if (table == null)
                      throw new CSideException("Unable to retrieve the Object table");
                   // Filter for blank company and objects of type other than tabledata
                   table.SetFilter(1, ">0");
                   table.SetFilter(2, "=''");
+                  // I'm leaving the below code as is instead of using LINQ for the readability of those new to C#
                   List<Record> records = table.FetchRecords();
                   _Objects = new Dictionary<NavObjectType, Dictionary<int, Object>>();
                   foreach (NavObjectType objectType in Enum.GetValues(typeof(NavObjectType)))
@@ -1184,34 +1183,44 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
-      public Dictionary<int, Object> FetchSpecificObject(int objectType, int objectID)
+      /// <summary>Retrieves a list of <see cref="Object"/>(s)</summary>
+      /// <param name="objectType">The object type to be retrieved</param>
+      /// <param name="objectID">The ID number of the object to retrieve</param>
+      /// <remarks>If you wish to retrieve all objects of a given type, the <see cref="objectID"/> should be 0.</remarks>
+      /// <returns>A List of objects</returns>
+      private List<Object> DoGetObjects(NavObjectType objectType, int objectID)
       {
          lock (GetSyncObject())
          {
-            Dictionary<int, Object> objects = new Dictionary<int, Object>();
             // first we fetch the Object table
-            Table table = FetchTable(2000000001);
+            var table = GetTable(2000000001);
             if (table == null)
                throw new CSideException("Unable to retrieve the Object table");
-            // Filter for blank company and objects of type other than tabledata
-            table.SetFilter(1, String.Format("={0}", objectType));
+            // Filter for the type of object we are fetching
+            table.SetFilter(1, String.Format("={0}", (int)objectType));
             table.SetFilter(2, "=''");
+            // Filter for the specific object number if it was specified
             if (objectID != 0)
                table.SetFilter(3, String.Format("={0}", objectID));
-            List<Record> records = table.FetchRecords();
-            foreach (Record record in records)
-            {
-               Object nObject = new Object(record);
-               objects[nObject.ID] = nObject;
-            }
-            return objects;
+            return table.FetchRecords().ConvertAll<Object>(x => new Object(x));
          }
       }
 
-      public Dictionary<int, Object> FetchSpecificObject(int objectType)
+      /// <summary>Retrieves a specific Object instance.</summary>
+      /// <param name="objectType">Object type you wish to retreive.</param>
+      /// <param name="objectID">ID number of the object you wish to retrieve.</param>
+      /// <returns>An Object instance.</returns>
+      public Object GetObject(NavObjectType objectType, int objectID)
       {
-         int objectID = 0;
-         return FetchSpecificObject(objectType, objectID);
+         return DoGetObjects(objectType, objectID).FirstOrDefault<Object>();
+      }
+
+      /// <summary>Retrieves a dictionary containing objects indexed by their object number.</summary>
+      /// <param name="objectType">Object type you wish to retreive.</param>
+      /// <returns>A dictionary of objects indexed by their number.</returns>
+      public Dictionary<int, Object> GetObjects(NavObjectType objectType)
+      {
+         return DoGetObjects(objectType, 0).ToDictionary<Object, int>(o => o.ID);
       }
       #endregion
 

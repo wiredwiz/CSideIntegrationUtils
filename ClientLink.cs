@@ -179,19 +179,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      ///  Attempts to parse the provided Navision client link and populate the current instance with the parameter data
+      ///  Attempts to parse the provided Navision client link and return a new ClientLink instance populated with data.
       /// </summary>
-      /// <param name="link">A valid Navision client link</param>
+      /// <param name="link">A valid Navision client link.</param>
       /// <param name="message">A message that describes the reason for a failed parse.</param>
-      /// <returns>True if the provided link was valid Navision client link that parsed properly, False otherwise</returns>
-      public bool Parse(string link, out string message)
+      /// <returns>A <see cref="ClientLink"/> instance populated with data from the provided link, or null if the parse failed.</returns>
+      public static ClientLink Parse(string link, out string message)
       {
+         ClientLink result = null;
          message = string.Empty;
          if (!link.StartsWith("navision://client/run?"))
-            return false;
+            return result;
          if (link.Length < 23)
-            return false;
+            return result;
          string candidate = link.Substring(22);
+         result = new ClientLink();
          while (true)
          {
             try
@@ -205,46 +207,46 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                   switch (key.ToLowerInvariant())
                   {
                      case "servertype":
-                        ServerType = ParseServerTypeParameter(value);
+                        result.ServerType = ParseServerTypeParameter(value);
                         break;
                      case "servername":
-                        Server = value;
+                        result.Server = value;
                         break;
                      case "database":
-                        Database = value;
+                        result.Database = value;
                         break;
                      case "company":
-                        Company = value;
+                        result.Company = value;
                         break;
                      case "target":
-                        Target = value;
+                        result.Target = value;
                         break;
                      case "view":
-                        View = value;
+                        result.View = value;
                         break;
                      case "position":
-                        Position = value;
+                        result.Position = value;
                         break;
                      case "requestform":
-                        RequestForm = ParseBooleanParameter(key, value);
+                        result.RequestForm = ParseBooleanParameter(key, value);
                         break;
                      case "forcenewinstance":
-                        ForceNewInstance = ParseBooleanParameter(key, value);
+                        result.ForceNewInstance = ParseBooleanParameter(key, value);
                         break;
                      case "ntauthentication":
-                        NtAuthentication = ParseBooleanParameter(key, value);
+                        result.NtAuthentication = ParseBooleanParameter(key, value);
                         break;
                      case "temppath":
-                        TempPath = value;
+                        result.TempPath = value;
                         break;
                      case "nettype":
-                        NetType = ParseNetTypeParameter(value);
+                        result.NetType = ParseNetTypeParameter(value);
                         break;
                      case "objectcache":
-                        ObjectCache = ParseIntParameter(key, value);
+                        result.ObjectCache = ParseIntParameter(key, value);
                         break;
                      case "commitcache":
-                        CommitCache = ParseBooleanParameter(key, value);
+                        result.CommitCache = ParseBooleanParameter(key, value);
                         break;
                      default:
                         throw new Exception("'{0}' is not a valid parameter flag");
@@ -255,21 +257,19 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                message = ex.Message;
             }
          }
-         return true;
+         return result;
       }
 
-      /// <summary>
-      ///  Attempts to parse the provided Navision client link and populate the current instance with the parameter data
-      /// </summary>
+      /// <summary>Attempts to parse the provided Navision client link and return a new ClientLink instance populated with data.</summary>
       /// <param name="link">A valid Navision client link</param>
-      /// <returns>True if the provided link was valid Navision client link that parsed properly, False otherwise</returns>
-      public bool Parse(string link)
+      /// <returns>A <see cref="ClientLink"/> instance populated with data from the provided link, or null if the parse failed.</returns>
+      public static ClientLink Parse(string link)
       {
          string result;
          return Parse(link, out result);
       }
 
-      private bool ParseBooleanParameter(string key, string value)
+      private static bool ParseBooleanParameter(string key, string value)
       {
          switch (value.ToLowerInvariant())
          {
@@ -282,7 +282,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
-      private int ParseIntParameter(string key, string value)
+      private static int ParseIntParameter(string key, string value)
       {
          int result;
          if (!int.TryParse(value, out result))
@@ -290,7 +290,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return result;
       }
 
-      private ConnectionServerType ParseServerTypeParameter(string value)
+      private static ConnectionServerType ParseServerTypeParameter(string value)
       {
          switch (value.ToUpperInvariant())
          {
@@ -303,7 +303,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
-      private ConnectionNetType ParseNetTypeParameter(string value)
+      private static ConnectionNetType ParseNetTypeParameter(string value)
       {
          switch (value.ToLowerInvariant())
          {
@@ -324,7 +324,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
-      private string GetNextRunParameter(ref string candidate)
+      private static string GetNextRunParameter(ref string candidate)
       {
          const char separator = '&';
          var parameterData = new StringBuilder();
@@ -352,7 +352,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return parameterData.ToString();
       }
 
-      private bool ParseRunParameter(string runParameter, out string key, out string value)
+      private static bool ParseRunParameter(string runParameter, out string key, out string value)
       {
          key = string.Empty;
          value = string.Empty;

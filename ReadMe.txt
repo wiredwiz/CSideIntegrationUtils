@@ -1,4 +1,4 @@
-﻿Release 1.0 Alpha
+﻿Release 1.4 Alpha
 
 Known Bugs
 --------------
@@ -36,3 +36,12 @@ Added Locked and LockedBy fields to Object class
 Version 1.3 Alpha
 -----------------
 Added ClientLink class
+
+Version 1.4 Alpha
+-----------------
+Renamed Client.FetchSpecificObjects methods to GetObjects and GetObject
+Refactored the code for GetObject and GetObjects
+Added missing documentation
+Renamed Client.FetchTable to GetTable
+Made all ClientLink.Parse methods static
+Made all ClientLink private parsing helper methods static
