@@ -1,5 +1,10 @@
 ﻿Release 1.4 Alpha
 
+To use the C/Side Integration Utilities you simply need to reference the library from your .Net project.  Once that is done you will need to get a Client instance that is bound 
+to the Navision client window you specify. There are a couple of ways to do this, the easiest being to call the Client.GetClient() method and specify the client you wish to retrieve 
+by its server, database, and company.  Once you have a client instance you can do all kinds of interesting things.  Don't forget to dispose of your client instance when you are 
+done with it, it is good practice to clean up after yourself (or enclose the whole block of code in a using statement if you can and the .Net framework will do it for you).
+
 Known Bugs
 --------------
 Currently when a Dynamics Nav instance becomes attached to a Client instance, it will refuse to restore the window (until the Client instance is disposed of) if it is minimized.
@@ -43,5 +48,8 @@ Renamed Client.FetchSpecificObjects methods to GetObjects and GetObject
 Refactored the code for GetObject and GetObjects
 Added missing documentation
 Renamed Client.FetchTable to GetTable
+Renamed old Client.GetTable method to GetTableInternal to avoid conflict
 Made all ClientLink.Parse methods static
 Made all ClientLink private parsing helper methods static
+Renamed Client.GetSpecificClient methods to GetClient
+Renamed Client.GetSpecificDesigner to GetDesigner

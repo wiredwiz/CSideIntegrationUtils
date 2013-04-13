@@ -29,7 +29,7 @@
         </Value>
       </Item>
     </Overrides>
-    <AllowedVisibility>Protected Private Explicit</AllowedVisibility>
+    <AllowedVisibility>Internal ProtectedInternal Protected Private Explicit</AllowedVisibility>
   </Rule>
   <Rule CodeType="Property">
     <AllowedVisibility>Public Internal ProtectedInternal Protected Private All Explicit</AllowedVisibility>
