@@ -36,6 +36,7 @@ Added Locked and LockedBy fields to Object class
 Version 1.3 Alpha
 -----------------
 Added ClientLink class
+
 Version 1.4 Alpha
 -----------------
 Renamed Client.FetchSpecificObjects methods to GetObjects and GetObject
