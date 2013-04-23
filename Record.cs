@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>
-   /// Represents a Record from a table in a Dynamics Nav client instance
+   /// Represents a Record from a table in a Dynamics Nav client instance.
    /// </summary>
    public class Record : IDisposable
    {

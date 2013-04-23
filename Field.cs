@@ -20,7 +20,7 @@ using System;
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>
-   /// Represents a table field in a Dynamics Nav client instance
+   /// Represents a table field in a Dynamics Nav client instance.
    /// </summary>
    public struct Field
    {
@@ -65,7 +65,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public string Type { get { return _Type; } }
 
       /// <summary>
-      /// The purpose of this value is currently unknown.  Hopefully it can be discovered and documented later
+      /// The purpose of this value is currently unknown.  Hopefully it can be discovered and documented later.
       /// </summary>
       /// <value>The unknown.</value>
       public int Unknown { get { return _Unknown; } }

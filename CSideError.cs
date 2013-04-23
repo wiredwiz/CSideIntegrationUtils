@@ -19,6 +19,7 @@ using System;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
+   /// <summary>A class that defines constants for the various error codes the client may return.</summary>
    public static class CSideError
    {
       public const int RPC_E_SERVERFAULT = -2147023174;
