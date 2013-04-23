@@ -20,7 +20,7 @@ using System;
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>
-   /// Represents the filter(s) for a field in a Dynamics Nav client instance
+   /// Represents the filter(s) for a field in a Dynamics Nav client instance.
    /// </summary>
    public struct Filter
    {

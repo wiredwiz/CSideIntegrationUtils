@@ -581,9 +581,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="server">The server.  If server is an empty string or <c>null</c>, it is ignored</param>
       /// <param name="database">The database.  If database is an empty string or <c>null</c>, it is ignored</param>
       /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
+      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter. This means if you wish to be absolutely certain
+      /// you should cleanup any existing client instances.  Also, if the instance you are trying to bind to is busy it will likely not be found.</remarks>
       /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
-      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter.
-      /// This means if you wish to be absolutely certain you should cleanup any existing client instances.</remarks>
       public static Client GetClient(ServerType serverType, string server, string database, string company)
       {
          return GetClient(serverType, server, database, company, true);
@@ -597,9 +597,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="database">The database.  If database is an empty string or <c>null</c>, it is ignored</param>
       /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
       /// <param name="useEvents">Indicates whether event triggers should be hooked</param>
+      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter. This means if you wish to be absolutely certain
+      /// you should cleanup any existing client instances. Also, if the instance you are trying to bind to is busy it will likely not be found.</remarks>
       /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
-      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter.
-      /// This means if you wish to be absolutely certain you should cleanup any existing client instances</remarks>
       public static Client GetClient(ServerType serverType, string server, string database, string company, bool useEvents)
       {
          IObjectDesigner designer = GetDesigner(serverType, server, database, company);
@@ -1124,11 +1124,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Gets the tables in the database the client is attached.
       /// </summary>
+      /// <remarks>The tables returned will include some (but not all) of the virtual tables in the database. Some virtual tables that this will not include can still be obtained
+      /// with a call to GetTable().</remarks>
       /// <value>The tables.</value>
-      /// <remarks>
-      /// The tables returned will include some (but not all) of the virtual tables in the database.
-      /// Some virtual tables that this will not include can still be obtained with a call to FetchTable().
-      /// </remarks>
       public Dictionary<Int32, Table> Tables
       {
          get
