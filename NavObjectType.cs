@@ -55,7 +55,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// A Page
       /// </summary>
-      Page = 8
+      Page = 8,
+      /// <summary>
+      /// A Query
+      /// </summary>
+      Query = 9
    }
 }
 
