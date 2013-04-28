@@ -473,7 +473,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             if (designer != null)
             {
-               Client client = GetClientWrapper(designer, false);
+               Client client = GetClientWrapper(designer, useEvents);
                sessions.Add(client);
             }
          }
