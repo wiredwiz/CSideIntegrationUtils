@@ -53,3 +53,11 @@ Made all ClientLink.Parse methods static
 Made all ClientLink private parsing helper methods static
 Renamed Client.GetSpecificClient methods to GetClient
 Renamed Client.GetSpecificDesigner to GetDesigner
+
+Version 1.4.2 Alpha
+-------------------
+Added back in the event hooking logic
+	It had been temporarily disconnected for testing and had mistakenly been left disconnected
+	The known bug with event hooks still exists.
+Changed library to use the .Net 4 Client Profile framework
+Added Query object type to the NavObjectType enumeration
