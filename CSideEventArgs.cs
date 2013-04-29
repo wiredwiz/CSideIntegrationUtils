@@ -24,7 +24,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    /// </summary>
    public class CSideEventArgs : EventArgs
    {
-		#region Properties (9) 
+		#region Properties (10) 
 
       /// <summary>
       /// Gets or sets the current company.
@@ -80,6 +80,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <value>The type of the previous server.</value>
       public ServerType PreviousServerType { get; set; }
 
+      /// <summary>
+      /// Argument used by unknown event
+      /// </summary>
+      public string UnknownArg { get; set; }
+
 		#endregion Properties 
 
 		#region Constructors/Deconstructors (4) 
@@ -113,6 +118,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             default:
                break;
          }
+      }
+
+      /// <summary>
+      /// Initializes a new instance of the CSideEventArgs class.
+      /// </summary>
+      public CSideEventArgs(Form form, string unknown)
+         : this(form)
+      {
+         UnknownArg = unknown;
       }
 
       /// <summary>
