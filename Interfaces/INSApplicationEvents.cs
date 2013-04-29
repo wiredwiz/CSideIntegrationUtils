@@ -35,7 +35,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="form">The form.</param>
       /// <param name="b">The b.</param>
       /// <returns></returns>
-      int proc4([In, MarshalAs(UnmanagedType.Interface)] INSForm form, [In] String b);
+      int OnUnknown([In, MarshalAs(UnmanagedType.Interface)] INSForm form, [In] String b);
       /// <summary>
       /// Called when client active status changes.
       /// </summary>

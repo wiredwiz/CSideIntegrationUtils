@@ -103,6 +103,16 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
+      /// A stub to raise the unknown event on a worker thread.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
+      private void RaiseUnknownEvent(object state)
+      {
+         _Client.RaiseUnknown(state as CSideEventArgs);
+      }
+
+      /// <summary>
       /// A stub to raise the ServerChanged event on a worker thread.
       /// </summary>
       /// <param name="state">The state.</param>
@@ -161,8 +171,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="form">The form.</param>
       /// <param name="b">The b.</param>
       /// <returns></returns>
-      public int proc4(INSForm form, string b)
+      public int OnUnknown(INSForm form, string b)
       {
+         CSideEventArgs args = new CSideEventArgs(new Form(_Client, form), b);
+         ThreadPool.QueueUserWorkItem(RaiseUnknownEvent, args);
          return 0;
       }
 

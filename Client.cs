@@ -36,6 +36,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private SynchronizationContext _Context;
       private EventHandler<CSideEventArgs> _Deactivated;
       private EventHandler<CSideEventArgs> _FormOpened;
+      private EventHandler<CSideEventArgs> _UnknownEvent;
       private IObjectDesigner _ObjectDesigner;
       private Dictionary<NavObjectType, Dictionary<int, Object>> _Objects;
       private ApplicationEventSubscriber _Subscriber;
@@ -115,7 +116,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       #region Delegates and Events (6)
 
-      #region Events (6)
+      #region Events (7)
 
       /// <summary>
       /// Occurs when the client instance gains focus.
@@ -226,6 +227,29 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             _FormOpened = (EventHandler<CSideEventArgs>)Delegate.Remove(_FormOpened, value);
             if (_FormOpened == null)  // No more listeners to this event
+            {
+               // TODO: Add code to clean up if necessary.
+            }
+         }
+      }
+
+      /// <summary>
+      /// Occurs when a form is opened inside the client instance.
+      /// </summary>
+      public event EventHandler<CSideEventArgs> UnknownEvent
+      {
+         add
+         {
+            if (_UnknownEvent == null)		// First listener...
+            {
+               // TODO: If needed, add code to respond to the first event hook-up.
+            }
+            _UnknownEvent = (EventHandler<CSideEventArgs>)Delegate.Combine(_UnknownEvent, value);
+         }
+         remove
+         {
+            _UnknownEvent = (EventHandler<CSideEventArgs>)Delegate.Remove(_UnknownEvent, value);
+            if (_UnknownEvent == null)  // No more listeners to this event
             {
                // TODO: Add code to clean up if necessary.
             }
@@ -678,7 +702,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Raises the Activated event.
       /// </summary>
-      /// <param name="args">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
       internal void RaiseActivated(CSideEventArgs args)
       {
          if (_Activated != null)
@@ -723,7 +747,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Raises the Deactivated event.
       /// </summary>
-      /// <param name="args">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
       internal void RaiseDeactivated(CSideEventArgs args)
       {
          if (_Deactivated != null)
@@ -738,11 +762,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Raises the FormOpened event.
       /// </summary>
-      /// <param name="form">The form.</param>
+      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
       internal void RaiseFormOpened(CSideEventArgs args)
       {
          if (_FormOpened != null)
             _FormOpened(this, args);
+      }
+
+      /// <summary>
+      /// Raises the unknown event.
+      /// </summary>
+      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
+      internal void RaiseUnknown(CSideEventArgs args)
+      {
+         if (_UnknownEvent != null)
+            _UnknownEvent(this, args);
       }
 
       /// <summary>
