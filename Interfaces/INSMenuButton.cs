@@ -23,7 +23,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    [ComImport, Guid("50000004-0000-1000-0008-0000836BD2D2"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
    internal interface INSMenuButton
    {
-      int proc3([In] string a);
-      int proc4([In] int a, [In] string b, [In] string c);
+      int AddButton([In] string caption);
+      int AddSubMenu([In] int indentLevel, [In] string caption, [In] string key);
    }
 }
