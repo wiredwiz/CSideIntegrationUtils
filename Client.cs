@@ -36,7 +36,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private SynchronizationContext _Context;
       private EventHandler<CSideEventArgs> _Deactivated;
       private EventHandler<CSideEventArgs> _FormOpened;
-      private EventHandler<CSideEventArgs> _UnknownEvent;
+      private EventHandler<CSideEventArgs> _ButtonClicked;
       private IObjectDesigner _ObjectDesigner;
       private Dictionary<NavObjectType, Dictionary<int, Object>> _Objects;
       private ApplicationEventSubscriber _Subscriber;
@@ -236,20 +236,20 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Occurs when a form is opened inside the client instance.
       /// </summary>
-      public event EventHandler<CSideEventArgs> UnknownEvent
+      public event EventHandler<CSideEventArgs> ButtonClicked
       {
          add
          {
-            if (_UnknownEvent == null)		// First listener...
+            if (_ButtonClicked == null)		// First listener...
             {
                // TODO: If needed, add code to respond to the first event hook-up.
             }
-            _UnknownEvent = (EventHandler<CSideEventArgs>)Delegate.Combine(_UnknownEvent, value);
+            _ButtonClicked = (EventHandler<CSideEventArgs>)Delegate.Combine(_ButtonClicked, value);
          }
          remove
          {
-            _UnknownEvent = (EventHandler<CSideEventArgs>)Delegate.Remove(_UnknownEvent, value);
-            if (_UnknownEvent == null)  // No more listeners to this event
+            _ButtonClicked = (EventHandler<CSideEventArgs>)Delegate.Remove(_ButtonClicked, value);
+            if (_ButtonClicked == null)  // No more listeners to this event
             {
                // TODO: Add code to clean up if necessary.
             }
@@ -773,10 +773,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Raises the unknown event.
       /// </summary>
       /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
-      internal void RaiseUnknown(CSideEventArgs args)
+      internal void RaiseButtonClick(CSideEventArgs args)
       {
-         if (_UnknownEvent != null)
-            _UnknownEvent(this, args);
+         if (_ButtonClicked != null)
+            _ButtonClicked(this, args);
       }
 
       /// <summary>

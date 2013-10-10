@@ -29,6 +29,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       int GetTable([Out, MarshalAs(UnmanagedType.Interface)] out INSTable table);
       int GetLanguageID(out int languageID);          // gets Language ID of application (1033, etc.)
       int GetButton([Out, MarshalAs(UnmanagedType.Interface)] out INSMenuButton menuButton); //never succeeded to call it correctly, each time end with error in NAV client...
-      int proc9();
+      int Update();
    }
 }
