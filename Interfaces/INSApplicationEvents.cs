@@ -33,9 +33,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// As yet unknown.
       /// </summary>
       /// <param name="form">The form.</param>
-      /// <param name="b">The b.</param>
+      /// <param name="buttonKey">The b.</param>
       /// <returns></returns>
-      int OnUnknown([In, MarshalAs(UnmanagedType.Interface)] INSForm form, [In] String b);
+      int OnButtonClick([In, MarshalAs(UnmanagedType.Interface)] INSForm form, [In] String buttonKey);
       /// <summary>
       /// Called when client active status changes.
       /// </summary>

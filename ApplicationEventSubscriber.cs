@@ -107,9 +107,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <param name="state">The state.</param>
       /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
-      private void RaiseUnknownEvent(object state)
+      private void RaiseButtonClickEvent(object state)
       {
-         _Client.RaiseUnknown(state as CSideEventArgs);
+         _Client.RaiseButtonClick(state as CSideEventArgs);
       }
 
       /// <summary>
@@ -166,15 +166,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// The purpose of this event is as yet unknown.  Hopefully this can be discovered and documented later.
+      /// Triggers when a button is clicked
       /// </summary>
       /// <param name="form">The form.</param>
-      /// <param name="b">The b.</param>
+      /// <param name="buttonKey">The button key.</param>
       /// <returns></returns>
-      public int OnUnknown(INSForm form, string b)
+      public int OnButtonClick(INSForm form, string buttonKey)
       {
-         CSideEventArgs args = new CSideEventArgs(new Form(_Client, form), b);
-         ThreadPool.QueueUserWorkItem(RaiseUnknownEvent, args);
+         CSideEventArgs args = new CSideEventArgs(new Form(_Client, form), buttonKey);
+         ThreadPool.QueueUserWorkItem(RaiseButtonClickEvent, args);
          return 0;
       }
 
