@@ -146,11 +146,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// The purpose of this method is currently unknown.
+      /// Saves the current form record and updates the form to display the latest data.
       /// </summary>
-      public void Proc9()
+      public void Update()
       {
-         _Form.proc9();
+         _Form.Update();
       }
 
 		#endregion Methods 
