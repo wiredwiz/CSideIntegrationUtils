@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Style Enforcer", "Code
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSideIntegrationUtils", "CSideIntegrationUtils.csproj", "{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSide Library Diagnostics Tool", "Diagnostics\CSide Library Diagnostics Tool.csproj", "{332C957C-F44A-454F-BF4B-FBEBECAAB904}"
+EndProject
 Global
 	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
 		SolutionIsControlled = True
@@ -30,16 +32,22 @@ Global
 		{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}.Release|x86.ActiveCfg = Release|x86
 		{7CE5FE97-DDD8-4B22-8E8C-608F179F35A6}.Release|x86.Build.0 = Release|x86
+		{332C957C-F44A-454F-BF4B-FBEBECAAB904}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{332C957C-F44A-454F-BF4B-FBEBECAAB904}.Debug|x86.ActiveCfg = Debug|x86
+		{332C957C-F44A-454F-BF4B-FBEBECAAB904}.Debug|x86.Build.0 = Debug|x86
+		{332C957C-F44A-454F-BF4B-FBEBECAAB904}.Release|Any CPU.ActiveCfg = Release|x86
+		{332C957C-F44A-454F-BF4B-FBEBECAAB904}.Release|x86.ActiveCfg = Release|x86
+		{332C957C-F44A-454F-BF4B-FBEBECAAB904}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		BuildVersion_ConfigurationName = Any
-		BuildVersion_BuildVersioningStyle = None.None.None.None
-		BuildVersion_UpdateFileVersion = False
-		BuildVersion_UpdateAssemblyVersion = False
-		CodeStyleEnforcer_Active = -1
 		CodeStyleEnforcer_RulesLocation = 1
+		CodeStyleEnforcer_Active = -1
+		BuildVersion_UpdateAssemblyVersion = False
+		BuildVersion_UpdateFileVersion = False
+		BuildVersion_BuildVersioningStyle = None.None.None.None
+		BuildVersion_ConfigurationName = Any
 	EndGlobalSection
 EndGlobal

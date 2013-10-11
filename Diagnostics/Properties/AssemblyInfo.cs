@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Org.Edgerunner.Dynamics.Nav.CSide")]
-[assembly: AssemblyDescription(".Net utilties for communicating with Dynamics Nav")]
+[assembly: AssemblyTitle("CSide Library Diagnostics Tool")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Edgerunner.org")]
-[assembly: AssemblyProduct("C/Side Integration Utilities")]
-[assembly: AssemblyCopyright("Copyright © Thaddeus L Ryker 2010")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("CSide Library Diagnostics Tool")]
+[assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f8767441-1978-40c0-a956-2f41510da299")]
+[assembly: Guid("c3ee2c8d-d9ad-4da9-9e96-25c7c79bf452")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -29,7 +29,8 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-// You can specify all the values or you can default the Revision and Build Numbers 
+// You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.4.8.1011")]
-[assembly: AssemblyFileVersion("1.4.8.1011")]
+// [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
