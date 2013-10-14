@@ -36,7 +36,7 @@ namespace CSide_Library_Diagnostics_Tool
 
       private void timer1_Tick(object sender, EventArgs e)
       {
-         var clients = Client.GetClients(false);
+         var clients = Client.GetClients(true);
          var clientSigs = new List<string>();
          foreach (var client in clients)
          {

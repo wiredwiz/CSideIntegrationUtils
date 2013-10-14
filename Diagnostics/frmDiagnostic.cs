@@ -50,7 +50,7 @@ namespace CSide_Library_Diagnostics_Tool
 
       void _Client_FormOpened(object sender, Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs e)
       {
-         LogData(string.Format("Form {0} opened", e.Form));
+         LogData(string.Format("Form {0} opened", e.Form.ID));
       }
 
       void _Client_Deactivated(object sender, Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs e)
