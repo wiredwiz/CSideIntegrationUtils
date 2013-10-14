@@ -20,17 +20,35 @@ namespace CSide_Library_Diagnostics_Tool
       private void timer1_Tick(object sender, EventArgs e)
       {
          var clients = Client.GetClients(false);
-         lstClients.Items.Clear();
+         var clientSigs = new List<string>();
          foreach (var client in clients)
          {
             if (!client.IsBusy)
             {
-               var item = new ListViewItem(new string[] { client.ServerType.ToString(), client.Server, client.Database, client.Company });
-               item.Tag = string.Format("{0}|{1}|{2}|{3}", client.ServerType.ToString(), client.Server, client.Database, client.Company);
-               lstClients.Items.Add(item);
+               string signature = string.Format("{0}|{1}|{2}|{3}", client.ServerType.ToString(), client.Server, client.Database, client.Company);
+               clientSigs.Add(signature);
+               bool found = false;
+               foreach (ListViewItem clientItem in lstClients.Items)
+               {
+                  if (clientItem.Name == signature)
+                  {
+                     found = true;
+                     break;
+                  }
+               }
+               if (!found)
+               {
+                  var item = new ListViewItem(new string[] { client.ServerType.ToString(), client.Server, client.Database, client.Company });
+                  item.Name = signature;
+                  lstClients.Items.Add(item);
+               }
             }
          }
-         //Client.Cleanup();
+         foreach (ListViewItem clientItem in lstClients.Items)
+         {
+            if (!clientSigs.Contains<string>(clientItem.Name))
+               lstClients.Items.RemoveByKey(clientItem.Name);
+         }
       }
 
       private void frmClientSessions_Load(object sender, EventArgs e)
@@ -55,7 +73,7 @@ namespace CSide_Library_Diagnostics_Tool
             MessageBox.Show("Please select a client session first");
             return;
          }
-         string[] id = lstClients.SelectedItems[0].Tag.ToString().Split(new char[] {'|'});
+         string[] id = lstClients.SelectedItems[0].Name.Split(new char[] {'|'});
          Client client;
          if (id[0] == "SQL")
             client = Client.GetClient(ServerType.SQL, id[1], id[2], id[3], true);
