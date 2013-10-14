@@ -63,16 +63,6 @@ namespace CSide_Library_Diagnostics_Tool.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap view_refresh_7 {
-            get {
-                object obj = ResourceManager.GetObject("view-refresh-7", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap view_refresh_71 {
             get {
                 object obj = ResourceManager.GetObject("view-refresh-71", resourceCulture);
