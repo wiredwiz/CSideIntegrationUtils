@@ -5,6 +5,13 @@ to the Navision client window you specify. There are a couple of ways to do this
 by its server, database, and company.  Once you have a client instance you can do all kinds of interesting things.  Don't forget to dispose of your client instance when you are 
 done with it, it is good practice to clean up after yourself (or enclose the whole block of code in a using statement if you can and the .Net framework will do it for you).
 
+Thanks to all these people for their contributions to the community.  Their contributions have helped to make this library possible.
+-------------------------------------------------------------------------------------------------------------------------------------
+Kamil Sacek - For providing a huge amount of the ground work in figuring out the various methods and events.
+Soren Nielsen - For providing the initial library that made use of many of the apis and opening my eyes to the fact that this was EVEN possible.
+Abhishek Pareek - For providing another library that used these apis.  It helped me get some ideas of how best to approach some of this library.
+Jan Pieter de Boer - For figuring out the INSMenuButton methods as AddButton and AddSubMenu, as well as the ButtonClicked event of the client.  Also figured out the unknown Form method was Update.
+
 Known Bugs
 --------------
 Currently when a Dynamics Nav instance becomes attached to a Client instance, it will refuse to restore the window (until the Client instance is disposed of) if it is minimized.
