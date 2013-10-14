@@ -689,12 +689,30 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
+      /// Posts the FormOpened event.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      private void PostFormOpenedEvent(object state)
+      {
+         _FormOpened(this, state as CSideEventArgs);
+      }
+
+      /// <summary>
       /// Posts the server changed event.
       /// </summary>
       /// <param name="state">The state.</param>
       private void PostServerChangedEvent(object state)
       {
          _ServerChanged(this, state as CSideEventArgs);
+      }
+
+      /// <summary>
+      /// Posts the button clicked event.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      private void PostButtonClickedEvent(object state)
+      {
+         _ButtonClicked(this, state as CSideEventArgs);
       }
 
       // Internal Methods (8) 
@@ -766,17 +784,25 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       internal void RaiseFormOpened(CSideEventArgs args)
       {
          if (_FormOpened != null)
-            _FormOpened(this, args);
+         {
+            if (_Context != null)
+               _Context.Post(PostFormOpenedEvent, args);
+            else
+               PostFormOpenedEvent(args);
+         }
       }
 
       /// <summary>
-      /// Raises the unknown event.
+      /// Raises the button clicked event.
       /// </summary>
       /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
       internal void RaiseButtonClick(CSideEventArgs args)
       {
          if (_ButtonClicked != null)
-            _ButtonClicked(this, args);
+            if (_Context != null)
+               _Context.Post(PostButtonClickedEvent, args);
+            else
+               PostButtonClickedEvent(args);
       }
 
       /// <summary>
