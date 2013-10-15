@@ -23,57 +23,62 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using CSide = Org.Edgerunner.Dynamics.Nav.CSide;
 
 namespace CSide_Library_Diagnostics_Tool
 {
    public partial class frmDiagnostic : Form
    {
-      Org.Edgerunner.Dynamics.Nav.CSide.Client _Client;
+      CSide.Client _Client;
 
       public frmDiagnostic()
       {
          InitializeComponent();
       }
 
-      public void SetClient(Org.Edgerunner.Dynamics.Nav.CSide.Client client)
+      public void SetClient(CSide.Client client)
       {
          _Client = client;
          Text = string.Format("Diagnostic - {0}", _Client.Company);
          UpdateClientData();
-         _Client.Activated += new EventHandler<Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs>(_Client_Activated);
-         _Client.Deactivated += new EventHandler<Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs>(_Client_Deactivated);
-         _Client.CompanyChanged += new EventHandler<Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs>(_Client_CompanyChanged);
-         _Client.DatabaseChanged += new EventHandler<Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs>(_Client_DatabaseChanged);
-         _Client.ServerChanged += new EventHandler<Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs>(_Client_ServerChanged);
-         _Client.FormOpened += new EventHandler<Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs>(_Client_FormOpened);
+         _Client.Activated += new EventHandler<CSide.CSideEventArgs>(_Client_Activated);
+         _Client.Deactivated += new EventHandler<CSide.CSideEventArgs>(_Client_Deactivated);
+         _Client.CompanyChanged += new EventHandler<CSide.CSideEventArgs>(_Client_CompanyChanged);
+         _Client.DatabaseChanged += new EventHandler<CSide.CSideEventArgs>(_Client_DatabaseChanged);
+         _Client.ServerChanged += new EventHandler<CSide.CSideEventArgs>(_Client_ServerChanged);
+         _Client.FormOpened += new EventHandler<CSide.CSideEventArgs>(_Client_FormOpened);
       }
 
-      void _Client_FormOpened(object sender, Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs e)
+      void _Client_FormOpened(object sender, CSide.CSideEventArgs e)
       {
          LogData(string.Format("Form {0} opened", e.Form.ID));
+         var currForm = _Client.GetObject(CSide.NavObjectType.Form, e.Form.ID);
+         txtFormName.Text = currForm != null ? currForm.Name : string.Empty;
+         var table = e.Form.GetTable();
+         txtSourceTable.Text = table != null ? table.Name : string.Empty;
       }
 
-      void _Client_Deactivated(object sender, Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs e)
+      void _Client_Deactivated(object sender, CSide.CSideEventArgs e)
       {
          LogData("Client window deactivated");
       }
 
-      void _Client_ServerChanged(object sender, Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs e)
+      void _Client_ServerChanged(object sender, CSide.CSideEventArgs e)
       {
          LogData(string.Format("Client server changed from {0} to {1}", e.PreviousServer, e.CurrentServer));
       }
 
-      void _Client_DatabaseChanged(object sender, Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs e)
+      void _Client_DatabaseChanged(object sender, CSide.CSideEventArgs e)
       {
          LogData(string.Format("Client database changed from {0} to {1}", e.PreviousDatabase, e.CurrentDatabase));
       }
 
-      void _Client_CompanyChanged(object sender, Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs e)
+      void _Client_CompanyChanged(object sender, CSide.CSideEventArgs e)
       {
          LogData(string.Format("Client company changed from {0} to {1}", e.PreviousCompany, e.CurrentCompany));
       }
 
-      void _Client_Activated(object sender, Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs e)
+      void _Client_Activated(object sender, CSide.CSideEventArgs e)
       {
          LogData("Client window activated");
       }
@@ -98,6 +103,18 @@ namespace CSide_Library_Diagnostics_Tool
       private void btnRefresh_Click(object sender, EventArgs e)
       {
          UpdateClientData();
+      }
+
+      private void btnFormOpen_Click(object sender, EventArgs e)
+      {
+         CSide.ClientLink link = new CSide.ClientLink();
+         link.ServerType = (_Client.ServerType == CSide.ServerType.SQL) ? CSide.ClientLink.ConnectionServerType.MSSQL : CSide.ClientLink.ConnectionServerType.NAVISION;
+         link.Server = _Client.Server;
+         link.Database = _Client.Database;
+         link.Company = _Client.Company;
+         link.NtAuthentication = true;
+         link.Target = string.Format("Form {0}", txtFormToOpen.Text);
+         link.Open();
       }
    }
 }

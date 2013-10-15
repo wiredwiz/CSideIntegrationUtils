@@ -42,6 +42,13 @@
          this.txtAppVersion = new System.Windows.Forms.TextBox();
          this.lstLog = new System.Windows.Forms.ListBox();
          this.btnRefresh = new System.Windows.Forms.Button();
+         this.label6 = new System.Windows.Forms.Label();
+         this.txtFormToOpen = new System.Windows.Forms.TextBox();
+         this.btnFormOpen = new System.Windows.Forms.Button();
+         this.label7 = new System.Windows.Forms.Label();
+         this.txtFormName = new System.Windows.Forms.TextBox();
+         this.txtSourceTable = new System.Windows.Forms.TextBox();
+         this.label8 = new System.Windows.Forms.Label();
          this.SuspendLayout();
          // 
          // txtServerName
@@ -139,10 +146,13 @@
          // 
          // lstLog
          // 
+         this.lstLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
          this.lstLog.FormattingEnabled = true;
          this.lstLog.Location = new System.Drawing.Point(15, 152);
          this.lstLog.Name = "lstLog";
-         this.lstLog.Size = new System.Drawing.Size(326, 303);
+         this.lstLog.Size = new System.Drawing.Size(668, 303);
          this.lstLog.TabIndex = 11;
          // 
          // btnRefresh
@@ -155,11 +165,79 @@
          this.btnRefresh.UseVisualStyleBackColor = true;
          this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
          // 
+         // label6
+         // 
+         this.label6.AutoSize = true;
+         this.label6.Location = new System.Drawing.Point(390, 13);
+         this.label6.Name = "label6";
+         this.label6.Size = new System.Drawing.Size(69, 13);
+         this.label6.TabIndex = 13;
+         this.label6.Text = "Open Form #";
+         // 
+         // txtFormToOpen
+         // 
+         this.txtFormToOpen.Location = new System.Drawing.Point(465, 9);
+         this.txtFormToOpen.Name = "txtFormToOpen";
+         this.txtFormToOpen.Size = new System.Drawing.Size(90, 20);
+         this.txtFormToOpen.TabIndex = 14;
+         this.txtFormToOpen.Text = "21";
+         // 
+         // btnFormOpen
+         // 
+         this.btnFormOpen.Location = new System.Drawing.Point(564, 7);
+         this.btnFormOpen.Name = "btnFormOpen";
+         this.btnFormOpen.Size = new System.Drawing.Size(91, 24);
+         this.btnFormOpen.TabIndex = 15;
+         this.btnFormOpen.Text = "Open";
+         this.btnFormOpen.UseVisualStyleBackColor = true;
+         this.btnFormOpen.Click += new System.EventHandler(this.btnFormOpen_Click);
+         // 
+         // label7
+         // 
+         this.label7.AutoSize = true;
+         this.label7.Location = new System.Drawing.Point(365, 39);
+         this.label7.Name = "label7";
+         this.label7.Size = new System.Drawing.Size(94, 13);
+         this.label7.TabIndex = 16;
+         this.label7.Text = "Last Form Opened";
+         // 
+         // txtFormName
+         // 
+         this.txtFormName.Location = new System.Drawing.Point(468, 35);
+         this.txtFormName.Name = "txtFormName";
+         this.txtFormName.ReadOnly = true;
+         this.txtFormName.Size = new System.Drawing.Size(187, 20);
+         this.txtFormName.TabIndex = 17;
+         // 
+         // txtSourceTable
+         // 
+         this.txtSourceTable.Location = new System.Drawing.Point(468, 58);
+         this.txtSourceTable.Name = "txtSourceTable";
+         this.txtSourceTable.ReadOnly = true;
+         this.txtSourceTable.Size = new System.Drawing.Size(187, 20);
+         this.txtSourceTable.TabIndex = 19;
+         // 
+         // label8
+         // 
+         this.label8.AutoSize = true;
+         this.label8.Location = new System.Drawing.Point(388, 61);
+         this.label8.Name = "label8";
+         this.label8.Size = new System.Drawing.Size(71, 13);
+         this.label8.TabIndex = 18;
+         this.label8.Text = "Source Table";
+         // 
          // frmDiagnostic
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(382, 464);
+         this.ClientSize = new System.Drawing.Size(695, 464);
+         this.Controls.Add(this.txtSourceTable);
+         this.Controls.Add(this.label8);
+         this.Controls.Add(this.txtFormName);
+         this.Controls.Add(this.label7);
+         this.Controls.Add(this.btnFormOpen);
+         this.Controls.Add(this.txtFormToOpen);
+         this.Controls.Add(this.label6);
          this.Controls.Add(this.btnRefresh);
          this.Controls.Add(this.lstLog);
          this.Controls.Add(this.label5);
@@ -196,5 +274,12 @@
       private System.Windows.Forms.TextBox txtAppVersion;
       private System.Windows.Forms.ListBox lstLog;
       private System.Windows.Forms.Button btnRefresh;
+      private System.Windows.Forms.Label label6;
+      private System.Windows.Forms.TextBox txtFormToOpen;
+      private System.Windows.Forms.Button btnFormOpen;
+      private System.Windows.Forms.Label label7;
+      private System.Windows.Forms.TextBox txtFormName;
+      private System.Windows.Forms.TextBox txtSourceTable;
+      private System.Windows.Forms.Label label8;
    }
 }
