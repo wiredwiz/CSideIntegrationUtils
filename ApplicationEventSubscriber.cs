@@ -17,6 +17,7 @@
 //
 using System;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
@@ -29,7 +30,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       #region Non-Public Fields (5)
 
       private Client _Client;
-      private UCOMIConnectionPoint _ConnectionPoint;
+      private IConnectionPoint _ConnectionPoint;
       private int _Cookie;
       private Guid _IID = new Guid("50000004-0000-1000-0004-0000836BD2D2");
 
@@ -131,7 +132,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          //   Late bind connection point subscription
          //   Subscribe for connection point event
-         UCOMIConnectionPointContainer container = source as UCOMIConnectionPointContainer;
+         IConnectionPointContainer container = source as IConnectionPointContainer;
          container.FindConnectionPoint(ref _IID, out _ConnectionPoint);
          _ConnectionPoint.Advise(this, out _Cookie);
       }
@@ -143,7 +144,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          //   Unsubscribe for connection point event upon last unadvise
          _ConnectionPoint.Unadvise(_Cookie);
-         _Cookie = 0;
+         _Cookie = -1;
 
          // Decrement RCW count and set reference to null
          Marshal.ReleaseComObject(_ConnectionPoint);
