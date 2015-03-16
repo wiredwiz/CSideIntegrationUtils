@@ -85,9 +85,19 @@ namespace CSide_Library_Diagnostics_Tool
 
       private void LogData(string logText)
       {
-         if (lstLog.Items.Count > 200)
-            lstLog.Items.RemoveAt(0);
-         lstLog.Items.Add(string.Format("[{0}] {1}", DateTime.Now.ToShortTimeString(), logText));
+         if (lstLog.InvokeRequired)
+            lstLog.Invoke(new Action(() =>
+               {
+                  if (lstLog.Items.Count > 200)
+                     lstLog.Items.RemoveAt(0);
+                  lstLog.Items.Add(string.Format("[{0}] {1}", DateTime.Now.ToShortTimeString(), logText));
+               }));
+         else
+         {
+            if (lstLog.Items.Count > 200)
+               lstLog.Items.RemoveAt(0);
+            lstLog.Items.Add(string.Format("[{0}] {1}", DateTime.Now.ToShortTimeString(), logText));
+         }
       }
 
       private void UpdateClientData()
