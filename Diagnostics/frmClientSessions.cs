@@ -92,13 +92,16 @@ namespace CSide_Library_Diagnostics_Tool
          }
          string[] id = lstClients.SelectedItems[0].Name.Split(new char[] {'|'});
          Client client;
-         if (id[0] == "SQL")
-            client = Client.GetClient(ServerType.SQL, id[1], id[2], id[3], true);
-         else
-            client = Client.GetClient(ServerType.Native, id[1], id[2], id[3], true);
+         client = Client.GetClient(id[0] == "SQL" ? ServerType.SQL : ServerType.Native, id[1], id[2], id[3], true);
          var diagnostic = new frmDiagnostic();
          diagnostic.SetClient(client);
-         diagnostic.Show();
+         diagnostic.ShowDialog();
+         client.Dispose();
+      }
+
+      private void frmClientSessions_FormClosing(object sender, FormClosingEventArgs e)
+      {
+         Client.Cleanup();
       }
    }
 }
