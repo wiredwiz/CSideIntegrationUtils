@@ -33,7 +33,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// As yet unknown.
       /// </summary>
       /// <param name="form">The form.</param>
-      /// <param name="buttonKey">The b.</param>
+      /// <param name="buttonKey">The button name.</param>
       /// <returns></returns>
       int OnButtonClick([In, MarshalAs(UnmanagedType.Interface)] INSForm form, [In] String buttonKey);
       /// <summary>

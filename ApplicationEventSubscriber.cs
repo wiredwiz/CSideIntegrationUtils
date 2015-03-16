@@ -142,12 +142,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       public void Unadvise()
       {
+         // Based on msdn, perhaps only one of the two call is necessary and not both.  It sounds like Unadvise triggers a call to Release
+         // on the com object potentially making ReleaseComObject redundant
+
          //   Unsubscribe for connection point event upon last unadvise
          _ConnectionPoint.Unadvise(_Cookie);
          _Cookie = -1;
 
          // Decrement RCW count and set reference to null
-         Marshal.ReleaseComObject(_ConnectionPoint);
+         //Marshal.ReleaseComObject(_ConnectionPoint);
          _ConnectionPoint = null;
       }
 
