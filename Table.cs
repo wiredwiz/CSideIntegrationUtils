@@ -17,6 +17,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
@@ -38,6 +39,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 		#region Properties (4) 
 
       /// <summary>
+      /// Gets and sets the culture to use for the table
+      /// </summary>
+      public CultureInfo Culture { get; set; }
+
+      /// <summary>
       /// Gets the fields.
       /// </summary>
       /// <value>The fields.</value>
@@ -47,7 +53,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             FetchBackingTableIfNeeded();
             CallbackEnumerator cbEnum = new CallbackEnumerator(this);
-            _Table.EnumFields(cbEnum, System.Globalization.CultureInfo.CurrentCulture.LCID);
+            _Table.EnumFields(cbEnum, Culture.LCID);
             return cbEnum.Fields;
          }
       }
@@ -97,6 +103,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="client"></param>
       public Table(Int32 tableNo, string name, Client client)
       {
+         Culture = CultureInfo.CurrentCulture;
          _Name = name;
          _Client = client;
          _TableID = tableNo;
