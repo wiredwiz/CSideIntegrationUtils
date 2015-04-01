@@ -859,6 +859,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return stream;
       }
 
+      /// <summary>
+      /// Returns a string that represents the current object.
+      /// </summary>
+      /// <returns>
+      /// A string that represents the current object.
+      /// </returns>
+      public override string ToString()
+      {
+         return String.Format(@"{0}\{1}-{2}", Server, Database, Company);
+      }
+
       #endregion Methods
 
       #region IObjectDesigner functionality
