@@ -347,6 +347,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                if ((ex.ErrorCode == CSideError.RPC_E_CALL_REJECTED) ||
                    (ex.ErrorCode == CSideError.RPC_E_SERVERCALL_RETRYLATER))
                   return true;
+
+               return false;
             }
             catch (InvalidComObjectException)
             {
