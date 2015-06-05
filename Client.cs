@@ -51,6 +51,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       internal string _PreviousDatabase;
       internal ServerType _PreviousServerType;
       internal string _PreviousServer;
+      internal uint _ProcessId;
       private bool _TransactionInProgress;
       private bool _UseEvents;
 
