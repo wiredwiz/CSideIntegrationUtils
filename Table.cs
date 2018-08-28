@@ -229,7 +229,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          lock (_Client.GetSyncObject())
          {
             int value;
-            int result = _Table.proc13(out value);
+            int result = _Table.Proc13(out value);
             if (result != 0)
                throw CSideException.GetException(result);
             return value;
