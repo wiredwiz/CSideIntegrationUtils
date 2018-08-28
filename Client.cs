@@ -1279,7 +1279,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>Retrieves a specific Object instance.</summary>
-      /// <param name="objectType">Object type you wish to retreive.</param>
+      /// <param name="objectType">Object type you wish to retrieve.</param>
       /// <param name="objectID">ID number of the object you wish to retrieve.</param>
       /// <returns>An Object instance.</returns>
       public Object GetObject(NavObjectType objectType, int objectID)
