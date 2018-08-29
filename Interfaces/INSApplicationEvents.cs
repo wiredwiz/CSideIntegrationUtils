@@ -1,6 +1,8 @@
-//
-// Copyright 2010 Thaddeus L Ryker
-//
+#region Apache 2.0 License
+
+// <copyright file="INSApplicationEvents.cs" company="Edgerunner.org">
+// Copyright 2010 Thaddeus Ryker
+// </copyright>
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,7 +16,9 @@
 // limitations under the License.
 //
 // Dynamics Nav is a registered trademark of the Microsoft Corporation
-//
+
+#endregion
+
 using System;
 using System.Runtime.InteropServices;
 
@@ -27,25 +31,28 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Called when a form is opened within the client.
       /// </summary>
       /// <param name="form">The form.</param>
-      /// <returns></returns>
+      /// <returns>An integer indicating success or failure where 0 is success and a non-zero value is an error code.</returns>
       int OnFormOpen([In, MarshalAs(UnmanagedType.Interface)] INSForm form);
+
       /// <summary>
       /// As yet unknown.
       /// </summary>
       /// <param name="form">The form.</param>
       /// <param name="buttonKey">The button name.</param>
-      /// <returns></returns>
+      /// <returns>An integer indicating success or failure where 0 is success and a non-zero value is an error code.</returns>
       int OnButtonClick([In, MarshalAs(UnmanagedType.Interface)] INSForm form, [In] String buttonKey);
+
       /// <summary>
       /// Called when client active status changes.
       /// </summary>
       /// <param name="active">if set to <c>true</c> [active].</param>
-      /// <returns></returns>
+      /// <returns>An integer indicating success or failure where 0 is success and a non-zero value is an error code.</returns>
       int OnActiveChanged([In] bool active);
+
       /// <summary>
       /// Called when the company and/or database is changed.
       /// </summary>
-      /// <returns></returns>
+      /// <returns>An integer indicating success or failure where 0 is success and a non-zero value is an error code.</returns>
       int OnCompanyDBChange();
    }
 }
