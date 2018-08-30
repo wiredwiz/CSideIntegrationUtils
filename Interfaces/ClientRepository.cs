@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -9,16 +10,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
 {
    public class ClientRepository
    {
-      private Dictionary<object, Client> _RunningClients;
+      private Dictionary<long, Client> _RunningClients;
 
       /// <summary>
       /// Initializes a new instance of the <see cref="ClientRepository"/> class.
       /// </summary>
       public ClientRepository()
       {
-         _RunningClients = new Dictionary<object, Client>();
-         var clients = GetActiveClientList();
-         
+         _RunningClients = new Dictionary<long, Client>();
+         GetClients();
       }
 
       [DllImport("user32.dll", SetLastError = true)]
@@ -46,43 +46,48 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
       [DllImport("ole32.dll")]
       private static extern void CreateBindCtx(int reserved, out IBindCtx ppbc);
 
+      private static long CreateKey(long windowHandle, uint processId)
+      {
+         long key = windowHandle;
+         key <<= 32;
+         key |= processId;
+         return key;
+      }
+
       /// <summary>
       /// Gets the active client list.
       /// </summary>
       /// <returns>A list of designer objects corresponding to running client instances</returns>
       /// <remarks>If there are multiple instances with the same database and company, only the first is exposed</remarks>
-      internal static List<object> GetActiveClientList()
+      protected virtual List<object> GetActiveClientList()
       {
-         List<object> clientList = new List<object>();
+         var clientList = new List<object>();
 
-         IntPtr numFetched = IntPtr.Zero;
+         var numFetched = IntPtr.Zero;
          IRunningObjectTable runningObjectTable = null;
          IEnumMoniker monikerEnumerator = null;
          IBindCtx ctx = null;
-         IMoniker[] monikers = new IMoniker[1];
+         var monikers = new IMoniker[1];
 
          try
          {
             GetRunningObjectTable(0, out runningObjectTable);
             runningObjectTable.EnumRunning(out monikerEnumerator);
             monikerEnumerator.Reset();
-            int clientNo = 0;
             while (monikerEnumerator.Next(1, monikers, numFetched) == 0)
             {
                CreateBindCtx(0, out ctx);
 
-               string runningObjectName;
-               monikers[0].GetDisplayName(ctx, null, out runningObjectName);
+               monikers[0].GetDisplayName(ctx, null, out var runningObjectName);
 
-               object runningObjectVal;
-               runningObjectTable.GetObject(monikers[0], out runningObjectVal);
+               runningObjectTable.GetObject(monikers[0], out var runningObjectVal);
 
-               if ((runningObjectName.IndexOf("!C/SIDE!navision://client/run?") != -1) &&
-                   !clientList.Contains(runningObjectVal))
-               {
-                  clientNo += 1;
-                  clientList.Add(runningObjectVal);
-               }
+               if (!string.IsNullOrEmpty(runningObjectName))
+                  if ((runningObjectName.IndexOf("!C/SIDE!navision://client/run?", StringComparison.Ordinal) != -1) &&
+                      !clientList.Contains(runningObjectVal))
+                  {
+                     clientList.Add(runningObjectVal);
+                  }
             }
          }
          finally
@@ -97,7 +102,52 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
          }
 
          return clientList;
+      }
 
+      protected virtual void UpdateClientCache(List<object> clientList)
+      {
+         // First remove all dead clients from our list by checking whether their process is alive
+         var pids = GetRunningProcessIds();
+         foreach (var pair in _RunningClients.ToList())
+         {
+            if (!pids.Contains(pair.Value.ProcessId))
+               _RunningClients.Remove(pair.Key);
+         }
+
+         // Now we loop through our new list of clients and reconcile it against our previously known clients
+         foreach (IObjectDesigner designer in clientList)
+         {
+            int handle;
+            try
+            {
+               INSHyperlink applicationInstance = designer as INSHyperlink;
+               // If we can't retrieve an INSHyperlink reference then the likely hood is that the client is no longer valid.
+               if (applicationInstance == null)
+                  continue;
+               applicationInstance.GetNavWindowHandle(out handle);
+            }
+            catch (Exception)
+            {
+               continue;
+            }
+
+            GetWindowThreadProcessId((IntPtr)handle, out var pid);
+            var key = CreateKey(handle, pid);
+            if (!_RunningClients.ContainsKey(key))
+               _RunningClients[key] = new Client(designer, false);
+         }
+      }
+
+      protected virtual List<int> GetRunningProcessIds()
+      {
+         return Process.GetProcesses().Select(p => p.Id).ToList();
+      }
+
+      public virtual List<Client> GetClients()
+      {
+         var designers = GetActiveClientList();
+         UpdateClientCache(designers);
+         return _RunningClients?.Values.ToList();
       }
    }
 }
