@@ -134,7 +134,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
             GetWindowThreadProcessId((IntPtr)handle, out var pid);
             var key = CreateKey(handle, pid);
             if (!_RunningClients.ContainsKey(key))
-               _RunningClients[key] = new Client(designer, false);
+               _RunningClients[key] = new Client(designer, false) { ProcessId = (int)pid };
          }
       }
 
