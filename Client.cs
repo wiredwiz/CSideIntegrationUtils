@@ -100,7 +100,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          Dispose(false);
       }
 
-      /// <summary>Intitializes data about the current client instance for use in comparison for change events.</summary>
+      /// <summary>Initializes data about the current client instance for use in comparison for change events.</summary>
       private void InitializeVolatileData(object state)
       {
          Thread.Sleep(200); // in case client has opening dialog that hasn't registered yet
@@ -284,6 +284,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       #endregion Delegates and Events
 
+      internal int ProcessId { get; set; }
+
+      internal IObjectDesigner Designer => _ObjectDesigner as IObjectDesigner;
+
       #region Locking support
 
       private object _SyncLock;
@@ -322,10 +326,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Gets a value indicating whether the Dynamics Nav client associated with this instance is running.
+      ///   Gets a value indicating whether the Dynamics Nav client associated with this instance is running.
       /// </summary>
       /// <value>
-      /// 	<c>true</c> if this instance is running; otherwise, <c>false</c>.
+      ///   <c>true</c> if this instance is running; otherwise, <c>false</c>.
       /// </value>
       public bool IsRunning
       {
