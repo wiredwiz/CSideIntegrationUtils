@@ -46,12 +46,18 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
       [DllImport("ole32.dll")]
       private static extern void CreateBindCtx(int reserved, out IBindCtx ppbc);
 
-      private static long CreateKey(long windowHandle, uint processId)
+      private static long PackKey(int windowHandle, uint processId)
       {
          long key = windowHandle;
          key <<= 32;
          key |= processId;
          return key;
+      }
+
+      private static void UnpackKey(long key, out int windowHandle, out int processId)
+      {
+         windowHandle = (int)(key >> 32);
+         processId = (int)key;
       }
 
       /// <summary>
@@ -132,7 +138,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
             }
 
             GetWindowThreadProcessId((IntPtr)handle, out var pid);
-            var key = CreateKey(handle, pid);
+            var key = PackKey(handle, pid);
             if (!_RunningClients.ContainsKey(key))
                _RunningClients[key] = new Client(designer, false) { ProcessId = (int)pid };
          }
