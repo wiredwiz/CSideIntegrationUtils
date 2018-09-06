@@ -6,3 +6,5 @@
 /Diagnostics/obj/x86/Debug
 /obj/Debug
 /SigningKey.pfx
+/bin/Debug
+/Diagnostics/bin/Debug
