@@ -60,7 +60,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
       private void RaiseActivateEvent(object state)
       {
-         _Client.RaiseActivated(state as CSideEventArgs);
+         //_Client.RaiseActivated(state as CSideEventArgs);
       }
 
       /// <summary>
@@ -90,7 +90,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
       private void RaiseDeactivateEvent(object state)
       {
-         _Client.RaiseDeactivated(state as CSideEventArgs);
+         //_Client.RaiseDeactivated(state as CSideEventArgs);
       }
 
       /// <summary>
@@ -100,7 +100,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
       private void RaiseFormOpenEvent(object state)
       {
-         _Client.RaiseFormOpened(state as CSideEventArgs);
+         //_Client.RaiseFormOpened(state as CSideEventArgs);
       }
 
       /// <summary>
@@ -110,7 +110,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
       private void RaiseButtonClickEvent(object state)
       {
-         _Client.RaiseButtonClick(state as CSideEventArgs);
+         //_Client.RaiseButtonClick(state as CSideEventArgs);
       }
 
       /// <summary>
