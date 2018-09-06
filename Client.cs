@@ -800,6 +800,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             INSAppBase appBase = _ObjectDesigner as INSAppBase;
             if (appBase == null)
                return;
+            if (_TransactionInProgress)
+               throw new CSideException("A transaction is already in progress.");
             int result = appBase.StartTrans();
             if (result != 0)
                throw CSideException.GetException(result);
