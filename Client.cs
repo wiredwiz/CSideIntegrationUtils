@@ -41,9 +41,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private ApplicationEventSubscriber _Subscriber;
       // The GUID constant is left for reference of those reading the project, but it isn't actually used here.
       private const string NavisionClientInterfaceGUID = "50000004-0000-1000-0004-0000836BD2D2";
-      private EventHandler<CSideEventArgs> _DatabaseChanged;
-      private EventHandler<CSideEventArgs> _CompanyChanged;
-      private EventHandler<CSideEventArgs> _ServerChanged;
+      private EventHandler<DatabaseChangedEventArgs> _DatabaseChanged;
+      private EventHandler<CompanyChangedEventArgs> _CompanyChanged;
+      private EventHandler<ServerChangedEventArgs> _ServerChanged;
       internal string _PreviousCompany;
       internal string _PreviousDatabase;
       internal ServerType _PreviousServerType;
@@ -95,7 +95,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Occurs when the client instance changes company.
       /// </summary>
-      public event EventHandler<NameChangeEventArgs> CompanyChanged
+      public event EventHandler<CompanyChangedEventArgs> CompanyChanged
       {
          add
          {
@@ -103,11 +103,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             {
                // TODO: If needed, add code to respond to the first event hook-up.
             }
-            _CompanyChanged = (EventHandler<CSideEventArgs>)Delegate.Combine(_CompanyChanged, value);
+            _CompanyChanged = (EventHandler<CompanyChangedEventArgs>)Delegate.Combine(_CompanyChanged, value);
          }
          remove
          {
-            _CompanyChanged = (EventHandler<CSideEventArgs>)Delegate.Remove(_CompanyChanged, value);
+            _CompanyChanged = (EventHandler<CompanyChangedEventArgs>)Delegate.Remove(_CompanyChanged, value);
             if (_CompanyChanged == null)  // No more listeners to this event
             {
                // TODO: Add code to clean up if necessary.
@@ -118,7 +118,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Occurs when the client instance changes database.
       /// </summary>
-      public event EventHandler<NameChangeEventArgs> DatabaseChanged
+      public event EventHandler<DatabaseChangedEventArgs> DatabaseChanged
       {
          add
          {
@@ -126,11 +126,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             {
                // TODO: If needed, add code to respond to the first event hook-up.
             }
-            _DatabaseChanged = (EventHandler<CSideEventArgs>)Delegate.Combine(_DatabaseChanged, value);
+            _DatabaseChanged = (EventHandler<DatabaseChangedEventArgs>)Delegate.Combine(_DatabaseChanged, value);
          }
          remove
          {
-            _DatabaseChanged = (EventHandler<CSideEventArgs>)Delegate.Remove(_DatabaseChanged, value);
+            _DatabaseChanged = (EventHandler<DatabaseChangedEventArgs>)Delegate.Remove(_DatabaseChanged, value);
             if (_DatabaseChanged == null)  // No more listeners to this event
             {
                // TODO: Add code to clean up if necessary.
@@ -141,7 +141,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Occurs when the client instance changes server.
       /// </summary>
-      public event EventHandler<CSideEventArgs> ServerChanged
+      public event EventHandler<ServerChangedEventArgs> ServerChanged
       {
          add
          {
@@ -149,11 +149,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             {
                // TODO: If needed, add code to respond to the first event hook-up.
             }
-            _ServerChanged = (EventHandler<CSideEventArgs>)Delegate.Combine(_ServerChanged, value);
+            _ServerChanged = (EventHandler<ServerChangedEventArgs>)Delegate.Combine(_ServerChanged, value);
          }
          remove
          {
-            _ServerChanged = (EventHandler<CSideEventArgs>)Delegate.Remove(_ServerChanged, value);
+            _ServerChanged = (EventHandler<ServerChangedEventArgs>)Delegate.Remove(_ServerChanged, value);
             if (_ServerChanged == null)  // No more listeners to this event
             {
                // TODO: Add code to clean up if necessary.
@@ -421,7 +421,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="state">The state.</param>
       private void PostCompanyChangedEvent(object state)
       {
-         _CompanyChanged(this, state as CSideEventArgs);
+         _CompanyChanged(this, state as CompanyChangedEventArgs);
       }
 
       /// <summary>
@@ -430,7 +430,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="state">The state.</param>
       private void PostDatabaseChangedEvent(object state)
       {
-         _DatabaseChanged(this, state as CSideEventArgs);
+         _DatabaseChanged(this, state as DatabaseChangedEventArgs);
       }
 
       /// <summary>
@@ -439,14 +439,14 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="state">The state.</param>
       private void PostServerChangedEvent(object state)
       {
-         _ServerChanged(this, state as CSideEventArgs);
+         _ServerChanged(this, state as ServerChangedEventArgs);
       }
 
       /// <summary>
       /// Raises the CompanyChanged.
       /// </summary>
       /// <param name="args">The <see cref="CSideEventArgs"/> instance containing the event data.</param>
-      internal void RaiseCompanyChanged(NameChangeEventArgs args)
+      internal void RaiseCompanyChanged(CompanyChangedEventArgs args)
       {
          if (_CompanyChanged != null)
          {
@@ -461,7 +461,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Raises the DatabaseChanged.
       /// </summary>
       /// <param name="args">The <see cref="CSideEventArgs"/> instance containing the event data.</param>
-      internal void RaiseDatabaseChanged(NameChangeEventArgs args)
+      internal void RaiseDatabaseChanged(DatabaseChangedEventArgs args)
       {
          if (_DatabaseChanged != null)
          {
@@ -476,7 +476,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Raises the ServerChanged event.
       /// </summary>
       /// <param name="args">The <see cref="CSideEventArgs"/> instance containing the event data.</param>
-      internal void RaiseServerChanged(CSideEventArgs args)
+      internal void RaiseServerChanged(ServerChangedEventArgs args)
       {
          if (_ServerChanged != null)
          {

@@ -16,12 +16,14 @@
 // limitations under the License.
 #endregion
 
+using System;
+
 namespace Org.Edgerunner.Dynamics.Nav.CSide.EventArguments
 {
    /// <summary>
    /// Class that represents event argument information when the server changes.
    /// </summary>
-   public class ServerChangedEventArgs
+   public class ServerChangedEventArgs : EventArgs
    {
       /// <summary>
       /// Initializes a new instance of the <see cref="ServerChangedEventArgs"/> class.
