@@ -10,7 +10,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
 {
    public class ClientRepository
    {
-      private Dictionary<long, Client> _RunningClients;
+      private static ClientRepository _Default;
+      private readonly Dictionary<long, Client> _RunningClients;
 
       /// <summary>
       /// Initializes a new instance of the <see cref="ClientRepository"/> class.
@@ -20,6 +21,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
          _RunningClients = new Dictionary<long, Client>();
          GetClients();
       }
+
+      public static ClientRepository Default => _Default ?? (_Default = new ClientRepository());
 
       [DllImport("user32.dll", SetLastError = true)]
       private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
@@ -88,12 +91,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
 
                runningObjectTable.GetObject(monikers[0], out var runningObjectVal);
 
-               if (!string.IsNullOrEmpty(runningObjectName))
-                  if ((runningObjectName.IndexOf("!C/SIDE!navision://client/run?", StringComparison.Ordinal) != -1) &&
+               if (!string.IsNullOrEmpty(runningObjectName) && (runningObjectName.IndexOf("!C/SIDE!navision://client/run?", StringComparison.Ordinal) != -1) &&
+                   (runningObjectName.IndexOf("database=", StringComparison.Ordinal) != -1) &&
                       !clientList.Contains(runningObjectVal))
                   {
                      clientList.Add(runningObjectVal);
                   }
+                  else if (runningObjectVal != null)
+                     Marshal.ReleaseComObject(runningObjectVal);
+
+               if (ctx != null)
+                     Marshal.ReleaseComObject(ctx);
             }
          }
          finally
@@ -140,13 +148,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
             GetWindowThreadProcessId((IntPtr)handle, out var pid);
             var key = PackKey(handle, pid);
             if (!_RunningClients.ContainsKey(key))
-               _RunningClients[key] = new Client(designer, false) { ProcessId = (int)pid };
+               _RunningClients[key] = new Client(designer) { ProcessId = (int)pid };
          }
       }
 
       protected virtual List<int> GetRunningProcessIds()
       {
-         return Process.GetProcesses().Select(p => p.Id).ToList();
+         var clientProcesses = new List<int>();
+         foreach (Process process in Process.GetProcesses())
+         {
+            if (string.Compare(process.ProcessName, "finsql", StringComparison.OrdinalIgnoreCase) == 0 ||
+                string.Compare(process.ProcessName, "fin", StringComparison.OrdinalIgnoreCase) == 0)
+               clientProcesses.Add(process.Id);
+         }
+
+         return clientProcesses;
       }
 
       public virtual List<Client> GetClients()
@@ -154,6 +170,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
          var designers = GetActiveClientList();
          UpdateClientCache(designers);
          return _RunningClients?.Values.ToList();
+      }
+
+      /// <summary>
+      /// Gets the specific running Navision client instance that corresponds to the supplied serverType/server/database/company.
+      /// </summary>
+      /// <param name="serverType">The server type.</param>
+      /// <param name="server">The server.  If server is an empty string or <c>null</c>, it is ignored</param>
+      /// <param name="database">The database.  If database is an empty string or <c>null</c>, it is ignored</param>
+      /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
+      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter. This means if you wish to be absolutely certain
+      /// you should cleanup any existing client instances. Also, if the instance you are trying to bind to is busy it will likely not be found.</remarks>
+      /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
+      public static Client GetClient(ServerType serverType, string server, string database, string company)
+      {
+         throw new NotImplementedException();
       }
    }
 }
