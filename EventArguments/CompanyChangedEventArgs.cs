@@ -1,5 +1,5 @@
 ﻿#region Apache License 2.0
-// <copyright company="Edgerunner.org" file="NameChangeEventArgs.cs">
+// <copyright company="Edgerunner.org" file="CompanyChangedEventArgs.cs">
 // Copyright (c) Thaddeus Ryker 2018
 // </copyright>
 // 
@@ -16,28 +16,22 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 namespace Org.Edgerunner.Dynamics.Nav.CSide.EventArguments
 {
-   public abstract class NameChangeEventArgs : EventArgs
+   /// <summary>
+   /// Class that represents event argument information when the company changes.
+   /// </summary>
+   /// <seealso cref="Org.Edgerunner.Dynamics.Nav.CSide.EventArguments.NameChangeEventArgs" />
+   public class CompanyChangedEventArgs : NameChangeEventArgs
    {
-      protected NameChangeEventArgs(string previousName, string newName)
+      /// <summary>
+      /// Initializes a new instance of the <see cref="CompanyChangedEventArgs"/> class.
+      /// </summary>
+      /// <param name="previousCompany">The previous company name.</param>
+      /// <param name="newCompany">The new company name.</param>
+      public CompanyChangedEventArgs(string previousCompany, string newCompany)
+         : base(previousCompany, newCompany)
       {
-         Previous = previousName;
-         New = newName;
       }
-
-      /// <summary>
-      /// Gets or sets the previous name.
-      /// </summary>
-      /// <value>The previous name.</value>
-      public string Previous { get; set; }
-
-      /// <summary>
-      /// Gets or sets the new name.
-      /// </summary>
-      /// <value>The new name.</value>
-      public string New { get; set; }
    }
 }

@@ -1,5 +1,5 @@
 ﻿#region Apache License 2.0
-// <copyright company="Edgerunner.org" file="NameChangeEventArgs.cs">
+// <copyright company="Edgerunner.org" file="DatabaseChangedEventArgs.cs">
 // Copyright (c) Thaddeus Ryker 2018
 // </copyright>
 // 
@@ -16,28 +16,22 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 namespace Org.Edgerunner.Dynamics.Nav.CSide.EventArguments
 {
-   public abstract class NameChangeEventArgs : EventArgs
+   /// <summary>
+   /// Class that represents event argument information when the database changes.
+   /// </summary>
+   /// <seealso cref="Org.Edgerunner.Dynamics.Nav.CSide.EventArguments.NameChangeEventArgs" />
+   public class DatabaseChangedEventArgs : NameChangeEventArgs
    {
-      protected NameChangeEventArgs(string previousName, string newName)
+      /// <summary>
+      /// Initializes a new instance of the <see cref="DatabaseChangedEventArgs"/> class.
+      /// </summary>
+      /// <param name="previousDatabase">The previous database name.</param>
+      /// <param name="newDatabase">The new database name.</param>
+      public DatabaseChangedEventArgs(string previousDatabase, string newDatabase)
+         : base(previousDatabase, newDatabase)
       {
-         Previous = previousName;
-         New = newName;
       }
-
-      /// <summary>
-      /// Gets or sets the previous name.
-      /// </summary>
-      /// <value>The previous name.</value>
-      public string Previous { get; set; }
-
-      /// <summary>
-      /// Gets or sets the new name.
-      /// </summary>
-      /// <value>The new name.</value>
-      public string New { get; set; }
    }
 }
