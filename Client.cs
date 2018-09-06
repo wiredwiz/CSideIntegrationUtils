@@ -34,16 +34,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       #region Non-Public Fields (18)
 
       private SynchronizationContext _Context;
-      private EventHandler<CSideEventArgs> _Deactivated;
-      private EventHandler<CSideEventArgs> _FormOpened;
-      private EventHandler<CSideEventArgs> _ButtonClicked;
       private IObjectDesigner _ObjectDesigner;
       private Dictionary<NavObjectType, Dictionary<int, Object>> _Objects;
       private ApplicationEventSubscriber _Subscriber;
       // The GUID constant is left for reference of those reading the project, but it isn't actually used here.
       private const string NavisionClientInterfaceGUID = "50000004-0000-1000-0004-0000836BD2D2";
-      private static Hashtable _ObjectMap;
-      private EventHandler<CSideEventArgs> _Activated;
       private EventHandler<CSideEventArgs> _DatabaseChanged;
       private EventHandler<CSideEventArgs> _CompanyChanged;
       private EventHandler<CSideEventArgs> _ServerChanged;
@@ -53,7 +48,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       internal string _PreviousServer;
       internal uint _ProcessId;
       private bool _TransactionInProgress;
-      private bool _UseEvents;
 
       #endregion Non-Public Fields
 
@@ -63,33 +57,13 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Initializes a new instance of the <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> class.
       /// </summary>
-      /// <param name="objectDesigner">The object designer.</param>
-      internal Client(IObjectDesigner objectDesigner)
-         : this(objectDesigner, true)
-      {
-      }
-
-      /// <summary>
-      /// Initializes a new instance of the Client class.
-      /// </summary>
       /// <param name="objectDesigner"></param>
-      /// <param name="useEvents"></param>
-      internal Client(IObjectDesigner objectDesigner, bool useEvents)
+      internal Client(IObjectDesigner objectDesigner)
       {
          _ObjectDesigner = objectDesigner;
-         _UseEvents = useEvents;
          _Context = SynchronizationContext.Current;
          ThreadPool.QueueUserWorkItem(InitializeVolatileData);
       }
-
-      /// <summary>
-      /// Initializes a new instance of the <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> class.
-      /// </summary>
-      static Client()
-      {
-         _ObjectMap = new Hashtable();
-      }
-
 
       /// <summary>
       /// Releases unmanaged resources and performs other cleanup operations before the
@@ -108,9 +82,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          _PreviousDatabase = Database;
          _PreviousServerType = ServerType;
          _PreviousServer = Server;
-         if (_UseEvents)
-            lock (GetSyncObject())
-               ConnectApplicationEvents();
       }
 
       #endregion Constructors/Deconstructors
@@ -120,32 +91,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       #region Events (7)
 
       /// <summary>
-      /// Occurs when the client instance gains focus.
-      /// </summary>
-      public event EventHandler<CSideEventArgs> Activated
-      {
-         add
-         {
-            if (_Activated == null)		// First listener...
-            {
-               // TODO: If needed, add code to respond to the first event hook-up.
-            }
-            _Activated = (EventHandler<CSideEventArgs>)Delegate.Combine(_Activated, value);
-         }
-         remove
-         {
-            _Activated = (EventHandler<CSideEventArgs>)Delegate.Remove(_Activated, value);
-            if (_Activated == null)  // No more listeners to this event
-            {
-               // TODO: Add code to clean up if necessary.
-            }
-         }
-      }
-
-      /// <summary>
       /// Occurs when the client instance changes company.
       /// </summary>
-      public event EventHandler<CSideEventArgs> CompanyChanged
+      public event EventHandler<NameChangeEventArgs> CompanyChanged
       {
          add
          {
@@ -168,7 +116,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Occurs when the client instance changes database.
       /// </summary>
-      public event EventHandler<CSideEventArgs> DatabaseChanged
+      public event EventHandler<NameChangeEventArgs> DatabaseChanged
       {
          add
          {
@@ -187,76 +135,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
          }
       }
-
-      /// <summary>
-      /// Occurs when the client instance loses focus.
-      /// </summary>
-      public event EventHandler<CSideEventArgs> Deactivated
-      {
-         add
-         {
-            if (_Deactivated == null)		// First listener...
-            {
-               // TODO: If needed, add code to respond to the first event hook-up.
-            }
-            _Deactivated = (EventHandler<CSideEventArgs>)Delegate.Combine(_Deactivated, value);
-         }
-         remove
-         {
-            _Deactivated = (EventHandler<CSideEventArgs>)Delegate.Remove(_Deactivated, value);
-            if (_Deactivated == null)  // No more listeners to this event
-            {
-               // TODO: Add code to clean up if necessary.
-            }
-         }
-      }
-
-      /// <summary>
-      /// Occurs when a form is opened inside the client instance.
-      /// </summary>
-      public event EventHandler<CSideEventArgs> FormOpened
-      {
-         add
-         {
-            if (_FormOpened == null)		// First listener...
-            {
-               // TODO: If needed, add code to respond to the first event hook-up.
-            }
-            _FormOpened = (EventHandler<CSideEventArgs>)Delegate.Combine(_FormOpened, value);
-         }
-         remove
-         {
-            _FormOpened = (EventHandler<CSideEventArgs>)Delegate.Remove(_FormOpened, value);
-            if (_FormOpened == null)  // No more listeners to this event
-            {
-               // TODO: Add code to clean up if necessary.
-            }
-         }
-      }
-
-      /// <summary>
-      /// Occurs when a form is opened inside the client instance.
-      /// </summary>
-      public event EventHandler<CSideEventArgs> ButtonClicked
-      {
-         add
-         {
-            if (_ButtonClicked == null)		// First listener...
-            {
-               // TODO: If needed, add code to respond to the first event hook-up.
-            }
-            _ButtonClicked = (EventHandler<CSideEventArgs>)Delegate.Combine(_ButtonClicked, value);
-         }
-         remove
-         {
-            _ButtonClicked = (EventHandler<CSideEventArgs>)Delegate.Remove(_ButtonClicked, value);
-            if (_ButtonClicked == null)  // No more listeners to this event
-            {
-               // TODO: Add code to clean up if necessary.
-            }
-         }
-      }
-
+      
       /// <summary>
       /// Occurs when the client instance changes server.
       /// </summary>
@@ -482,65 +361,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       }
 
-
-      /// <summary>Gets a List of the current running Navision client instances.</summary>
-      /// <returns>A List of CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see>s</returns>
-      public static List<Client> GetClients()
-      {
-         return GetClients(true);
-      }
-
-      /// <summary>Gets a List of the current running Navision client instances.</summary>
-      /// <param name="useEvents">Indicates whether client event triggers should be hooked</param>
-      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter.
-      /// This means if you wish to be absolutely certain you should cleanup any existing client instances.</remarks>
-      /// <returns>A List of CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see>s</returns>
-      public static List<Client> GetClients(bool useEvents)
-      {
-         List<object> runningObjects = GetActiveClientList();
-         List<Client> sessions = new List<Client>();
-
-         foreach (IObjectDesigner designer in runningObjects)
-         {
-            if (designer != null)
-            {
-               Client client = GetClientWrapper(designer, useEvents);
-               sessions.Add(client);
-            }
-         }
-         return sessions;
-      }
-
-      /// <summary>
-      /// Gets the current client wrapper for a given designer instance.  If one doesn't exist, a new one is created.
-      /// </summary>
-      /// <param name="designer">The running object table designer instance to get a wrapper for.</param>
-      /// <returns>A CSide <see cref="Client"/></returns>
-      private static Client GetClientWrapper(IObjectDesigner designer)
-      {
-         return GetClientWrapper(designer, true);
-      }
-
-      /// <summary>
-      /// Gets the current client wrapper for a given designer instance.  If one doesn't exist, a new one is created.
-      /// </summary>
-      /// <returns>A CSide <see cref="Client"></see></returns>
-      /// <param name="designer">The running object table designer instance to get a wrapper for.</param>
-      /// <param name="useEvents">Indicates whether the client should hook event triggers</param>
-      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter.
-      /// This means if you wish to be absolutely certain you should cleanup any existing client instances.</remarks>
-      private static Client GetClientWrapper(IObjectDesigner designer, bool useEvents)
-      {
-         if (designer == null)
-            return null;
-         Client client = _ObjectMap[designer] as Client;
-         if (client == null)
-         {
-            client = new Client(designer, useEvents);
-            _ObjectMap[designer] = client;
-         }
-         return client;
-      }
       /// <summary>
       /// Returns a pointer to the IRunningObjectTable interface on the local running object table (ROT).
       /// </summary>
@@ -549,18 +369,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// When the function is successful, the caller is responsible for calling Release on the interface pointer. If an error occurs, *pprot is undefined.</param>
       [DllImport("ole32.dll")]
       internal static extern void GetRunningObjectTable(int reserved, out IRunningObjectTable prot);
-
-      /// <summary>
-      /// Disposes of all <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> instances.
-      /// </summary>
-      public static void Cleanup()
-      {
-         foreach (Client client in _ObjectMap.Values)
-         {
-            client.Dispose(true);
-         }
-         _ObjectMap.Clear();
-      }
 
       /// <summary>
       /// Gets the specific <see cref="Org.Edgerunner.Dynamics.Nav.CSide.IObjectDesigner"/> instance that corresponds to the supplied serverType/server/database/company.
@@ -606,69 +414,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Gets the specific running Navision client instance that corresponds to the supplied serverType/server/database/company.
-      /// </summary>
-      /// <param name="serverType">The server type.</param>
-      /// <param name="server">The server.  If server is an empty string or <c>null</c>, it is ignored</param>
-      /// <param name="database">The database.  If database is an empty string or <c>null</c>, it is ignored</param>
-      /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
-      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter. This means if you wish to be absolutely certain
-      /// you should cleanup any existing client instances.  Also, if the instance you are trying to bind to is busy it will likely not be found.</remarks>
-      /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
-      public static Client GetClient(ServerType serverType, string server, string database, string company)
-      {
-         return GetClient(serverType, server, database, company, true);
-      }
-
-      /// <summary>
-      /// Gets the specific running Navision client instance that corresponds to the supplied serverType/server/database/company.
-      /// </summary>
-      /// <param name="serverType">The server type.</param>
-      /// <param name="server">The server.  If server is an empty string or <c>null</c>, it is ignored</param>
-      /// <param name="database">The database.  If database is an empty string or <c>null</c>, it is ignored</param>
-      /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
-      /// <param name="useEvents">Indicates whether event triggers should be hooked</param>
-      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter. This means if you wish to be absolutely certain
-      /// you should cleanup any existing client instances. Also, if the instance you are trying to bind to is busy it will likely not be found.</remarks>
-      /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
-      public static Client GetClient(ServerType serverType, string server, string database, string company, bool useEvents)
-      {
-         IObjectDesigner designer = GetDesigner(serverType, server, database, company);
-         return GetClientWrapper(designer, useEvents);
-      }
-
-      // Private Methods (7) 
-
-      /// <summary>
-      /// Creates a new <see cref="Org.Edgerunner.Dynamics.Nav.CSide.ApplicationEventSubscriber"/> and subscribes the Client instance to its events.
-      /// </summary>
-      private void ConnectApplicationEvents()
-      {
-         _Subscriber = new ApplicationEventSubscriber(this);
-         _Subscriber.Advise(ref _ObjectDesigner);
-      }
-
-      /// <summary>
-      /// Unsubscribes the current <see cref="Org.Edgerunner.Dynamics.Nav.CSide.ApplicationEventSubscriber"/>
-      /// </summary>
-      private void DisconnectApplicationEvents()
-      {
-         if (IsRunning)
-            if (_Subscriber != null)
-               _Subscriber.Unadvise();
-         _Subscriber = null;
-      }
-
-      /// <summary>
-      /// Posts the Activated event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void PostActivatedEvent(object state)
-      {
-         _Activated(this, state as CSideEventArgs);
-      }
-
-      /// <summary>
       /// Posts the company changed event.
       /// </summary>
       /// <param name="state">The state.</param>
@@ -687,24 +432,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Posts the Deactivated event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void PostDeactivatedEvent(object state)
-      {
-         _Deactivated(this, state as CSideEventArgs);
-      }
-
-      /// <summary>
-      /// Posts the FormOpened event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void PostFormOpenedEvent(object state)
-      {
-         _FormOpened(this, state as CSideEventArgs);
-      }
-
-      /// <summary>
       /// Posts the server changed event.
       /// </summary>
       /// <param name="state">The state.</param>
@@ -714,36 +441,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Posts the button clicked event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void PostButtonClickedEvent(object state)
-      {
-         _ButtonClicked(this, state as CSideEventArgs);
-      }
-
-      // Internal Methods (8) 
-
-      /// <summary>
-      /// Raises the Activated event.
-      /// </summary>
-      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
-      internal void RaiseActivated(CSideEventArgs args)
-      {
-         if (_Activated != null)
-         {
-            if (_Context != null)
-               _Context.Post(PostActivatedEvent, args);
-            else
-               PostActivatedEvent(args);
-         }
-      }
-
-      /// <summary>
       /// Raises the CompanyChanged.
       /// </summary>
       /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
-      internal void RaiseCompanyChanged(CSideEventArgs args)
+      internal void RaiseCompanyChanged(NameChangeEventArgs args)
       {
          if (_CompanyChanged != null)
          {
@@ -758,7 +459,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Raises the DatabaseChanged.
       /// </summary>
       /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
-      internal void RaiseDatabaseChanged(CSideEventArgs args)
+      internal void RaiseDatabaseChanged(NameChangeEventArgs args)
       {
          if (_DatabaseChanged != null)
          {
@@ -767,49 +468,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             else
                PostDatabaseChangedEvent(args);
          }
-      }
-
-      /// <summary>
-      /// Raises the Deactivated event.
-      /// </summary>
-      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
-      internal void RaiseDeactivated(CSideEventArgs args)
-      {
-         if (_Deactivated != null)
-         {
-            if (_Context != null)
-               _Context.Post(PostDeactivatedEvent, args);
-            else
-               PostDeactivatedEvent(args);
-         }
-      }
-
-      /// <summary>
-      /// Raises the FormOpened event.
-      /// </summary>
-      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
-      internal void RaiseFormOpened(CSideEventArgs args)
-      {
-         if (_FormOpened != null)
-         {
-            if (_Context != null)
-               _Context.Post(PostFormOpenedEvent, args);
-            else
-               PostFormOpenedEvent(args);
-         }
-      }
-
-      /// <summary>
-      /// Raises the button clicked event.
-      /// </summary>
-      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
-      internal void RaiseButtonClick(CSideEventArgs args)
-      {
-         if (_ButtonClicked != null)
-            if (_Context != null)
-               _Context.Post(PostButtonClickedEvent, args);
-            else
-               PostButtonClickedEvent(args);
       }
 
       /// <summary>
@@ -1393,8 +1051,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                      navObject.Dispose();
          }
          // free unmanaged resources
-         if (_UseEvents)
-            DisconnectApplicationEvents();
          if (_ObjectDesigner != null)
             Marshal.ReleaseComObject(_ObjectDesigner);
       }
