@@ -20,6 +20,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Org.Edgerunner.Dynamics.Nav.CSide.Interfaces;
+
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
 
@@ -111,7 +113,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public void Open()
       {
          Client client = null;
-         foreach (var instance in Client.GetClients(false))
+         foreach (var instance in ClientRepository.Default.GetClients())
          {
             if (!instance.IsBusy &&
                instance.Server.ToUpperInvariant() == Server.ToUpperInvariant() &&
