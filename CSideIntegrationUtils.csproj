@@ -90,13 +90,13 @@
     <Compile Include="ChangeEventType.cs" />
     <Compile Include="ClientLink.cs" />
     <Compile Include="CSideError.cs" />
-    <Compile Include="CSideEventArgs.cs" />
+    <Compile Include="EventArguments\CSideEventArgs.cs" />
     <Compile Include="CSideException.cs" />
     <Compile Include="Field.cs" />
     <Compile Include="FieldValue.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="Form.cs" />
-    <Compile Include="Interfaces\ClientRepository.cs" />
+    <Compile Include="ClientRepository.cs" />
     <Compile Include="Interfaces\IErrorInfo.cs" />
     <Compile Include="NameChangeEventArgs.cs" />
     <Compile Include="Object.cs" />

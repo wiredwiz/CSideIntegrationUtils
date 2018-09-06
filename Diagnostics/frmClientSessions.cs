@@ -24,7 +24,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Org.Edgerunner.Dynamics.Nav.CSide;
-using Org.Edgerunner.Dynamics.Nav.CSide.Interfaces;
 
 namespace CSide_Library_Diagnostics_Tool
 {
