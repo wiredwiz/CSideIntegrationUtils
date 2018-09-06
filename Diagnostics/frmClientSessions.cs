@@ -24,19 +24,23 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Org.Edgerunner.Dynamics.Nav.CSide;
+using Org.Edgerunner.Dynamics.Nav.CSide.Interfaces;
 
 namespace CSide_Library_Diagnostics_Tool
 {
    public partial class frmClientSessions : global::System.Windows.Forms.Form
    {
+      private ClientRepository Repository;
+
       public frmClientSessions()
       {
          InitializeComponent();
+         Repository = new ClientRepository();
       }
 
       private void timer1_Tick(object sender, EventArgs e)
       {
-         var clients = Client.GetClients(true);
+         var clients = Repository.GetClients();
          var clientSigs = new List<string>();
          foreach (var client in clients)
          {
@@ -85,23 +89,18 @@ namespace CSide_Library_Diagnostics_Tool
 
       private void OpenDiagnosticWindow()
       {
-         if ((lstClients.SelectedItems == null) || (lstClients.SelectedItems.Count == 0))
-         {
-            MessageBox.Show("Please select a client session first");
-            return;
-         }
-         string[] id = lstClients.SelectedItems[0].Name.Split(new char[] {'|'});
-         Client client;
-         client = Client.GetClient(id[0] == "SQL" ? ServerType.SQL : ServerType.Native, id[1], id[2], id[3], true);
-         var diagnostic = new frmDiagnostic();
-         diagnostic.SetClient(client);
-         diagnostic.ShowDialog();
-         client.Dispose();
-      }
-
-      private void frmClientSessions_FormClosing(object sender, FormClosingEventArgs e)
-      {
-         Client.Cleanup();
+         //if ((lstClients.SelectedItems == null) || (lstClients.SelectedItems.Count == 0))
+         //{
+         //   MessageBox.Show("Please select a client session first");
+         //   return;
+         //}
+         //string[] id = lstClients.SelectedItems[0].Name.Split(new char[] {'|'});
+         //Client client;
+         //client = ClientRepository.Default.GetClient(id[0] == "SQL" ? ServerType.SQL : ServerType.Native, id[1], id[2], id[3]);
+         //var diagnostic = new frmDiagnostic();
+         //diagnostic.SetClient(client);
+         //diagnostic.ShowDialog();
+         //client.Dispose();
       }
    }
 }

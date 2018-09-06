@@ -100,7 +100,6 @@
          this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
          this.Name = "frmClientSessions";
          this.Text = "C/Side Clients";
-         this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmClientSessions_FormClosing);
          this.Load += new System.EventHandler(this.frmClientSessions_Load);
          this.ResumeLayout(false);
 

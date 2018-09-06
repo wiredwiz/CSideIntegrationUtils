@@ -41,12 +41,9 @@ namespace CSide_Library_Diagnostics_Tool
          _Client = client;
          Text = string.Format("Diagnostic - {0}", _Client.Company);
          UpdateClientData();
-         _Client.Activated += new EventHandler<CSide.CSideEventArgs>(_Client_Activated);
-         _Client.Deactivated += new EventHandler<CSide.CSideEventArgs>(_Client_Deactivated);
          _Client.CompanyChanged += new EventHandler<CSide.CSideEventArgs>(_Client_CompanyChanged);
          _Client.DatabaseChanged += new EventHandler<CSide.CSideEventArgs>(_Client_DatabaseChanged);
          _Client.ServerChanged += new EventHandler<CSide.CSideEventArgs>(_Client_ServerChanged);
-         _Client.FormOpened += new EventHandler<CSide.CSideEventArgs>(_Client_FormOpened);
       }
 
       void _Client_FormOpened(object sender, CSide.CSideEventArgs e)
