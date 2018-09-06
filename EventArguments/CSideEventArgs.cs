@@ -15,9 +15,10 @@
 //
 // Dynamics Nav is a registered trademark of the Microsoft Corporation
 //
+
 using System;
 
-namespace Org.Edgerunner.Dynamics.Nav.CSide
+namespace Org.Edgerunner.Dynamics.Nav.CSide.EventArguments
 {
    /// <summary>
    /// An event arguments class for C/Side events

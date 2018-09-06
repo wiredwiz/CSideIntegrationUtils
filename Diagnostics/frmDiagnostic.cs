@@ -23,6 +23,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+
+using Org.Edgerunner.Dynamics.Nav.CSide.EventArguments;
+
 using CSide = Org.Edgerunner.Dynamics.Nav.CSide;
 
 namespace CSide_Library_Diagnostics_Tool
@@ -41,12 +44,12 @@ namespace CSide_Library_Diagnostics_Tool
          _Client = client;
          Text = string.Format("Diagnostic - {0}", _Client.Company);
          UpdateClientData();
-         _Client.CompanyChanged += new EventHandler<CSide.CSideEventArgs>(_Client_CompanyChanged);
-         _Client.DatabaseChanged += new EventHandler<CSide.CSideEventArgs>(_Client_DatabaseChanged);
-         _Client.ServerChanged += new EventHandler<CSide.CSideEventArgs>(_Client_ServerChanged);
+         _Client.CompanyChanged += new EventHandler<CSideEventArgs>(_Client_CompanyChanged);
+         _Client.DatabaseChanged += new EventHandler<CSideEventArgs>(_Client_DatabaseChanged);
+         _Client.ServerChanged += new EventHandler<CSideEventArgs>(_Client_ServerChanged);
       }
 
-      void _Client_FormOpened(object sender, CSide.CSideEventArgs e)
+      void _Client_FormOpened(object sender, CSideEventArgs e)
       {
          LogData(string.Format("Form {0} opened", e.Form.ID));
          var currForm = _Client.GetObject(CSide.NavObjectType.Form, e.Form.ID);
@@ -55,27 +58,27 @@ namespace CSide_Library_Diagnostics_Tool
          txtSourceTable.Text = table != null ? table.Name : string.Empty;
       }
 
-      void _Client_Deactivated(object sender, CSide.CSideEventArgs e)
+      void _Client_Deactivated(object sender, CSideEventArgs e)
       {
          LogData("Client window deactivated");
       }
 
-      void _Client_ServerChanged(object sender, CSide.CSideEventArgs e)
+      void _Client_ServerChanged(object sender, CSideEventArgs e)
       {
          LogData(string.Format("Client server changed from {0} to {1}", e.PreviousServer, e.CurrentServer));
       }
 
-      void _Client_DatabaseChanged(object sender, CSide.CSideEventArgs e)
+      void _Client_DatabaseChanged(object sender, CSideEventArgs e)
       {
          LogData(string.Format("Client database changed from {0} to {1}", e.PreviousDatabase, e.CurrentDatabase));
       }
 
-      void _Client_CompanyChanged(object sender, CSide.CSideEventArgs e)
+      void _Client_CompanyChanged(object sender, CSideEventArgs e)
       {
          LogData(string.Format("Client company changed from {0} to {1}", e.PreviousCompany, e.CurrentCompany));
       }
 
-      void _Client_Activated(object sender, CSide.CSideEventArgs e)
+      void _Client_Activated(object sender, CSideEventArgs e)
       {
          LogData("Client window activated");
       }

@@ -98,7 +98,7 @@
     <Compile Include="Form.cs" />
     <Compile Include="ClientRepository.cs" />
     <Compile Include="Interfaces\IErrorInfo.cs" />
-    <Compile Include="NameChangeEventArgs.cs" />
+    <Compile Include="EventArguments\NameChangeEventArgs.cs" />
     <Compile Include="Object.cs" />
     <Compile Include="ServerType.cs" />
     <Compile Include="Table.cs" />

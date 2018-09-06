@@ -20,6 +20,8 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 
+using Org.Edgerunner.Dynamics.Nav.CSide.EventArguments;
+
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>

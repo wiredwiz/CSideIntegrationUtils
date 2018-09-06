@@ -24,6 +24,8 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 
+using Org.Edgerunner.Dynamics.Nav.CSide.EventArguments;
+
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>
@@ -443,7 +445,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Raises the CompanyChanged.
       /// </summary>
-      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
+      /// <param name="args">The <see cref="CSideEventArgs"/> instance containing the event data.</param>
       internal void RaiseCompanyChanged(NameChangeEventArgs args)
       {
          if (_CompanyChanged != null)
@@ -458,7 +460,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Raises the DatabaseChanged.
       /// </summary>
-      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
+      /// <param name="args">The <see cref="CSideEventArgs"/> instance containing the event data.</param>
       internal void RaiseDatabaseChanged(NameChangeEventArgs args)
       {
          if (_DatabaseChanged != null)
@@ -473,7 +475,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Raises the ServerChanged event.
       /// </summary>
-      /// <param name="args">The <see cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideEventArgs"/> instance containing the event data.</param>
+      /// <param name="args">The <see cref="CSideEventArgs"/> instance containing the event data.</param>
       internal void RaiseServerChanged(CSideEventArgs args)
       {
          if (_ServerChanged != null)

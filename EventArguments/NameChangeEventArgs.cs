@@ -18,7 +18,7 @@
 
 using System;
 
-namespace Org.Edgerunner.Dynamics.Nav.CSide
+namespace Org.Edgerunner.Dynamics.Nav.CSide.EventArguments
 {
    public class NameChangeEventArgs : EventArgs
    {
