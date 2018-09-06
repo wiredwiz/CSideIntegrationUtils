@@ -92,7 +92,7 @@
     <Compile Include="CSideError.cs" />
     <Compile Include="EventArguments\CompanyChangedEventArgs.cs" />
     <Compile Include="EventArguments\CSideEventArgs.cs" />
-    <Compile Include="CSideException.cs" />
+    <Compile Include="Exceptions\CSideException.cs" />
     <Compile Include="EventArguments\DatabaseChangedEventArgs.cs" />
     <Compile Include="EventArguments\ServerChangedEventArgs.cs" />
     <Compile Include="Field.cs" />

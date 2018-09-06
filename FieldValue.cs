@@ -17,6 +17,8 @@
 //
 using System;
 
+using Org.Edgerunner.Dynamics.Nav.CSide.Exceptions;
+
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>

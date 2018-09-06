@@ -19,6 +19,8 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
+using Org.Edgerunner.Dynamics.Nav.CSide.Exceptions;
+
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>

@@ -25,6 +25,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 
 using Org.Edgerunner.Dynamics.Nav.CSide.EventArguments;
+using Org.Edgerunner.Dynamics.Nav.CSide.Exceptions;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
@@ -188,7 +189,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <param name="timeoutPeriod">The timeout period.</param>
       /// <returns>An object to be used for all synchronization locks within the client.</returns>
-      /// <exception cref="Org.Edgerunner.Dynamics.Nav.CSide.CSideException">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
+      /// <exception cref="CSideException">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       internal object GetSyncObject(TimeSpan timeoutPeriod)
       {
          if (_SyncLock == null)

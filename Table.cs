@@ -20,6 +20,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices;
 
+using Org.Edgerunner.Dynamics.Nav.CSide.Exceptions;
+
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>
