@@ -27,12 +27,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public static ClientRepository Default => _Default ?? (_Default = new ClientRepository());
 
 
-      public delegate void NewClientDetectedEventHandler(object sender, Client client);
+      public delegate void ClientEventHandler(object sender, Client client);
 
       /// <summary>
       /// Occurs when the repository detects a new client instance.
       /// </summary>
-      public event NewClientDetectedEventHandler NewClientDetected;
+      public event ClientEventHandler NewClientDetected;
+
+      /// <summary>
+      /// Occurs when a client, that the repository is aware of, closes.
+      /// </summary>
+      public event ClientEventHandler ClientClosed;
 
       [DllImport("user32.dll", SetLastError = true)]
       private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
@@ -66,6 +71,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private void PostNewClientDetectedEvent(object state)
       {
          NewClientDetected?.Invoke(this, state as Client);
+      }
+
+      /// <summary>
+      /// Posts the client closed event.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      private void PostClientClosedEvent(object state)
+      {
+         ClientClosed?.Invoke(this, state as Client);
       }
 
       private static long PackKey(int windowHandle, uint processId)
@@ -195,6 +209,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
+      internal void RaiseClientClosed(Client client)
+      {
+         if (ClientClosed != null)
+         {
+            if (_Context != null)
+               _Context.Post(PostClientClosedEvent, client);
+            else
+               PostClientClosedEvent(client);
+         }
+      }
+
       public virtual List<Client> GetClients()
       {
          var designers = GetActiveClientList();
@@ -212,9 +237,19 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter. This means if you wish to be absolutely certain
       /// you should cleanup any existing client instances. Also, if the instance you are trying to bind to is busy it will likely not be found.</remarks>
       /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
-      public static Client GetClient(ServerType serverType, string server, string database, string company)
+      public virtual Client GetClient(ServerType serverType, string server, string database, string company)
       {
          throw new NotImplementedException();
+      }
+
+      /// <summary>
+      /// Gets the specific Navision client instance by its unique identifier in the repository.
+      /// </summary>
+      /// <param name="identifier">The identifier.</param>
+      /// <returns>The <see cref="Client"/> instance or null if no instance found.</returns>
+      public virtual Client GetClientById(long identifier)
+      {
+         return _RunningClients.TryGetValue(identifier, out var client) ? client : null;
       }
    }
 }
