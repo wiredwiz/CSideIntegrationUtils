@@ -49,7 +49,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       internal string _PreviousDatabase;
       internal ServerType _PreviousServerType;
       internal string _PreviousServer;
-      internal uint _ProcessId;
       private bool _TransactionInProgress;
 
       #endregion Non-Public Fields
@@ -58,13 +57,19 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
 
       /// <summary>
-      /// Initializes a new instance of the <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> class.
+      /// Initializes a new instance of the <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client" /> class.
       /// </summary>
-      /// <param name="objectDesigner"></param>
-      internal Client(IObjectDesigner objectDesigner)
+      /// <param name="objectDesigner">The object designer.</param>
+      /// <param name="identifier">The unique identifier for the client.</param>
+      /// <param name="windowsHandle">The client windows handle.</param>
+      /// <param name="processId">The client process identifier.</param>
+      internal Client(IObjectDesigner objectDesigner, long identifier, int windowsHandle, int processId)
       {
          _ObjectDesigner = objectDesigner;
          _Context = SynchronizationContext.Current;
+         Identifier = identifier;
+         ProcessId = processId;
+         WindowHandle = windowsHandle;
          ThreadPool.QueueUserWorkItem(InitializeVolatileData);
       }
 
@@ -166,9 +171,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       #endregion Delegates and Events
 
-      internal int ProcessId { get; set; }
+      internal int ProcessId { get; }
 
       internal IObjectDesigner Designer => _ObjectDesigner as IObjectDesigner;
+
+      public long Identifier { get; }
 
       #region Locking support
 
@@ -987,23 +994,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the window handle for the Navision client instance.
       /// </summary>
       /// <value>The window handle.</value>
-      public Int32 WindowHandle
-      {
-         get
-         {
-            lock (GetSyncObject())
-            {
-               INSHyperlink app = _ObjectDesigner as INSHyperlink;
-               Int32 handle;
-               if (app == null)
-                  return 0;
-               app.GetNavWindowHandle(out handle);
-               return handle;
-            }
-         }
-      }
-
-
+      public Int32 WindowHandle { get; }
+      
       #endregion
 
       #region INSApplication functionality

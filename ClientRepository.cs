@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Threading;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
@@ -11,17 +12,27 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    {
       private static ClientRepository _Default;
       private readonly Dictionary<long, Client> _RunningClients;
+      private readonly SynchronizationContext _Context;
 
       /// <summary>
       /// Initializes a new instance of the <see cref="ClientRepository"/> class.
       /// </summary>
       public ClientRepository()
       {
+         _Context = SynchronizationContext.Current;
          _RunningClients = new Dictionary<long, Client>();
          GetClients();
       }
 
       public static ClientRepository Default => _Default ?? (_Default = new ClientRepository());
+
+
+      public delegate void NewClientDetectedEventHandler(object sender, Client client);
+
+      /// <summary>
+      /// Occurs when the repository detects a new client instance.
+      /// </summary>
+      public event NewClientDetectedEventHandler NewClientDetected;
 
       [DllImport("user32.dll", SetLastError = true)]
       private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
@@ -47,6 +58,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>This function can return the standard return values E_OUTOFMEMORY and S_OK.</returns>
       [DllImport("ole32.dll")]
       private static extern void CreateBindCtx(int reserved, out IBindCtx ppbc);
+
+      /// <summary>
+      /// Posts the new client event.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      private void PostNewClientDetectedEvent(object state)
+      {
+         NewClientDetected?.Invoke(this, state as Client);
+      }
 
       private static long PackKey(int windowHandle, uint processId)
       {
@@ -147,7 +167,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             GetWindowThreadProcessId((IntPtr)handle, out var pid);
             var key = PackKey(handle, pid);
             if (!_RunningClients.ContainsKey(key))
-               _RunningClients[key] = new Client(designer) { ProcessId = (int)pid };
+               _RunningClients[key] = new Client(designer, key, handle, (int)pid);
          }
       }
 
@@ -162,6 +182,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
 
          return clientProcesses;
+      }
+
+      internal void RaiseNewClientDetected(Client client)
+      {
+         if (NewClientDetected != null)
+         {
+            if (_Context != null)
+               _Context.Post(PostNewClientDetectedEvent, client);
+            else
+               PostNewClientDetectedEvent(client);
+         }
       }
 
       public virtual List<Client> GetClients()
