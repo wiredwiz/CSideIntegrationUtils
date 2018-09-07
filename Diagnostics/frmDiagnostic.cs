@@ -49,20 +49,6 @@ namespace CSide_Library_Diagnostics_Tool
          _Client.ServerChanged += new EventHandler<ServerChangedEventArgs>(_Client_ServerChanged);
       }
 
-      void _Client_FormOpened(object sender, CSideEventArgs e)
-      {
-         LogData(string.Format("Form {0} opened", e.Form.ID));
-         var currForm = _Client.GetObject(CSide.NavObjectType.Form, e.Form.ID);
-         txtFormName.Text = currForm != null ? currForm.Name : string.Empty;
-         var table = e.Form.GetTable();
-         txtSourceTable.Text = table != null ? table.Name : string.Empty;
-      }
-
-      void _Client_Deactivated(object sender, CSideEventArgs e)
-      {
-         LogData("Client window deactivated");
-      }
-
       void _Client_ServerChanged(object sender, ServerChangedEventArgs e)
       {
          LogData(string.Format("Client server changed from {0} to {1}", e.PreviousServerName, e.NewServerName));
@@ -76,11 +62,6 @@ namespace CSide_Library_Diagnostics_Tool
       void _Client_CompanyChanged(object sender, CompanyChangedEventArgs e)
       {
          LogData(string.Format("Client company changed from {0} to {1}", e.Previous, e.New));
-      }
-
-      void _Client_Activated(object sender, CSideEventArgs e)
-      {
-         LogData("Client window activated");
       }
 
       private void LogData(string logText)
