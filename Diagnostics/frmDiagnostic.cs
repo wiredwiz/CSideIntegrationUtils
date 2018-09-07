@@ -44,9 +44,9 @@ namespace CSide_Library_Diagnostics_Tool
          _Client = client;
          Text = string.Format("Diagnostic - {0}", _Client.Company);
          UpdateClientData();
-         _Client.CompanyChanged += new EventHandler<CSideEventArgs>(_Client_CompanyChanged);
-         _Client.DatabaseChanged += new EventHandler<CSideEventArgs>(_Client_DatabaseChanged);
-         _Client.ServerChanged += new EventHandler<CSideEventArgs>(_Client_ServerChanged);
+         _Client.CompanyChanged += new EventHandler<CompanyChangedEventArgs>(_Client_CompanyChanged);
+         _Client.DatabaseChanged += new EventHandler<DatabaseChangedEventArgs>(_Client_DatabaseChanged);
+         _Client.ServerChanged += new EventHandler<ServerChangedEventArgs>(_Client_ServerChanged);
       }
 
       void _Client_FormOpened(object sender, CSideEventArgs e)
@@ -63,19 +63,19 @@ namespace CSide_Library_Diagnostics_Tool
          LogData("Client window deactivated");
       }
 
-      void _Client_ServerChanged(object sender, CSideEventArgs e)
+      void _Client_ServerChanged(object sender, ServerChangedEventArgs e)
       {
-         LogData(string.Format("Client server changed from {0} to {1}", e.PreviousServer, e.CurrentServer));
+         LogData(string.Format("Client server changed from {0} to {1}", e.PreviousServerName, e.NewServerName));
       }
 
-      void _Client_DatabaseChanged(object sender, CSideEventArgs e)
+      void _Client_DatabaseChanged(object sender, DatabaseChangedEventArgs e)
       {
-         LogData(string.Format("Client database changed from {0} to {1}", e.PreviousDatabase, e.CurrentDatabase));
+         LogData(string.Format("Client database changed from {0} to {1}", e.Previous, e.New));
       }
 
-      void _Client_CompanyChanged(object sender, CSideEventArgs e)
+      void _Client_CompanyChanged(object sender, CompanyChangedEventArgs e)
       {
-         LogData(string.Format("Client company changed from {0} to {1}", e.PreviousCompany, e.CurrentCompany));
+         LogData(string.Format("Client company changed from {0} to {1}", e.Previous, e.New));
       }
 
       void _Client_Activated(object sender, CSideEventArgs e)

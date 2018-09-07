@@ -72,7 +72,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
       private void RaiseCompanyChangeEvent(object state)
       {
-         _Client.RaiseCompanyChanged(state as CSideEventArgs);
+         _Client.RaiseCompanyChanged(state as CompanyChangedEventArgs);
       }
 
       /// <summary>
@@ -82,7 +82,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
       private void RaiseDatabaseChangeEvent(object state)
       {
-         _Client.RaiseDatabaseChanged(state as CSideEventArgs);
+         _Client.RaiseDatabaseChanged(state as DatabaseChangedEventArgs);
       }
 
       /// <summary>
@@ -122,7 +122,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>Calling this stub from a worker thread prevents the event from blocking the client where the event originated</remarks>
       private void RaiseServerChangeEvent(object state)
       {
-         _Client.RaiseServerChanged(state as CSideEventArgs);
+         _Client.RaiseServerChanged(state as ServerChangedEventArgs);
       }
       // Public Methods (2) 
 
