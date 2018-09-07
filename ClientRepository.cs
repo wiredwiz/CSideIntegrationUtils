@@ -231,15 +231,33 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the specific running Navision client instance that corresponds to the supplied serverType/server/database/company.
       /// </summary>
       /// <param name="serverType">The server type.</param>
-      /// <param name="server">The server.  If server is an empty string or <c>null</c>, it is ignored</param>
-      /// <param name="database">The database.  If database is an empty string or <c>null</c>, it is ignored</param>
+      /// <param name="server">The server name.</param>
+      /// <param name="database">The database name.</param>
       /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
-      /// <remarks>If a client instance already exists it will be returned the way it is, regardless of the useEvents parameter. This means if you wish to be absolutely certain
-      /// you should cleanup any existing client instances. Also, if the instance you are trying to bind to is busy it will likely not be found.</remarks>
       /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
+      /// <exception cref="ArgumentNullException"><paramref name="server"/> or <paramref name="database"/> is <see langword="null"/></exception>
       public virtual Client GetClient(ServerType serverType, string server, string database, string company)
       {
-         throw new NotImplementedException();
+         if (string.IsNullOrEmpty(server))
+            throw new ArgumentNullException(nameof(server));
+         if (string.IsNullOrEmpty(database))
+            throw new ArgumentNullException(nameof(database));
+
+         foreach (var client in _RunningClients.Values)
+         {
+            if (serverType != client.ServerType)
+               continue;
+            if (!string.IsNullOrEmpty(company) && company != client.Company)
+               continue;
+            if (server != client.Server)
+               continue;
+            if (database != client.Database)
+               continue;
+            
+            return client;
+         }
+
+         return null;
       }
 
       /// <summary>
