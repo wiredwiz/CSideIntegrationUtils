@@ -49,6 +49,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       internal string _PreviousDatabase;
       internal ServerType _PreviousServerType;
       internal string _PreviousServer;
+      private string _CsideVersion;
+      private string _ApplicationVersion;
       private bool _TransactionInProgress;
 
       #endregion Non-Public Fields
@@ -70,7 +72,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          Identifier = identifier;
          ProcessId = processId;
          WindowHandle = windowsHandle;
-         ThreadPool.QueueUserWorkItem(InitializeVolatileData);
+         lock (GetSyncObject())
+         {
+            _ObjectDesigner.GetCompanyName(out var companyName);
+            _ObjectDesigner.GetDatabaseName(out var databaseName);
+            _ObjectDesigner.GetServerName(out var serverName);
+            _ObjectDesigner.GetServerType(out var serverType);
+            _ObjectDesigner.GetCSIDEVersion(out var csideVersion);
+            _ObjectDesigner.GetApplicationVersion(out var appVersion);
+            _PreviousCompany = companyName ?? string.Empty;
+            _PreviousDatabase = databaseName ?? string.Empty;
+            _PreviousServerType = (ServerType)serverType;
+            _PreviousServer = serverName ?? string.Empty;
+            _CsideVersion = csideVersion;
+            _ApplicationVersion = appVersion;
+         }
       }
 
       /// <summary>
@@ -80,16 +96,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       ~Client()
       {
          Dispose(false);
-      }
-
-      /// <summary>Initializes data about the current client instance for use in comparison for change events.</summary>
-      private void InitializeVolatileData(object state)
-      {
-         Thread.Sleep(200); // in case client has opening dialog that hasn't registered yet
-         _PreviousCompany = Company;
-         _PreviousDatabase = Database;
-         _PreviousServerType = ServerType;
-         _PreviousServer = Server;
       }
 
       #endregion Constructors/Deconstructors
@@ -143,7 +149,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
          }
       }
-      
+
       /// <summary>
       /// Occurs when the client instance changes server.
       /// </summary>
@@ -586,6 +592,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
+            if (IsBusy)
+               return _PreviousCompany;
+
             lock (GetSyncObject())
             {
                string companyName;
@@ -606,6 +615,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
+            if (IsBusy)
+               return _PreviousDatabase;
+
             lock (GetSyncObject())
             {
                string databaseName;
@@ -626,6 +638,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
+            if (IsBusy)
+               return _PreviousServer;
+
             lock (GetSyncObject())
             {
                string serverName;
@@ -646,6 +661,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
+            if (IsBusy)
+               return _PreviousServerType;
+
             lock (GetSyncObject())
             {
                int serverType = 0;
@@ -659,20 +677,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the C/Side version.
       /// </summary>
       /// <value>The C/Side version.</value>
-      public string CSideVersion
-      {
-         get
-         {
-            lock (GetSyncObject())
-            {
-               string csideVersion;
-               int result = _ObjectDesigner.GetCSIDEVersion(out csideVersion);
-               if (result != 0)
-                  throw CSideException.GetException(result);
-               return csideVersion;
-            }
-         }
-      }
+      public string CSideVersion => _CsideVersion;
 
       /// <summary>
       /// Gets the application version.
@@ -682,6 +687,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
+            if (IsBusy)
+               return _ApplicationVersion;
+
             lock (GetSyncObject())
             {
                string appVersion;
@@ -995,7 +1003,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <value>The window handle.</value>
       public Int32 WindowHandle { get; }
-      
+
       #endregion
 
       #region INSApplication functionality
