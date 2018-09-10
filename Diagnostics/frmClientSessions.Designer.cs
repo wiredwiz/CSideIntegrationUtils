@@ -37,6 +37,7 @@
          this.colDatabase = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.colCompany = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.btnOpenDiagnostic = new System.Windows.Forms.Button();
+         this.colBusy = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.SuspendLayout();
          // 
          // timer1
@@ -50,11 +51,12 @@
             this.colType,
             this.colServer,
             this.colDatabase,
-            this.colCompany});
+            this.colCompany,
+            this.colBusy});
          this.lstClients.FullRowSelect = true;
          this.lstClients.Location = new System.Drawing.Point(12, 35);
          this.lstClients.Name = "lstClients";
-         this.lstClients.Size = new System.Drawing.Size(514, 222);
+         this.lstClients.Size = new System.Drawing.Size(605, 222);
          this.lstClients.TabIndex = 2;
          this.lstClients.UseCompatibleStateImageBehavior = false;
          this.lstClients.View = System.Windows.Forms.View.Details;
@@ -89,11 +91,15 @@
          this.btnOpenDiagnostic.UseVisualStyleBackColor = true;
          this.btnOpenDiagnostic.Click += new System.EventHandler(this.btnOpenDiagnostic_Click);
          // 
+         // colBusy
+         // 
+         this.colBusy.Text = "Is Busy";
+         // 
          // frmClientSessions
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(537, 315);
+         this.ClientSize = new System.Drawing.Size(629, 315);
          this.Controls.Add(this.btnOpenDiagnostic);
          this.Controls.Add(this.lstClients);
          this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -114,6 +120,7 @@
       private System.Windows.Forms.ColumnHeader colCompany;
       private System.Windows.Forms.Button btnOpenDiagnostic;
       private System.Windows.Forms.ColumnHeader colType;
+      private System.Windows.Forms.ColumnHeader colBusy;
    }
 }
 

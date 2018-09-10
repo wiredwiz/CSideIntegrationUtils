@@ -40,33 +40,36 @@ namespace CSide_Library_Diagnostics_Tool
       private void timer1_Tick(object sender, EventArgs e)
       {
          var clients = Repository.GetClients();
-         var clientSigs = new List<string>();
+         var clientSigs = new List<long>();
          foreach (var client in clients)
          {
-            if (!client.IsBusy)
+            clientSigs.Add(client.Identifier);
+            bool found = false;
+            ListViewItem foundItem = null;
+            foreach (ListViewItem clientItem in lstClients.Items)
             {
-               string signature = string.Format("{0}|{1}|{2}|{3}", client.ServerType.ToString(), client.Server, client.Database, client.Company);
-               clientSigs.Add(signature);
-               bool found = false;
-               foreach (ListViewItem clientItem in lstClients.Items)
+               if ((long)clientItem.Tag == client.Identifier)
                {
-                  if (clientItem.Name == signature)
-                  {
-                     found = true;
-                     break;
-                  }
+                  found = true;
+                  foundItem = clientItem;
+                  break;
                }
-               if (!found)
-               {
-                  var item = new ListViewItem(new string[] { client.ServerType.ToString(), client.Server, client.Database, client.Company });
-                  item.Name = signature;
-                  lstClients.Items.Add(item);
-               }
+            }
+            if (!found)
+            {
+               var item = new ListViewItem(new string[] { client.ServerType.ToString(), client.Server, client.Database, client.Company, "No" });
+               item.Tag = (long)client.Identifier;
+               item.Name = client.Identifier.ToString();
+               lstClients.Items.Add(item);
+            }
+            else
+            {
+               foundItem.SubItems[4].Text = client.IsBusy ? "Yes" : "No";
             }
          }
          foreach (ListViewItem clientItem in lstClients.Items)
          {
-            if (!clientSigs.Contains<string>(clientItem.Name))
+            if (!clientSigs.Contains<long>((long)clientItem.Tag))
                lstClients.Items.RemoveByKey(clientItem.Name);
          }
       }
