@@ -52,6 +52,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private string _CsideVersion;
       private string _ApplicationVersion;
       private bool _TransactionInProgress;
+      private ClientRepository _Repository;
 
       #endregion Non-Public Fields
 
@@ -61,12 +62,14 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Initializes a new instance of the <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client" /> class.
       /// </summary>
+      /// <param name="repository">The repository that generated the client instance.</param>
       /// <param name="objectDesigner">The object designer.</param>
       /// <param name="identifier">The unique identifier for the client.</param>
       /// <param name="windowsHandle">The client windows handle.</param>
       /// <param name="processId">The client process identifier.</param>
-      internal Client(IObjectDesigner objectDesigner, long identifier, int windowsHandle, int processId)
+      internal Client(ClientRepository repository, IObjectDesigner objectDesigner, long identifier, int windowsHandle, int processId)
       {
+         _Repository = repository;
          _ObjectDesigner = objectDesigner;
          _Context = SynchronizationContext.Current;
          Identifier = identifier;
@@ -429,6 +432,40 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return null;
       }
 
+      internal void UpdateServerDatabaseCompanyInfo()
+      {
+         lock (GetSyncObject())
+         {
+            _ObjectDesigner.GetCompanyName(out var companyName);
+            _ObjectDesigner.GetDatabaseName(out var databaseName);
+            _ObjectDesigner.GetServerName(out var serverName);
+            _ObjectDesigner.GetServerType(out var serverType);
+
+            if ((ServerType)serverType != _PreviousServerType || serverName != _PreviousServer)
+            {
+               var previousServerType = _PreviousServerType;
+               var previousServerName = _PreviousServer;
+               _PreviousServerType = (ServerType)serverType;
+               _PreviousServer = serverName ?? string.Empty;
+               RaiseServerChanged(new ServerChangedEventArgs(previousServerType, previousServerName, (ServerType)serverType, serverName));
+            }
+
+            if (databaseName != _PreviousDatabase)
+            {
+               var previousDatabase = _PreviousDatabase;
+               _PreviousDatabase = databaseName ?? string.Empty;
+               RaiseDatabaseChanged(new DatabaseChangedEventArgs(previousDatabase, databaseName));
+            }
+
+            if (companyName != _PreviousCompany)
+            {
+               var previousCompanyName = _PreviousCompany;
+               _PreviousCompany = companyName ?? string.Empty;
+               RaiseCompanyChanged(new CompanyChangedEventArgs(previousCompanyName, companyName));
+            }
+         }
+      }
+
       /// <summary>
       /// Posts the company changed event.
       /// </summary>
@@ -597,12 +634,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
             lock (GetSyncObject())
             {
-               string companyName;
-               _ObjectDesigner.GetCompanyName(out companyName);
-               if (string.IsNullOrEmpty(companyName))
-                  return string.Empty;
-               else
-                  return companyName;
+               _ObjectDesigner.GetCompanyName(out var companyName);
+               companyName = companyName ?? string.Empty;
+               if (companyName != _PreviousCompany)
+               {
+                  var previousCompany = _PreviousCompany;
+                  _PreviousCompany = companyName;
+                  RaiseCompanyChanged(new CompanyChangedEventArgs(previousCompany, companyName));
+               }
+               return _PreviousCompany;
             }
          }
       }
@@ -620,12 +660,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
             lock (GetSyncObject())
             {
-               string databaseName;
-               _ObjectDesigner.GetDatabaseName(out databaseName);
-               if (string.IsNullOrEmpty(databaseName))
-                  return string.Empty;
-               else
-                  return databaseName;
+               _ObjectDesigner.GetDatabaseName(out var databaseName);
+               databaseName = databaseName ?? string.Empty;
+               if (databaseName != _PreviousDatabase)
+               {
+                  var previousDatabase = _PreviousDatabase;
+                  _PreviousDatabase = databaseName;
+                  RaiseDatabaseChanged(new DatabaseChangedEventArgs(previousDatabase, databaseName));
+               }
+               return _PreviousDatabase;
             }
          }
       }
@@ -643,12 +686,18 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
             lock (GetSyncObject())
             {
-               string serverName;
-               _ObjectDesigner.GetServerName(out serverName);
-               if (string.IsNullOrEmpty(serverName))
-                  return string.Empty;
-               else
-                  return serverName;
+               _ObjectDesigner.GetServerName(out var serverName);
+               serverName = serverName ?? string.Empty;
+               if (serverName != _PreviousServer)
+               {
+                  var previousServerName = _PreviousServer;
+                  _PreviousServer = serverName;
+                  _ObjectDesigner.GetServerType(out var serverType);
+                  var previousServerType = _PreviousServerType;
+                  _PreviousServerType = (ServerType)serverType;
+                  RaiseServerChanged(new ServerChangedEventArgs(previousServerType, previousServerName, (ServerType)serverType, serverName));
+               }
+               return _PreviousServer;
             }
          }
       }
@@ -666,9 +715,24 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
             lock (GetSyncObject())
             {
-               int serverType = 0;
-               _ObjectDesigner.GetServerType(out serverType);
-               return (ServerType)serverType;
+               _ObjectDesigner.GetServerType(out var serverType);
+               _PreviousServerType = (ServerType)serverType;
+               if ((ServerType)serverType != _PreviousServerType)
+               {
+                  var previousServerType = _PreviousServerType;
+                  _PreviousServerType = (ServerType)serverType;
+                  _ObjectDesigner.GetServerName(out var serverName);
+                  serverName = serverName ?? string.Empty;
+                  var previousServerName = _PreviousServer;
+                  _PreviousServer = serverName;
+                  RaiseServerChanged(
+                                     new ServerChangedEventArgs(
+                                                                previousServerType,
+                                                                previousServerName,
+                                                                (ServerType)serverType,
+                                                                serverName));
+               }
+               return _PreviousServerType;
             }
          }
       }
@@ -696,6 +760,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                int result = _ObjectDesigner.GetApplicationVersion(out appVersion);
                if (result != 0)
                   throw CSideException.GetException(result);
+               _ApplicationVersion = appVersion ?? string.Empty;
                return appVersion;
             }
          }

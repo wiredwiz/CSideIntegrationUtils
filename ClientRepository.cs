@@ -13,15 +13,25 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private static ClientRepository _Default;
       private readonly Dictionary<long, Client> _RunningClients;
       private readonly SynchronizationContext _Context;
+      private Thread _PollingThread;
+      private int _PollingInterval;
+      private bool _PollClients;
 
       /// <summary>
       /// Initializes a new instance of the <see cref="ClientRepository"/> class.
       /// </summary>
       public ClientRepository()
       {
+         _PollClients = true;
+         _PollingInterval = 200;
          _Context = SynchronizationContext.Current;
          _RunningClients = new Dictionary<long, Client>();
-         GetClients();
+         BeginPolling();
+      }
+
+      ~ClientRepository()
+      {
+         StopPolling();
       }
 
       public static ClientRepository Default => _Default ?? (_Default = new ClientRepository());
@@ -38,6 +48,31 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Occurs when a client, that the repository is aware of, closes.
       /// </summary>
       public event ClientEventHandler ClientClosed;
+
+      public int PollingInterval
+      {
+         get => _PollingInterval;
+         set
+         {
+            if (value < 100)
+               throw new ArgumentException("Cannot be less than 100", nameof(PollingInterval));
+
+            _PollingInterval = value;
+         }
+      }
+
+      public bool PollClients
+      {
+         get => _PollClients;
+         set
+         {
+            _PollClients = value;
+            if (_PollClients)
+               BeginPolling();
+            else
+               StopPolling();
+         }
+      }
 
       [DllImport("user32.dll", SetLastError = true)]
       private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
@@ -94,6 +129,29 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          windowHandle = (int)(key >> 32);
          processId = (int)key;
+      }
+
+      private void BeginPolling()
+      {
+         var start = new ThreadStart(HandlePolling);
+         _PollingThread = new Thread(start) { IsBackground = true };
+         _PollingThread.Start();
+      }
+
+      private void StopPolling()
+      {
+         _PollingThread.Join(400);
+         _PollingThread = null;
+      }
+
+      private void HandlePolling()
+      {
+         while (_PollClients)
+         {
+            var designers = GetActiveClientList();
+            UpdateClientCache(designers);
+            Thread.Sleep(_PollingInterval); 
+         }
       }
 
       /// <summary>
@@ -158,7 +216,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          foreach (var pair in _RunningClients.ToList())
          {
             if (!pids.Contains(pair.Value.ProcessId))
+            {
+               var client = pair.Value;
                _RunningClients.Remove(pair.Key);
+               RaiseClientClosed(client);
+            }
          }
 
          // Now we loop through our new list of clients and reconcile it against our previously known clients
@@ -180,8 +242,18 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
             GetWindowThreadProcessId((IntPtr)handle, out var pid);
             var key = PackKey(handle, pid);
-            if (!_RunningClients.ContainsKey(key))
-               _RunningClients[key] = new Client(designer, key, handle, (int)pid);
+            Client client;
+            if (!_RunningClients.TryGetValue(key, out client))
+            {
+               client = new Client(this, designer, key, handle, (int)pid);
+               _RunningClients[key] = client;
+               RaiseNewClientDetected(client);
+            }
+            else
+            {
+               // update existing client data
+               client.UpdateServerDatabaseCompanyInfo();
+            }
          }
       }
 
@@ -222,8 +294,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       public virtual List<Client> GetClients()
       {
-         var designers = GetActiveClientList();
-         UpdateClientCache(designers);
+         if (!_PollClients)
+         {
+            var designers = GetActiveClientList();
+            UpdateClientCache(designers);
+         }
          return _RunningClients?.Values.ToList();
       }
 
@@ -243,6 +318,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          if (string.IsNullOrEmpty(database))
             throw new ArgumentNullException(nameof(database));
 
+         if (!_PollClients)
+         {
+            var designers = GetActiveClientList();
+            UpdateClientCache(designers);
+         }
          foreach (var client in _RunningClients.Values)
          {
             if (serverType != client.ServerType)
@@ -267,6 +347,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>The <see cref="Client"/> instance or null if no instance found.</returns>
       public virtual Client GetClientById(long identifier)
       {
+         if (!_PollClients)
+         {
+            var designers = GetActiveClientList();
+            UpdateClientCache(designers);
+         }
          return _RunningClients.TryGetValue(identifier, out var client) ? client : null;
       }
    }
