@@ -36,7 +36,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    {
       #region Non-Public Fields (18)
 
-      private SynchronizationContext _Context;
       private IObjectDesigner _ObjectDesigner;
       private Dictionary<NavObjectType, Dictionary<int, Object>> _Objects;
       private ApplicationEventSubscriber _Subscriber;
@@ -71,7 +70,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          _Repository = repository;
          _ObjectDesigner = objectDesigner;
-         _Context = SynchronizationContext.Current;
          Identifier = identifier;
          ProcessId = processId;
          WindowHandle = windowsHandle;
@@ -501,8 +499,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          if (_CompanyChanged != null)
          {
-            if (_Context != null)
-               _Context.Post(PostCompanyChangedEvent, args);
+            if (_Repository.Context != null)
+               _Repository.Context.Post(PostCompanyChangedEvent, args);
             else
                PostCompanyChangedEvent(args);
          }
@@ -516,8 +514,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          if (_DatabaseChanged != null)
          {
-            if (_Context != null)
-               _Context.Post(PostDatabaseChangedEvent, args);
+            if (_Repository.Context != null)
+               _Repository.Context.Post(PostDatabaseChangedEvent, args);
             else
                PostDatabaseChangedEvent(args);
          }
@@ -531,8 +529,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          if (_ServerChanged != null)
          {
-            if (_Context != null)
-               _Context.Post(PostServerChangedEvent, args);
+            if (_Repository.Context != null)
+               _Repository.Context.Post(PostServerChangedEvent, args);
             else
                PostServerChangedEvent(args);
          }

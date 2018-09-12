@@ -12,7 +12,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    {
       private static ClientRepository _Default;
       private readonly Dictionary<long, Client> _RunningClients;
-      private readonly SynchronizationContext _Context;
+      internal readonly SynchronizationContext Context;
       private Thread _PollingThread;
       private int _PollingInterval;
       private bool _PollClients;
@@ -24,7 +24,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          _PollClients = true;
          _PollingInterval = 200;
-         _Context = SynchronizationContext.Current;
+         Context = SynchronizationContext.Current;
          _RunningClients = new Dictionary<long, Client>();
          BeginPolling();
       }
@@ -274,8 +274,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          if (NewClientDetected != null)
          {
-            if (_Context != null)
-               _Context.Post(PostNewClientDetectedEvent, client);
+            if (Context != null)
+               Context.Post(PostNewClientDetectedEvent, client);
             else
                PostNewClientDetectedEvent(client);
          }
@@ -285,8 +285,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          if (ClientClosed != null)
          {
-            if (_Context != null)
-               _Context.Post(PostClientClosedEvent, client);
+            if (Context != null)
+               Context.Post(PostClientClosedEvent, client);
             else
                PostClientClosedEvent(client);
          }
