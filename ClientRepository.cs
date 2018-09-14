@@ -239,7 +239,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                // If we can't retrieve an INSHyperlink reference then the likely hood is that the client is no longer valid.
                if (applicationInstance == null)
                {
-                  // decrement designer instance reference count
+                  // decrement designer instance reference count since we are done with it
                   Marshal.ReleaseComObject(designer);
                   continue;
                }
@@ -247,14 +247,14 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
             catch (COMException)
             {
-               // decrement designer instance reference count
+               // decrement designer instance reference count since we are done with it
                Marshal.ReleaseComObject(designer);
                // The client is likely busy, in which case we are just going to come back to it once it is responding
                continue;
             }
             catch (Exception)
             {
-               // decrement designer instance reference count
+               // decrement designer instance reference count since we are done with it
                Marshal.ReleaseComObject(designer);
                // Some other unknown issue is going on with this client, so we will skip it this pass
                continue;
@@ -263,7 +263,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             // If the client just closed and the handle is no longer valid, we skip it
             if (GetWindowThreadProcessId((IntPtr)handle, out var pid) == 0)
             {
-               // decrement designer instance reference count
+               // decrement designer instance reference count since we are done with it
                Marshal.ReleaseComObject(designer);
                continue;
             }
@@ -274,20 +274,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             // If the instance is a closing client then we skip it
             if (_ClosingClientIds.Contains(key))
             {
-               // decrement designer instance reference count
+               // decrement designer instance reference count since we are done with it
                Marshal.ReleaseComObject(designer);
                continue;
             }
 
             if (!_RunningClients.TryGetValue(key, out var client))
             {
+               // we do not release the designer reference here since the new client instance will be in charge of doing that
                client = new Client(this, designer, key, handle, (int)pid);
                _RunningClients[key] = client;
                RaiseNewClientDetected(client);
             }
             else
             {
-               // decrement designer instance reference count
+               // decrement designer instance reference count since we are done with it
                Marshal.ReleaseComObject(designer);
                // update existing client data
                client.UpdateServerDatabaseCompanyInfo();
