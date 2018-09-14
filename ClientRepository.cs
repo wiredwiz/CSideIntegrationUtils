@@ -253,13 +253,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
             var key = PackKey(handle, pid);
 
-            // Make sure this "new" client we are seeing is not a client in the middle of closing that we just removed form our list
+            // Make sure this "new" client we are seeing is not a client in the middle of closing that we just removed from our list
             // If the instance is a closing client then we skip it
             if (_ClosingClientIds.Contains(key))
                continue;
 
-            Client client;
-            if (!_RunningClients.TryGetValue(key, out client))
+            if (!_RunningClients.TryGetValue(key, out var client))
             {
                client = new Client(this, designer, key, handle, (int)pid);
                _RunningClients[key] = client;
