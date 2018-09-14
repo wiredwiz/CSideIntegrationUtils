@@ -30,20 +30,15 @@
       {
          this.components = new System.ComponentModel.Container();
          System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmClientSessions));
-         this.timer1 = new System.Windows.Forms.Timer(this.components);
          this.lstClients = new System.Windows.Forms.ListView();
          this.colType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.colServer = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.colDatabase = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.colCompany = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-         this.btnOpenDiagnostic = new System.Windows.Forms.Button();
          this.colBusy = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+         this.btnOpenDiagnostic = new System.Windows.Forms.Button();
+         this.timer1 = new System.Windows.Forms.Timer(this.components);
          this.SuspendLayout();
-         // 
-         // timer1
-         // 
-         this.timer1.Interval = 200;
-         this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
          // 
          // lstClients
          // 
@@ -81,6 +76,10 @@
          this.colCompany.Text = "Company";
          this.colCompany.Width = 200;
          // 
+         // colBusy
+         // 
+         this.colBusy.Text = "Is Busy";
+         // 
          // btnOpenDiagnostic
          // 
          this.btnOpenDiagnostic.Location = new System.Drawing.Point(12, 263);
@@ -91,9 +90,10 @@
          this.btnOpenDiagnostic.UseVisualStyleBackColor = true;
          this.btnOpenDiagnostic.Click += new System.EventHandler(this.btnOpenDiagnostic_Click);
          // 
-         // colBusy
+         // timer1
          // 
-         this.colBusy.Text = "Is Busy";
+         this.timer1.Interval = 200;
+         this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
          // 
          // frmClientSessions
          // 
@@ -106,14 +106,11 @@
          this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
          this.Name = "frmClientSessions";
          this.Text = "C/Side Clients";
-         this.Load += new System.EventHandler(this.frmClientSessions_Load);
          this.ResumeLayout(false);
 
       }
 
       #endregion
-
-      private System.Windows.Forms.Timer timer1;
       private System.Windows.Forms.ListView lstClients;
       private System.Windows.Forms.ColumnHeader colServer;
       private System.Windows.Forms.ColumnHeader colDatabase;
@@ -121,6 +118,7 @@
       private System.Windows.Forms.Button btnOpenDiagnostic;
       private System.Windows.Forms.ColumnHeader colType;
       private System.Windows.Forms.ColumnHeader colBusy;
+      private System.Windows.Forms.Timer timer1;
    }
 }
 
