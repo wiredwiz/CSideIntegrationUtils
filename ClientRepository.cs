@@ -241,9 +241,14 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                   continue;
                applicationInstance.GetNavWindowHandle(out handle);
             }
-            catch (Exception)
+            catch (COMException)
             {
                // The client is likely busy, in which case we are just going to come back to it once it is responding
+               continue;
+            }
+            catch (Exception)
+            {
+               // Some other unknown issue is going on with this client, so we will skip it this pass
                continue;
             }
 
