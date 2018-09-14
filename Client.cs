@@ -101,9 +101,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       #endregion Constructors/Deconstructors
 
-      #region Delegates and Events (6)
+      #region Delegates and Events (5)
 
-      #region Events (7)
+      public delegate void BusyStatusEventHandler(object sender, bool isBusy);
+
+      #region Events (4)
 
       /// <summary>
       /// Occurs when the client instance changes company.
@@ -173,6 +175,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
          }
       }
+
+      public event BusyStatusEventHandler BusyStatusChanged;
 
       #endregion Events
 
@@ -472,6 +476,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
+      /// Posts the busy status changed event.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      private void PostBusyStatusChangedEvent(object state)
+      {
+         BusyStatusChanged?.Invoke(this, (bool)state);
+      }
+
+      /// <summary>
       /// Posts the company changed event.
       /// </summary>
       /// <param name="state">The state.</param>
@@ -496,6 +509,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private void PostServerChangedEvent(object state)
       {
          _ServerChanged(this, state as ServerChangedEventArgs);
+      }
+
+      /// <summary>
+      /// Raises the BusyStatusChanged event.
+      /// </summary>
+      /// <param name="isBusy">if set to <c>true</c> [is busy].</param>
+      internal void RaiseBusyStatusChanged(bool isBusy)
+      {
+         if (BusyStatusChanged != null)
+         {
+            if (_Repository.Context != null)
+               _Repository.Context.Post(PostBusyStatusChangedEvent, isBusy);
+            else
+               PostBusyStatusChangedEvent(isBusy);
+         }
       }
 
       /// <summary>
