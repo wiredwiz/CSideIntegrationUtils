@@ -432,35 +432,42 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       internal void UpdateServerDatabaseCompanyInfo()
       {
-         lock (GetSyncObject())
+         try
          {
-            _ObjectDesigner.GetCompanyName(out var companyName);
-            _ObjectDesigner.GetDatabaseName(out var databaseName);
-            _ObjectDesigner.GetServerName(out var serverName);
-            _ObjectDesigner.GetServerType(out var serverType);
-
-            if ((ServerType)serverType != _PreviousServerType || serverName != _PreviousServer)
+            lock (GetSyncObject(TimeSpan.FromMilliseconds(10)))
             {
-               var previousServerType = _PreviousServerType;
-               var previousServerName = _PreviousServer;
-               _PreviousServerType = (ServerType)serverType;
-               _PreviousServer = serverName ?? string.Empty;
-               RaiseServerChanged(new ServerChangedEventArgs(previousServerType, previousServerName, (ServerType)serverType, serverName));
-            }
+               _ObjectDesigner.GetCompanyName(out var companyName);
+               _ObjectDesigner.GetDatabaseName(out var databaseName);
+               _ObjectDesigner.GetServerName(out var serverName);
+               _ObjectDesigner.GetServerType(out var serverType);
 
-            if (databaseName != _PreviousDatabase)
-            {
-               var previousDatabase = _PreviousDatabase;
-               _PreviousDatabase = databaseName ?? string.Empty;
-               RaiseDatabaseChanged(new DatabaseChangedEventArgs(previousDatabase, databaseName));
-            }
+               if ((ServerType)serverType != _PreviousServerType || serverName != _PreviousServer)
+               {
+                  var previousServerType = _PreviousServerType;
+                  var previousServerName = _PreviousServer;
+                  _PreviousServerType = (ServerType)serverType;
+                  _PreviousServer = serverName ?? string.Empty;
+                  RaiseServerChanged(new ServerChangedEventArgs(previousServerType, previousServerName, (ServerType)serverType, serverName));
+               }
 
-            if (companyName != _PreviousCompany)
-            {
-               var previousCompanyName = _PreviousCompany;
-               _PreviousCompany = companyName ?? string.Empty;
-               RaiseCompanyChanged(new CompanyChangedEventArgs(previousCompanyName, companyName));
+               if (databaseName != _PreviousDatabase)
+               {
+                  var previousDatabase = _PreviousDatabase;
+                  _PreviousDatabase = databaseName ?? string.Empty;
+                  RaiseDatabaseChanged(new DatabaseChangedEventArgs(previousDatabase, databaseName));
+               }
+
+               if (companyName != _PreviousCompany)
+               {
+                  var previousCompanyName = _PreviousCompany;
+                  _PreviousCompany = companyName ?? string.Empty;
+                  RaiseCompanyChanged(new CompanyChangedEventArgs(previousCompanyName, companyName));
+               }
             }
+         }
+         catch (CSideException)
+         {
+            return;
          }
       }
 

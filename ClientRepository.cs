@@ -12,6 +12,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    {
       private static ClientRepository _Default;
       private readonly Dictionary<long, Client> _RunningClients;
+      private readonly List<long> _ClosingClientIds;
       internal readonly SynchronizationContext Context;
       private Thread _PollingThread;
       private int _PollingInterval;
@@ -25,6 +26,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          _PollClients = true;
          _PollingInterval = 200;
          Context = SynchronizationContext.Current;
+         _ClosingClientIds = new List<long>();
          _RunningClients = new Dictionary<long, Client>();
          BeginPolling();
       }
@@ -211,6 +213,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       protected virtual void UpdateClientCache(List<object> clientList)
       {
+         // Clear the list of closing client keys from last poll, since they should now be closed
+         _ClosingClientIds.Clear();
+
          // First remove all dead clients from our list by checking whether their process is alive
          var pids = GetRunningProcessIds();
          foreach (var pair in _RunningClients.ToList())
@@ -219,6 +224,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             {
                var client = pair.Value;
                _RunningClients.Remove(pair.Key);
+               _ClosingClientIds.Add(pair.Key);
                RaiseClientClosed(client);
             }
          }
@@ -237,11 +243,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
             catch (Exception)
             {
+               // The client is likely busy, in which case we are just going to come back to it once it is responding
                continue;
             }
 
-            GetWindowThreadProcessId((IntPtr)handle, out var pid);
+            // If the client just closed and the handle is no longer valid, we skip it
+            if (GetWindowThreadProcessId((IntPtr)handle, out var pid) == 0)
+               continue;
+
             var key = PackKey(handle, pid);
+
+            // Make sure this "new" client we are seeing is not a client in the middle of closing that we just removed form our list
+            // If the instance is a closing client then we skip it
+            if (_ClosingClientIds.Contains(key))
+               continue;
+
             Client client;
             if (!_RunningClients.TryGetValue(key, out client))
             {
@@ -262,8 +278,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          var clientProcesses = new List<int>();
          foreach (Process process in Process.GetProcesses())
          {
-            if (string.Compare(process.ProcessName, "finsql", StringComparison.OrdinalIgnoreCase) == 0 ||
-                string.Compare(process.ProcessName, "fin", StringComparison.OrdinalIgnoreCase) == 0)
+            //if (string.Compare(process.ProcessName, "finsql", StringComparison.OrdinalIgnoreCase) == 0 ||
+            //    string.Compare(process.ProcessName, "fin", StringComparison.OrdinalIgnoreCase) == 0)
                clientProcesses.Add(process.Id);
          }
 
