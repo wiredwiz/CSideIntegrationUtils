@@ -238,30 +238,46 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                INSHyperlink applicationInstance = designer as INSHyperlink;
                // If we can't retrieve an INSHyperlink reference then the likely hood is that the client is no longer valid.
                if (applicationInstance == null)
+               {
+                  // decrement designer instance reference count
+                  Marshal.ReleaseComObject(designer);
                   continue;
+               }
                applicationInstance.GetNavWindowHandle(out handle);
             }
             catch (COMException)
             {
+               // decrement designer instance reference count
+               Marshal.ReleaseComObject(designer);
                // The client is likely busy, in which case we are just going to come back to it once it is responding
                continue;
             }
             catch (Exception)
             {
+               // decrement designer instance reference count
+               Marshal.ReleaseComObject(designer);
                // Some other unknown issue is going on with this client, so we will skip it this pass
                continue;
             }
 
             // If the client just closed and the handle is no longer valid, we skip it
             if (GetWindowThreadProcessId((IntPtr)handle, out var pid) == 0)
+            {
+               // decrement designer instance reference count
+               Marshal.ReleaseComObject(designer);
                continue;
+            }
 
             var key = PackKey(handle, pid);
 
             // Make sure this "new" client we are seeing is not a client in the middle of closing that we just removed from our list
             // If the instance is a closing client then we skip it
             if (_ClosingClientIds.Contains(key))
+            {
+               // decrement designer instance reference count
+               Marshal.ReleaseComObject(designer);
                continue;
+            }
 
             if (!_RunningClients.TryGetValue(key, out var client))
             {
@@ -271,6 +287,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
             else
             {
+               // decrement designer instance reference count
+               Marshal.ReleaseComObject(designer);
                // update existing client data
                client.UpdateServerDatabaseCompanyInfo();
             }
