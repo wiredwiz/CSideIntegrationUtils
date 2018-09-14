@@ -157,6 +157,19 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
+      /// Cleans up designer instance by decrementing its COM reference count.
+      /// </summary>
+      /// <param name="designer">The designer to clean up.</param>
+      private void CleanUpDesignerInstance(IObjectDesigner designer)
+      {
+         if (designer == null)
+            return;
+
+         // decrement designer instance reference count since we are done with it
+         Marshal.ReleaseComObject(designer);
+      }
+
+      /// <summary>
       /// Gets the active client list.
       /// </summary>
       /// <returns>A list of designer objects corresponding to running client instances</returns>
@@ -239,23 +252,20 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                // If we can't retrieve an INSHyperlink reference then the likely hood is that the client is no longer valid.
                if (applicationInstance == null)
                {
-                  // decrement designer instance reference count since we are done with it
-                  Marshal.ReleaseComObject(designer);
+                  CleanUpDesignerInstance(designer);
                   continue;
                }
                applicationInstance.GetNavWindowHandle(out handle);
             }
             catch (COMException)
             {
-               // decrement designer instance reference count since we are done with it
-               Marshal.ReleaseComObject(designer);
+               CleanUpDesignerInstance(designer);
                // The client is likely busy, in which case we are just going to come back to it once it is responding
                continue;
             }
             catch (Exception)
             {
-               // decrement designer instance reference count since we are done with it
-               Marshal.ReleaseComObject(designer);
+               CleanUpDesignerInstance(designer);
                // Some other unknown issue is going on with this client, so we will skip it this pass
                continue;
             }
@@ -263,8 +273,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             // If the client just closed and the handle is no longer valid, we skip it
             if (GetWindowThreadProcessId((IntPtr)handle, out var pid) == 0)
             {
-               // decrement designer instance reference count since we are done with it
-               Marshal.ReleaseComObject(designer);
+               CleanUpDesignerInstance(designer);
                continue;
             }
 
@@ -274,8 +283,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             // If the instance is a closing client then we skip it
             if (_ClosingClientIds.Contains(key))
             {
-               // decrement designer instance reference count since we are done with it
-               Marshal.ReleaseComObject(designer);
+               CleanUpDesignerInstance(designer);
                continue;
             }
 
@@ -288,8 +296,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
             else
             {
-               // decrement designer instance reference count since we are done with it
-               Marshal.ReleaseComObject(designer);
+               CleanUpDesignerInstance(designer);
                // update existing client data
                client.UpdateServerDatabaseCompanyInfo();
             }
