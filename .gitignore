@@ -8,3 +8,7 @@
 /SigningKey.pfx
 /bin/Debug
 /Diagnostics/bin/Debug
+/Diagnostics/obj/x86/Release
+/obj/Release
+/bin/Release
+/Diagnostics/bin/Release
