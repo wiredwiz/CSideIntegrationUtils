@@ -29,17 +29,14 @@ namespace CSide_Library_Diagnostics_Tool
 {
    public partial class frmClientSessions : global::System.Windows.Forms.Form
    {
-      private ClientRepository Repository;
-
       private Dictionary<long, ListViewItem> ListItems;
 
       public frmClientSessions()
       {
          InitializeComponent();
-         Repository = new ClientRepository();
          ListItems = new Dictionary<long, ListViewItem>();
-         Repository.NewClientDetected += Repository_NewClientDetected;
-         Repository.ClientClosed += Repository_ClientClosed;
+         ClientRepository.Default.NewClientDetected += Repository_NewClientDetected;
+         ClientRepository.Default.ClientClosed += Repository_ClientClosed;
          PopulateClients();
          //timer1.Start();
       }
@@ -47,7 +44,7 @@ namespace CSide_Library_Diagnostics_Tool
       private void PopulateClients()
       {
          ListItems.Clear();
-         foreach (var client in Repository.GetClients())
+         foreach (var client in ClientRepository.Default.GetClients())
          {
             var item = new ListViewItem(new[] { client.ServerType.ToString(), client.Server, client.Database, client.Company, "No" });
             item.Tag = client.Identifier;
@@ -126,32 +123,6 @@ namespace CSide_Library_Diagnostics_Tool
          if (sender is Client client)
             if (ListItems.TryGetValue(client.Identifier, out var item))
                item.SubItems[4].Text = isBusy ? "Yes" : "No";
-      }
-
-      private void lstClients_DoubleClick(object sender, EventArgs e)
-      {
-         OpenDiagnosticWindow();
-      }
-
-      private void btnOpenDiagnostic_Click(object sender, EventArgs e)
-      {
-         OpenDiagnosticWindow();
-      }
-
-      private void OpenDiagnosticWindow()
-      {
-         //if ((lstClients.SelectedItems == null) || (lstClients.SelectedItems.Count == 0))
-         //{
-         //   MessageBox.Show("Please select a client session first");
-         //   return;
-         //}
-         //string[] id = lstClients.SelectedItems[0].Name.Split(new char[] {'|'});
-         //Client client;
-         //client = ClientRepository.Default.GetClient(id[0] == "SQL" ? ServerType.SQL : ServerType.Native, id[1], id[2], id[3]);
-         //var diagnostic = new frmDiagnostic();
-         //diagnostic.SetClient(client);
-         //diagnostic.ShowDialog();
-         //client.Dispose();
       }
    }
 }

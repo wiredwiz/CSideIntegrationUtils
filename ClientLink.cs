@@ -123,28 +123,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             }
          }
          if (client == null)
-            try
-            {
-               System.Diagnostics.Process.Start(ToString());
-            }
-            catch (System.ComponentModel.Win32Exception ex)
-            {
-               //System.Windows.Forms.MessageBox.Show(
-               //   "Unable to find Navision client\nPlease contact IT to repair your Navision installation",
-               //   "Problem opening link",
-               //   System.Windows.Forms.MessageBoxButtons.OK,
-               //   System.Windows.Forms.MessageBoxIcon.Exclamation);
-               throw;
-            }
+            System.Diagnostics.Process.Start(ToString());
          else
-            try
-            {
-               client.OpenLink(ToString());
-            }
-            finally
-            {
-               client.Dispose();
-            }
+            client.OpenLink(ToString());
       }
 
       /// <summary>Returns a constructed Navision client link string containing data from the current ClientLink instance.</summary>
