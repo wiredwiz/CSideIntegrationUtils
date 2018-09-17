@@ -233,12 +233,19 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          var pids = GetRunningProcessIds();
          foreach (var pair in _RunningClients.ToList())
          {
+            var client = pair.Value;
             if (!pids.Contains(pair.Value.ProcessId))
-            {
-               var client = pair.Value;
+            {               
                _RunningClients.Remove(pair.Key);
                _ClosingClientIds.Add(pair.Key);
                RaiseClientClosed(client);
+            }
+            else
+            {
+               var previous = client._PreviousBusyStatus;
+               var current = client.IsBusy;
+               if (previous != current)
+                  client.RaiseBusyStatusChanged(current);
             }
          }
 

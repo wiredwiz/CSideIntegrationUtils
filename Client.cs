@@ -38,7 +38,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       private IObjectDesigner _ObjectDesigner;
       private Dictionary<NavObjectType, Dictionary<int, Object>> _Objects;
-      private ApplicationEventSubscriber _Subscriber;
       // The GUID constant is left for reference of those reading the project, but it isn't actually used here.
       private const string NavisionClientInterfaceGUID = "50000004-0000-1000-0004-0000836BD2D2";
       private EventHandler<DatabaseChangedEventArgs> _DatabaseChanged;
@@ -48,7 +47,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       internal string _PreviousDatabase;
       internal ServerType _PreviousServerType;
       internal string _PreviousServer;
-      private string _CsideVersion;
+      internal bool _PreviousBusyStatus;
       private string _ApplicationVersion;
       private bool _TransactionInProgress;
       private ClientRepository _Repository;
@@ -85,7 +84,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             _PreviousDatabase = databaseName ?? string.Empty;
             _PreviousServerType = (ServerType)serverType;
             _PreviousServer = serverName ?? string.Empty;
-            _CsideVersion = csideVersion;
+            CSideVersion = csideVersion;
             _ApplicationVersion = appVersion;
          }
       }
@@ -272,24 +271,24 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
+            bool result = false;
             // We attempt to fetch the window handle since it should have very little overhead, and if successful we know the client is responding
             try
             {
                INSHyperlink app = _ObjectDesigner as INSHyperlink;
-               Int32 handle;
                // If we can't retrieve an INSHyperlink reference then the likely hood is that the client is no longer valid.
                // In this case we will return false because the client isn't waiting for anything.  Validity issues should be handled elsewhere.
-               if (app == null)
-                  return false;
-               app.GetNavWindowHandle(out handle);
+               app?.GetNavWindowHandle(out var handle);
             }
             catch (COMException ex)
             {
                if ((ex.ErrorCode == CSideError.RPC_E_CALL_REJECTED) ||
                    (ex.ErrorCode == CSideError.RPC_E_SERVERCALL_RETRYLATER))
-                  return true;
+                  result = true;
             }
-            return false;
+
+            _PreviousBusyStatus = result;
+            return result;
          }
       }
 
@@ -774,7 +773,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the C/Side version.
       /// </summary>
       /// <value>The C/Side version.</value>
-      public string CSideVersion => _CsideVersion;
+      public string CSideVersion { get; }
 
       /// <summary>
       /// Gets the application version.
