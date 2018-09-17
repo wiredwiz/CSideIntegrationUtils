@@ -875,7 +875,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="tableID">The table ID.</param>
       /// <returns>A <see cref="Table"/> instance</returns>
       /// <remarks>Attempts to retrieve the table name via EnumTables(), but some table names cannot be obtained this way.
-      /// If the name cannot be retrieved then it is set to "[Name Unavailable]".  This is usually only for some virtual tables.</remarks>
+      /// This is usually only for some virtual tables.  This method will first attempt to lookup the name based on known virtual tables.
+      /// If the name cannot be retrieved this way, then it is set to "[Name Unavailable]"</remarks>
       public Table GetTable(int tableID)
       {
          Table result;
@@ -890,7 +891,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             result = tables[tableID];
          else
          {
-            result = new Table(tableID, "[Name Unavailable]", this);
+            result = new Table(tableID, VirtualTables.TryGetName(tableID) ?? "[Name Unavailable]", this);
             Int32 error = appBase.GetTable(tableID, out backingTable);
             if (error != 0)
                return null;  // maybe this should throw an exception instead
