@@ -28,7 +28,6 @@
       /// </summary>
       private void InitializeComponent()
       {
-         this.components = new System.ComponentModel.Container();
          System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmClientSessions));
          this.lstClients = new System.Windows.Forms.ListView();
          this.colType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -37,7 +36,6 @@
          this.colCompany = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.colBusy = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
          this.btnOpenDiagnostic = new System.Windows.Forms.Button();
-         this.timer1 = new System.Windows.Forms.Timer(this.components);
          this.SuspendLayout();
          // 
          // lstClients
@@ -90,11 +88,6 @@
          this.btnOpenDiagnostic.UseVisualStyleBackColor = true;
          this.btnOpenDiagnostic.Click += new System.EventHandler(this.btnOpenDiagnostic_Click);
          // 
-         // timer1
-         // 
-         this.timer1.Interval = 200;
-         this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-         // 
          // frmClientSessions
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -118,7 +111,6 @@
       private System.Windows.Forms.Button btnOpenDiagnostic;
       private System.Windows.Forms.ColumnHeader colType;
       private System.Windows.Forms.ColumnHeader colBusy;
-      private System.Windows.Forms.Timer timer1;
    }
 }
 

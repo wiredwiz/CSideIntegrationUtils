@@ -41,7 +41,7 @@ namespace CSide_Library_Diagnostics_Tool
          Repository.NewClientDetected += Repository_NewClientDetected;
          Repository.ClientClosed += Repository_ClientClosed;
          PopulateClients();
-         timer1.Start();
+         //timer1.Start();
       }
 
       private void PopulateClients()
@@ -57,6 +57,7 @@ namespace CSide_Library_Diagnostics_Tool
             client.ServerChanged += Client_ServerChanged;
             client.DatabaseChanged += Client_DatabaseChanged;
             client.CompanyChanged += Client_CompanyChanged;
+            client.BusyStatusChanged += Client_BusyStatusChanged;
          }
       }
 
@@ -75,6 +76,7 @@ namespace CSide_Library_Diagnostics_Tool
          client.ServerChanged += Client_ServerChanged;
          client.DatabaseChanged += Client_DatabaseChanged;
          client.CompanyChanged += Client_CompanyChanged;
+         client.BusyStatusChanged += Client_BusyStatusChanged;
          var item = new ListViewItem(new[] { client.ServerType.ToString(), client.Server, client.Database, client.Company, "No" });
          item.Tag = client.Identifier;
          item.Name = client.Identifier.ToString();
@@ -119,6 +121,13 @@ namespace CSide_Library_Diagnostics_Tool
          }
       }
 
+      private void Client_BusyStatusChanged(object sender, bool isBusy)
+      {
+         if (sender is Client client)
+            if (ListItems.TryGetValue(client.Identifier, out var item))
+               item.SubItems[4].Text = isBusy ? "Yes" : "No";
+      }
+
       private void lstClients_DoubleClick(object sender, EventArgs e)
       {
          OpenDiagnosticWindow();
@@ -143,20 +152,6 @@ namespace CSide_Library_Diagnostics_Tool
          //diagnostic.SetClient(client);
          //diagnostic.ShowDialog();
          //client.Dispose();
-      }
-
-      private void timer1_Tick(object sender, EventArgs e)
-      {
-         foreach (var client in Repository.GetClients())
-         {
-            ListViewItem item;
-            if (ListItems.TryGetValue(client.Identifier, out item))
-            {
-               var newValue = client.IsBusy ? "Yes" : "No";
-               if (item.SubItems[4].Text != newValue)
-                  item.SubItems[4].Text = newValue;
-            }
-         }
       }
    }
 }
