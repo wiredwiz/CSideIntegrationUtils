@@ -450,21 +450,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                   var previousServerName = _PreviousServer;
                   _PreviousServerType = (ServerType)serverType;
                   _PreviousServer = serverName ?? string.Empty;
-                  RaiseServerChanged(new ServerChangedEventArgs(previousServerType, previousServerName, (ServerType)serverType, serverName));
+                  ThreadPool.QueueUserWorkItem(delegate { RaiseServerChanged(new ServerChangedEventArgs(previousServerType, previousServerName, (ServerType)serverType, serverName)); });
                }
 
                if (databaseName != _PreviousDatabase)
                {
                   var previousDatabase = _PreviousDatabase;
                   _PreviousDatabase = databaseName ?? string.Empty;
-                  RaiseDatabaseChanged(new DatabaseChangedEventArgs(previousDatabase, databaseName));
+                  ThreadPool.QueueUserWorkItem(delegate { RaiseDatabaseChanged(new DatabaseChangedEventArgs(previousDatabase, databaseName)); });
                }
 
                if (companyName != _PreviousCompany)
                {
                   var previousCompanyName = _PreviousCompany;
                   _PreviousCompany = companyName ?? string.Empty;
-                  RaiseCompanyChanged(new CompanyChangedEventArgs(previousCompanyName, companyName));
+                  ThreadPool.QueueUserWorkItem(delegate { RaiseCompanyChanged(new CompanyChangedEventArgs(previousCompanyName, companyName)); });
                }
             }
          }
@@ -672,7 +672,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                {
                   var previousCompany = _PreviousCompany;
                   _PreviousCompany = companyName;
-                  RaiseCompanyChanged(new CompanyChangedEventArgs(previousCompany, companyName));
+                  ThreadPool.QueueUserWorkItem(delegate { RaiseCompanyChanged(new CompanyChangedEventArgs(previousCompany, companyName)); });
                }
                return _PreviousCompany;
             }
@@ -698,7 +698,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                {
                   var previousDatabase = _PreviousDatabase;
                   _PreviousDatabase = databaseName;
-                  RaiseDatabaseChanged(new DatabaseChangedEventArgs(previousDatabase, databaseName));
+                  ThreadPool.QueueUserWorkItem(delegate { RaiseDatabaseChanged(new DatabaseChangedEventArgs(previousDatabase, databaseName)); });
                }
                return _PreviousDatabase;
             }
@@ -727,7 +727,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                   _ObjectDesigner.GetServerType(out var serverType);
                   var previousServerType = _PreviousServerType;
                   _PreviousServerType = (ServerType)serverType;
-                  RaiseServerChanged(new ServerChangedEventArgs(previousServerType, previousServerName, (ServerType)serverType, serverName));
+                  ThreadPool.QueueUserWorkItem(delegate { RaiseServerChanged(new ServerChangedEventArgs(previousServerType, previousServerName, (ServerType)serverType, serverName)); });
                }
                return _PreviousServer;
             }
@@ -757,12 +757,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                   serverName = serverName ?? string.Empty;
                   var previousServerName = _PreviousServer;
                   _PreviousServer = serverName;
-                  RaiseServerChanged(
-                                     new ServerChangedEventArgs(
-                                                                previousServerType,
-                                                                previousServerName,
-                                                                (ServerType)serverType,
-                                                                serverName));
+                  ThreadPool.QueueUserWorkItem(delegate
+                  {
+                     RaiseServerChanged(new ServerChangedEventArgs(previousServerType, previousServerName, (ServerType)serverType, serverName));
+                  });
                }
                return _PreviousServerType;
             }

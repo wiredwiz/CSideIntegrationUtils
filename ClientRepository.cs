@@ -238,14 +238,14 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             {               
                _RunningClients.Remove(pair.Key);
                _ClosingClientIds.Add(pair.Key);
-               RaiseClientClosed(client);
+               ThreadPool.QueueUserWorkItem(delegate { RaiseClientClosed(client); });               
             }
             else
             {
                var previous = client._PreviousBusyStatus;
                var current = client.IsBusy;
                if (previous != current)
-                  client.RaiseBusyStatusChanged(current);
+                  ThreadPool.QueueUserWorkItem(delegate { client.RaiseBusyStatusChanged(current); });
             }
          }
 
@@ -299,7 +299,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                // we do not release the designer reference here since the new client instance will be in charge of doing that
                client = new Client(this, designer, key, handle, (int)pid);
                _RunningClients[key] = client;
-               RaiseNewClientDetected(client);
+               ThreadPool.QueueUserWorkItem(delegate { RaiseNewClientDetected(client); });               
             }
             else
             {
