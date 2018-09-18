@@ -817,6 +817,27 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
+      /// Reads the specified objects to a stream.
+      /// </summary>
+      /// <param name="navObjectType">Type of the Navision object.</param>
+      /// <param name="fromObjectId">The object number to read from.</param>
+      /// <param name="toObjectId">The object number to read to.</param>
+      /// <returns>A <see cref="System.IO.MemoryStream" /> containing the text for the specified objects</returns>
+      public MemoryStream ReadObjectsToStream(NavObjectType navObjectType, int fromObjectId, int toObjectId)
+      {
+         lock (GetSyncObject())
+         {
+            IStream pOutStm = null;
+            CreateStreamOnHGlobal(0, true, out pOutStm);
+            // We Use ReadObjects() here instead of ReadObject() because ReadObject() is very buggy and outputs bad files
+            int result = _ObjectDesigner.ReadObjects(string.Format("WHERE(Type=CONST({0}),ID=FILTER({1}..{2}))", (int)navObjectType, fromObjectId, toObjectId), pOutStm);
+            if (result != 0)
+               throw CSideException.GetException(result);
+            return ToMemoryStream(pOutStm);
+         }
+      }
+
+      /// <summary>
       /// Writes the specified text object to Navision from a stream.
       /// </summary>
       /// <param name="stream">The stream containing the text for a Navision object.</param>
