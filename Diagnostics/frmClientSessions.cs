@@ -19,7 +19,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -123,6 +125,40 @@ namespace CSide_Library_Diagnostics_Tool
          if (sender is Client client)
             if (ListItems.TryGetValue(client.Identifier, out var item))
                item.SubItems[4].Text = isBusy ? "Yes" : "No";
+      }
+
+      private void ExportObjectsButton_Click(object sender, EventArgs e)
+      {
+         if (lstClients.SelectedItems.Count == 0)
+         {
+            MessageBox.Show("Please select a client session first");
+            return;
+         }
+
+         if (string.IsNullOrEmpty(PathTextbox.Text))
+         {
+            MessageBox.Show("You must specify a file to export to");
+            return;
+         }
+
+         var id = (long)lstClients.SelectedItems[0].Tag;
+         var client = ClientRepository.Default.GetClientById(id);
+         if (client != null)
+         {
+            var progressWindow = new ExportProgress();
+            progressWindow.SetClient(client);
+            progressWindow.SetExportFileName(PathTextbox.Text);
+            progressWindow.Show(this);
+            progressWindow.StartExport();
+         }
+         else
+            MessageBox.Show("Unable to find client");
+      }
+
+      private void FolderLookupButton_Click(object sender, EventArgs e)
+      {
+         if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            PathTextbox.Text = saveFileDialog1.FileName;
       }
    }
 }

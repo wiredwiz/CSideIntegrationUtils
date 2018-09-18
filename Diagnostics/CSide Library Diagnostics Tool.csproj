@@ -64,6 +64,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExportProgress.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExportProgress.Designer.cs">
+      <DependentUpon>ExportProgress.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmClientSessions.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -72,6 +78,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="ExportProgress.resx">
+      <DependentUpon>ExportProgress.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmClientSessions.resx">
       <DependentUpon>frmClientSessions.cs</DependentUpon>
     </EmbeddedResource>
@@ -97,6 +106,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="computer-laptop.ico" />
+    <None Include="Resources\document-open-folder.png" />
     <None Include="Resources\view-refresh-71.png" />
   </ItemGroup>
   <ItemGroup>
