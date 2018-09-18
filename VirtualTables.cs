@@ -49,6 +49,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             case 2000000055: return "SID - Account ID";
             case 2000000058: return "AllObjWithCaption";
             case 2000000063: return "Key";
+            case 2000000101: return "Debugger Call Stack";
+            case 2000000102: return "Debugger Variable";
+            case 2000000103: return "Debugger Watch";
+            case 2000000135: return "Table Synch. Setup";
          }
 
          return null;
