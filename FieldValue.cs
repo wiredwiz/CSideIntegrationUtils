@@ -40,18 +40,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Gets or sets the DataType of the field.
       /// </summary>
-      public string DataType
-      {
-         get { return _DataType; }
-      }
+      public string DataType => _DataType;
 
       /// <summary>
       /// Gets or sets the FieldNo of the field.
       /// </summary>
-      public Int32 FieldNo
-      {
-         get { return _FieldNo; }
-      }
+      public Int32 FieldNo => _FieldNo;
 
       /// <summary>
       /// Gets or sets the value of the field.
@@ -59,16 +53,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <value>The value.</value>
       public string Value
       {
-         get
-         {
-            _Record.LazyLoadBackingRecord();
-            _Value = _Record.GetFieldValue(FieldNo);
-            return _Value;
-         }
-         set
-         {
-            SetValue(value, false);
-         }
+         get => _Value;
+         set => SetValue(value, false);
       }
 
 		#endregion Properties 
@@ -103,6 +89,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="validate">if set to <c>true</c> [validate].</param>
       private void SetValue(string value, bool validate)
       {
+         // TODO: Remove lazy load 
          _Record.LazyLoadBackingRecord();
          _Value = value;
          _Record.SetFieldValue(FieldNo, value, validate);

@@ -150,12 +150,28 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Modifies this instance.
+      /// Modifies this record instance.
       /// </summary>
       public void Modify()
       {
          LazyLoadBackingRecord();
          _Table.ModifyRecord(this);
+      }
+
+      /// <summary>
+      /// Refreshes the data for this record instance.
+      /// </summary>
+      /// <remarks>
+      /// If any field values have been changed but Modify has not been called, they will be lost upon refresh.
+      /// If any of the primary key fields were modified, this will result in a different record being fetched when Refresh is called.
+      /// This is because Refresh really just re-fetches the data record based on the current primary key values.
+      /// </remarks>
+      public void Refresh()
+      {
+         RehydrateRecord();
+         CallbackEnumerator cbEnum = new CallbackEnumerator(this);
+         _Record.EnumFieldValues(cbEnum);
+         _Fields = cbEnum.FieldValues;
       }
 
       /// <summary>
