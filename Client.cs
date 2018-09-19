@@ -838,10 +838,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Writes the specified text object to Navision from a stream.
+      /// Writes the specified text object(s) to Navision from a stream.
       /// </summary>
       /// <param name="stream">The stream containing the text for a Navision object.</param>
-      public void WriteObjectFromStream(Stream stream)
+      /// <remarks>The stream may contain one or more text objects to be written to the database.</remarks>
+      public void WriteObjectsFromStream(Stream stream)
       {
          lock (GetSyncObject())
          {
