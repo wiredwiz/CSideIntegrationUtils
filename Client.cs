@@ -797,7 +797,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Reads the specified object to a stream.
+      /// Reads the specified object to a stream in its text format.
       /// </summary>
       /// <param name="navObjectType">Type of the Navision object.</param>
       /// <param name="objectID">The object ID.</param>
@@ -817,7 +817,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Reads the specified objects to a stream.
+      /// Reads the specified objects to a stream in their text format.
       /// </summary>
       /// <param name="navObjectType">Type of the Navision object.</param>
       /// <param name="fromObjectId">The object number to read from.</param>
