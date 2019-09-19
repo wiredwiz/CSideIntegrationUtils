@@ -84,7 +84,8 @@ namespace CSide_Library_Diagnostics_Tool
                   var stream = Client.ReadObjectsToStream(type, from, to);
                   if (stream.Length != 0)
                   {
-                     stream.WriteTo(masterBuffer);
+                     var buffer = stream.GetBuffer();
+                     masterBuffer.Write(Encoding.Convert(Encoding.GetEncoding(850), Encoding.Default, buffer), 0, buffer.Length);
                      ObjectCount += to - from + 1;
                   }
 
