@@ -8,6 +8,9 @@ using System.Threading;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
+   /// <summary>
+   /// Class that acts as a repository of running clients.
+   /// </summary>
    public class ClientRepository
    {
       private static ClientRepository _Default;
@@ -36,21 +39,35 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          StopPolling();
       }
 
+      /// <summary>
+      /// Gets the default repository instance.
+      /// </summary>
+      /// <value>The default repository.</value>
       public static ClientRepository Default => _Default ?? (_Default = new ClientRepository());
 
 
+      /// <summary>
+      /// Delegate that defines a client event handler
+      /// </summary>
+      /// <param name="sender">The sender.</param>
+      /// <param name="client">The client.</param>
       public delegate void ClientEventHandler(object sender, Client client);
 
       /// <summary>
-      /// Occurs when the repository detects a new client instance.
+      /// Event that occurs when the repository detects a new client instance.
       /// </summary>
       public event ClientEventHandler NewClientDetected;
 
       /// <summary>
-      /// Occurs when a client, that the repository is aware of, closes.
+      /// Event that occurs when a client, that the repository is aware of, closes.
       /// </summary>
       public event ClientEventHandler ClientClosed;
 
+      /// <summary>
+      /// Gets or sets the polling interval in which to look for client changes.
+      /// </summary>
+      /// <value>The polling interval.</value>
+      /// <exception cref="ArgumentException">Cannot be less than 100 - PollingInterval</exception>
       public int PollingInterval
       {
          get => _PollingInterval;
@@ -63,6 +80,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
+      /// <summary>
+      /// Gets or sets a value indicating whether to poll for client changes.
+      /// </summary>
+      /// <value><c>true</c> if polling for client changes; otherwise, <c>false</c>.</value>
       public bool PollClients
       {
          get => _PollClients;
@@ -76,6 +97,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
+      /// <summary>
+      /// Gets the window thread process identifier.
+      /// </summary>
+      /// <param name="hWnd">The hWnd.</param>
+      /// <param name="processId">The process identifier.</param>
+      /// <returns>System.UInt32.</returns>
       [DllImport("user32.dll", SetLastError = true)]
       private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
@@ -119,6 +146,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          ClientClosed?.Invoke(this, state as Client);
       }
 
+      /// <summary>
+      /// Packs the key to identify a client instance.
+      /// </summary>
+      /// <param name="windowHandle">The window handle.</param>
+      /// <param name="processId">The process identifier.</param>
+      /// <returns>A System.Int64 that represents the key.</returns>
       private static long PackKey(int windowHandle, uint processId)
       {
          long key = windowHandle;
@@ -127,6 +160,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return key;
       }
 
+      /// <summary>
+      /// Unpacks the key that identifies a client instance.
+      /// </summary>
+      /// <param name="key">The key.</param>
+      /// <param name="windowHandle">The window handle.</param>
+      /// <param name="processId">The process identifier.</param>
       private static void UnpackKey(long key, out int windowHandle, out int processId)
       {
          windowHandle = (int)(key >> 32);
@@ -224,6 +263,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return clientList;
       }
 
+      /// <summary>
+      /// Updates the client cache.
+      /// </summary>
+      /// <param name="clientList">The client list.</param>
       protected virtual void UpdateClientCache(List<object> clientList)
       {
          // Clear the list of closing client keys from last poll, since they should now be closed
@@ -310,19 +353,23 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
+      /// <summary>
+      /// Gets the running process ids.
+      /// </summary>
+      /// <returns>A <see cref="List{T}"/> of integers representing process id's.</returns>
       protected virtual List<int> GetRunningProcessIds()
       {
          var clientProcesses = new List<int>();
          foreach (Process process in Process.GetProcesses())
-         {
-            //if (string.Compare(process.ProcessName, "finsql", StringComparison.OrdinalIgnoreCase) == 0 ||
-            //    string.Compare(process.ProcessName, "fin", StringComparison.OrdinalIgnoreCase) == 0)
-               clientProcesses.Add(process.Id);
-         }
+            clientProcesses.Add(process.Id);
 
          return clientProcesses;
       }
 
+      /// <summary>
+      /// Raises the new client detected event.
+      /// </summary>
+      /// <param name="client">The client.</param>
       internal void RaiseNewClientDetected(Client client)
       {
          if (NewClientDetected != null)
@@ -334,6 +381,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
+      /// <summary>
+      /// Raises the client closed event.
+      /// </summary>
+      /// <param name="client">The client.</param>
       internal void RaiseClientClosed(Client client)
       {
          if (ClientClosed != null)
@@ -345,6 +396,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
       }
 
+      /// <summary>
+      /// Gets a list of the current Navision clients.
+      /// </summary>
+      /// <returns>A <see cref="List{T}"/> of <see cref="Client"/> instances corresponding to the currently running nav clients.</returns>
       public virtual List<Client> GetClients()
       {
          if (!_PollClients)

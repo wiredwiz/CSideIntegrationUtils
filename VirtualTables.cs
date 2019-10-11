@@ -18,6 +18,9 @@
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
+   /// <summary>
+   /// A static class for methods related to virtual tables.
+   /// </summary>
    public static class VirtualTables
    {
       /// <summary>
