@@ -40,7 +40,6 @@ namespace CSide_Library_Diagnostics_Tool
          ClientRepository.Default.NewClientDetected += Repository_NewClientDetected;
          ClientRepository.Default.ClientClosed += Repository_ClientClosed;
          PopulateClients();
-         //timer1.Start();
       }
 
       private void PopulateClients()
