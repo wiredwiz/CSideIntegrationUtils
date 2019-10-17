@@ -7,6 +7,7 @@
       <Value>enum</Value>
       <Value>guid</Value>
       <Value>handheld</Value>
+      <Value>hresult</Value>
       <Value>ip</Value>
       <Value>keyguard</Value>
       <Value>Nav</Value>
