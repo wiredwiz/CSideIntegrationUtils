@@ -25,9 +25,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Exceptions
    /// <summary>
    /// A class representing a C/Side exception
    /// </summary>
+   [Serializable]
    public class CSideException : Exception
    {
-		#region Constructors/Deconstructors (4) 
+      #region Constructors/Deconstructors (4) 
 
       /// <summary>
       /// Initializes a new instance of the <see cref="CSideException"/> class.
@@ -36,8 +37,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Exceptions
       /// <param name="innerException">The inner exception.</param>
       public CSideException(string message, Exception innerException)
          : base(message, innerException)
-      {
-         
+      {         
       }
 
       /// <summary>
@@ -53,8 +53,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Exceptions
       /// </exception>
       protected CSideException(SerializationInfo info, StreamingContext context)
          : base(info, context)
-      {
-         
+      {         
       }
 
       /// <summary>
@@ -63,23 +62,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Exceptions
       /// <param name="message">The message.</param>
       public CSideException(string message)
          : base(message)
-      {
-         
+      {         
       }
 
       /// <summary>
       /// Initializes a new instance of the <see cref="CSideException"/> class.
       /// </summary>
       public CSideException()
-      {
-         
+      {         
       }
 
-		#endregion Constructors/Deconstructors 
+      #endregion Constructors/Deconstructors 
 
-		#region Methods (1) 
+      #region Methods (1) 
 
-		// Static Methods (1) 
+      // Static Methods (1) 
 
       /// <summary>
       /// Gets the exception corresponding to the hresult.
@@ -87,16 +84,17 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Exceptions
       /// <param name="hresult">The hresult.</param>
       /// <returns>A <see cref="System.Exception"/></returns>
       /// <remarks>If hresult is 0 then an Exception is thrown stating that it is not a valid error</remarks>
+      /// <exception cref="T:System.Exception">The hresult was invalid.</exception>
       public static Exception GetException(int hresult)
       {
          if (hresult == 0)
-            throw new Exception(String.Format("{0} is not a valid error HRESULT", hresult));
+            throw new Exception(string.Format("{0} is not a valid error HRESULT", hresult));
 
          Exception innerException = Marshal.GetExceptionForHR(hresult); 
-         return new CSideException(innerException.Message,innerException);
+         return new CSideException(innerException.Message, innerException);
       }
 
-		#endregion Methods 
+      #endregion Methods 
 
       /// <summary>
       /// Obtains the error information pointer set by the previous call to SetErrorInfo in the current logical thread.
