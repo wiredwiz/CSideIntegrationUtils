@@ -1,5 +1,4 @@
-//
-// Copyright 2010 Thaddeus L Ryker
+// <copyright>Copyright 2010 Thaddeus L Ryker</copyright>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,9 +13,8 @@
 // limitations under the License.
 //
 // Dynamics Nav is a registered trademark of the Microsoft Corporation
-//
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,6 +25,7 @@ using System.Threading;
 using Org.Edgerunner.Dynamics.Nav.CSide.EventArguments;
 using Org.Edgerunner.Dynamics.Nav.CSide.Exceptions;
 
+// ReSharper disable RedundantCast
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>
@@ -36,26 +35,29 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
    {
       #region Non-Public Fields (18)
 
-      private IObjectDesigner _ObjectDesigner;
-      private Dictionary<NavObjectType, Dictionary<int, Object>> _Objects;
       // The GUID constant is left for reference of those reading the project, but it isn't actually used here.
-      private const string NavisionClientInterfaceGUID = "50000004-0000-1000-0004-0000836BD2D2";
+      // ReSharper disable once UnusedMember.Local
+      private const string NavisionClientInterfaceGuid = "50000004-0000-1000-0004-0000836BD2D2";
+
+      private readonly IObjectDesigner _ObjectDesigner;
+      private readonly ClientRepository _Repository;
+
+      private Dictionary<NavObjectType, Dictionary<int, object>> _Objects;
       private EventHandler<DatabaseChangedEventArgs> _DatabaseChanged;
       private EventHandler<CompanyChangedEventArgs> _CompanyChanged;
       private EventHandler<ServerChangedEventArgs> _ServerChanged;
+      private string _ApplicationVersion;
+      private bool _TransactionInProgress;
+      
       internal string _PreviousCompany;
       internal string _PreviousDatabase;
       internal ServerType _PreviousServerType;
       internal string _PreviousServer;
       internal bool _PreviousBusyStatus;
-      private string _ApplicationVersion;
-      private bool _TransactionInProgress;
-      private ClientRepository _Repository;
-
+      
       #endregion Non-Public Fields
 
       #region Constructors/Deconstructors (3)
-
 
       /// <summary>
       /// Initializes a new instance of the <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client" /> class.
@@ -65,6 +67,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="identifier">The unique identifier for the client.</param>
       /// <param name="windowsHandle">The client windows handle.</param>
       /// <param name="processId">The client process identifier.</param>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       internal Client(ClientRepository repository, IObjectDesigner objectDesigner, long identifier, int windowsHandle, int processId)
       {
          _Repository = repository;
@@ -90,6 +93,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
+      /// Finalizes an instance of the <see cref="Client"/> class. 
       /// Releases unmanaged resources and performs other cleanup operations before the
       /// <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"/> is reclaimed by garbage collection.
       /// </summary>
@@ -102,6 +106,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       #region Delegates and Events (5)
 
+      /// <summary>
+      /// Delegate used for busy status changed events
+      /// </summary>
+      /// <param name="sender">The sender.</param>
+      /// <param name="isBusy">if set to <c>true</c> [is busy].</param>
       public delegate void BusyStatusEventHandler(object sender, bool isBusy);
 
       #region Events (4)
@@ -113,16 +122,18 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          add
          {
-            if (_CompanyChanged == null)		// First listener...
+            if (_CompanyChanged == null)
             {
                // TODO: If needed, add code to respond to the first event hook-up.
             }
+
             _CompanyChanged = (EventHandler<CompanyChangedEventArgs>)Delegate.Combine(_CompanyChanged, value);
          }
+
          remove
          {
             _CompanyChanged = (EventHandler<CompanyChangedEventArgs>)Delegate.Remove(_CompanyChanged, value);
-            if (_CompanyChanged == null)  // No more listeners to this event
+            if (_CompanyChanged == null)
             {
                // TODO: Add code to clean up if necessary.
             }
@@ -136,16 +147,18 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          add
          {
-            if (_DatabaseChanged == null)		// First listener...
+            if (_DatabaseChanged == null)
             {
                // TODO: If needed, add code to respond to the first event hook-up.
             }
+
             _DatabaseChanged = (EventHandler<DatabaseChangedEventArgs>)Delegate.Combine(_DatabaseChanged, value);
          }
+
          remove
          {
             _DatabaseChanged = (EventHandler<DatabaseChangedEventArgs>)Delegate.Remove(_DatabaseChanged, value);
-            if (_DatabaseChanged == null)  // No more listeners to this event
+            if (_DatabaseChanged == null)
             {
                // TODO: Add code to clean up if necessary.
             }
@@ -159,32 +172,49 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          add
          {
-            if (_ServerChanged == null)		// First listener...
+            if (_ServerChanged == null)
             {
                // TODO: If needed, add code to respond to the first event hook-up.
             }
+
             _ServerChanged = (EventHandler<ServerChangedEventArgs>)Delegate.Combine(_ServerChanged, value);
          }
+
          remove
          {
             _ServerChanged = (EventHandler<ServerChangedEventArgs>)Delegate.Remove(_ServerChanged, value);
-            if (_ServerChanged == null)  // No more listeners to this event
+            if (_ServerChanged == null)
             {
                // TODO: Add code to clean up if necessary.
             }
          }
       }
 
+      /// <summary>
+      /// Occurs when [busy status changed].
+      /// </summary>
       public event BusyStatusEventHandler BusyStatusChanged;
 
       #endregion Events
 
       #endregion Delegates and Events
 
+      /// <summary>
+      /// Gets the windows process identifier of the client.
+      /// </summary>
+      /// <value>The windows process identifier.</value>
       internal int ProcessId { get; }
 
-      internal IObjectDesigner Designer => _ObjectDesigner as IObjectDesigner;
+      /// <summary>
+      /// Gets the <see cref="IObjectDesigner"/> instance corresponding to the client.
+      /// </summary>
+      /// <value>The <see cref="IObjectDesigner"/> instance.</value>
+      internal IObjectDesigner Designer => _ObjectDesigner;
 
+      /// <summary>
+      /// Gets the unique identifier for the client.
+      /// </summary>
+      /// <value>The unique identifier.</value>
       public long Identifier { get; }
 
       #region Locking support
@@ -195,6 +225,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the sync object to lock upon.
       /// </summary>
       /// <returns>An object to be used for all synchronization locks within the client.</returns>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       internal object GetSyncObject()
       {
          TimeSpan waitPeriod = TimeSpan.Zero;
@@ -212,6 +243,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          if (_SyncLock == null)
             _SyncLock = new object();
          DateTime startTime = DateTime.Now;
+
          // If the client is busy, we wait until it is not, then we return the synchronization lock object.
          while (true)
          {
@@ -221,6 +253,29 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                return _SyncLock;
             if ((timeoutPeriod != TimeSpan.Zero) && ((startTime - DateTime.Now) > timeoutPeriod))
                throw new CSideException("Timed out waiting for synchronization lock");
+         }
+      }
+
+      /// <summary>
+      /// Attempts to get the sync object to lock upon.
+      /// </summary>
+      /// <param name="timeoutPeriod">The timeout period.</param>
+      /// <returns>An object to be used for all synchronization locks within the client or null if the lock could not be obtained.</returns>
+      internal object TryGetSyncObject(TimeSpan timeoutPeriod)
+      {
+         if (_SyncLock == null)
+            _SyncLock = new object();
+         DateTime startTime = DateTime.Now;
+
+         // If the client is busy, we wait until it is not, then we return the synchronization lock object.
+         while (true)
+         {
+            if (IsBusy)
+               Thread.Sleep(500);
+            else
+               return _SyncLock;
+            if ((timeoutPeriod != TimeSpan.Zero) && ((startTime - DateTime.Now) > timeoutPeriod))
+               return null;
          }
       }
 
@@ -237,8 +292,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             // We attempt to fetch the window handle since it should have very little overhead, and if successful we know the client is responding
             try
             {
+               // ReSharper disable once SuspiciousTypeConversion.Global
                INSHyperlink app = _ObjectDesigner as INSHyperlink;
-               Int32 handle;
+               // ReSharper disable once NotAccessedVariable
+               int handle;
+
                // If we can't retrieve an INSHyperlink reference then the likely hood is that the client is no longer valid.
                // In this case we will return false because the client isn't waiting for anything.  Validity issues should be handled elsewhere.
                if (app == null)
@@ -258,10 +316,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             {
                return false;
             }
+
             return true;
          }
       }
-
 
       /// <summary>
       /// Gets a value indicating whether the Dynamics Nav client associated with instance is busy.
@@ -272,10 +330,13 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          get
          {
             bool result = false;
+
             // We attempt to fetch the window handle since it should have very little overhead, and if successful we know the client is responding
             try
             {
+               // ReSharper disable once SuspiciousTypeConversion.Global
                INSHyperlink app = _ObjectDesigner as INSHyperlink;
+
                // If we can't retrieve an INSHyperlink reference then the likely hood is that the client is no longer valid.
                // In this case we will return false because the client isn't waiting for anything.  Validity issues should be handled elsewhere.
                app?.GetNavWindowHandle(out var handle);
@@ -303,29 +364,30 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// This object stores information about a particular moniker-binding operation.
       /// </summary>
       /// <param name="reserved">This parameter is reserved and must be 0.</param>
-      /// <param name="ppbc">Address of an IBindCtx* pointer variable that receives
+      /// <param name="bindContext">Address of an IBindCtx* pointer variable that receives
       /// the interface pointer to the new bind context object. When the function is
       /// successful, the caller is responsible for calling Release on the bind context.
       /// A NULL value for the bind context indicates that an error occurred.</param>
-      /// <returns>This function can return the standard return values E_OUTOFMEMORY and S_OK.</returns>
       [DllImport("ole32.dll")]
-      private static extern void CreateBindCtx(int reserved, out IBindCtx ppbc);
+      // ReSharper disable once StyleCop.SA1650
+      private static extern void CreateBindCtx(int reserved, out IBindCtx bindContext);
 
 
       /// <summary>
-      /// The CreateStreamOnHGlobalfunction creates a stream object that uses an HGLOBAL memory handle to store the stream contents.
+      /// The CreateStreamOnHGlobal function creates a stream object that uses an HGLOBAL memory handle to store the stream contents.
       /// This object is the OLE-provided implementation of the IStream interface.  
       /// The returned stream object supports both reading and writing, is not transacted, and does not support region locking.
       /// The object calls the GlobalReAlloc function to grow the memory block as required
       /// </summary>
-      /// <param name="hGlobalMemHandle">The global memory handle.</param>
-      /// <param name="fDeleteOnRelease">A value that indicates whether the underlying handle for this stream object should be automatically freed when the stream object is released.
+      /// <param name="globalMemoryHandle">The global memory handle.</param>
+      /// <param name="deleteOnRelease">A value that indicates whether the underlying handle for this stream object should be automatically freed when the stream object is released.
       /// If set to <c>false</c>, the caller must free the hGlobal after the final release.
       /// If set to <c>true</c>, the final release will automatically free the hGlobal parameter.</param>
-      /// <param name="ppStm">The address of <see cref="System.Runtime.InteropServices.ComTypes.IStream"/>* pointer variable that receives the interface pointer to the new stream object. Its value cannot be <c>null</c>.</param>
-      /// <returns></returns>
+      /// <param name="newStream">The address of <see cref="System.Runtime.InteropServices.ComTypes.IStream"/>* pointer variable that receives the interface pointer to the new stream object. Its value cannot be <c>null</c>.</param>
+      /// <returns>The resulting error code which is 0 on success.</returns>
       [DllImport("OLE32.DLL")]
-      private static extern int CreateStreamOnHGlobal(int hGlobalMemHandle, bool fDeleteOnRelease, out IStream ppStm);
+      // ReSharper disable once StyleCop.SA1650
+      private static extern int CreateStreamOnHGlobal(int globalMemoryHandle, bool deleteOnRelease, out IStream newStream);
 
       /// <summary>
       /// Gets the active client list.
@@ -433,10 +495,14 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          return null;
       }
 
+      /// <summary>
+      /// Updates the server, database, and company information for the client instance.
+      /// </summary>
       internal void UpdateServerDatabaseCompanyInfo()
       {
          try
          {
+            // ReSharper disable once ExceptionNotDocumented
             lock (GetSyncObject(TimeSpan.FromMilliseconds(10)))
             {
                _ObjectDesigner.GetCompanyName(out var companyName);
@@ -470,7 +536,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
          catch (CSideException)
          {
-            return;
+            // fail silently in this case
          }
       }
 
@@ -514,6 +580,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Raises the BusyStatusChanged event.
       /// </summary>
       /// <param name="isBusy">if set to <c>true</c> [is busy].</param>
+      // ReSharper disable once StyleCop.SA1305
       internal void RaiseBusyStatusChanged(bool isBusy)
       {
          if (BusyStatusChanged != null)
@@ -580,13 +647,13 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          byte[] buffer = new byte[stream.Length];
          stream.Read(buffer, 0, buffer.Length);
          uint num = 0;
-         IntPtr pcbWritten = new IntPtr((void*)&num);
-         IStream pOutStm = null;
-         CreateStreamOnHGlobal(0, true, out pOutStm);
-         pOutStm.Write(buffer, buffer.Length, pcbWritten);
-         pOutStm.Seek((long)0, 0, IntPtr.Zero);
-         return pOutStm;
+         IntPtr pointerToBytesWritten = new IntPtr((void*)&num);
+         CreateStreamOnHGlobal(0, true, out var outStream);
+         outStream.Write(buffer, buffer.Length, pointerToBytesWritten);
+         outStream.Seek((long)0, 0, IntPtr.Zero);
+         return outStream;
       }
+
       /// <summary>
       /// Transfers the contents of an IStream into a MemoryStream.
       /// </summary>
@@ -617,7 +684,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </returns>
       public override string ToString()
       {
-         return String.Format(@"{0}\{1}-{2}", Server, Database, Company);
+         return string.Format(@"{0}\{1}-{2}", Server, Database, Company);
       }
 
       #endregion Methods
@@ -628,12 +695,13 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Compiles the specified object.
       /// </summary>
       /// <param name="navObjectType">Type of the Nav object.</param>
-      /// <param name="objectID">The object ID.</param>
-      public void CompileObject(NavObjectType navObjectType, int objectID)
+      /// <param name="objectId">The object Id.</param>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">Either the client is busy, invalid or there was a license permission issue.</exception>
+      public void CompileObject(NavObjectType navObjectType, int objectId)
       {
          lock (GetSyncObject())
          {
-            int result = _ObjectDesigner.CompileObject((int)navObjectType, objectID);
+            int result = _ObjectDesigner.CompileObject((int)navObjectType, objectId);
             if (result != 0)
                throw CSideException.GetException(result);
          }
@@ -643,6 +711,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Compiles the objects within the supplied filter.
       /// </summary>
       /// <param name="filter">The filter.</param>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">Either the client is busy, invalid or there was a license permission issue.</exception>
       public void CompileObjects(string filter)
       {
          lock (GetSyncObject())
@@ -657,6 +726,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the company name.
       /// </summary>
       /// <value>The company.</value>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       public string Company
       {
          get
@@ -674,6 +744,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                   _PreviousCompany = companyName;
                   ThreadPool.QueueUserWorkItem(delegate { RaiseCompanyChanged(new CompanyChangedEventArgs(previousCompany, companyName)); });
                }
+
                return _PreviousCompany;
             }
          }
@@ -683,6 +754,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the database name.
       /// </summary>
       /// <value>The database.</value>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       public string Database
       {
          get
@@ -700,6 +772,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                   _PreviousDatabase = databaseName;
                   ThreadPool.QueueUserWorkItem(delegate { RaiseDatabaseChanged(new DatabaseChangedEventArgs(previousDatabase, databaseName)); });
                }
+
                return _PreviousDatabase;
             }
          }
@@ -709,6 +782,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the server name.
       /// </summary>
       /// <value>The server.</value>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       public string Server
       {
          get
@@ -729,6 +803,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                   _PreviousServerType = (ServerType)serverType;
                   ThreadPool.QueueUserWorkItem(delegate { RaiseServerChanged(new ServerChangedEventArgs(previousServerType, previousServerName, (ServerType)serverType, serverName)); });
                }
+
                return _PreviousServer;
             }
          }
@@ -738,6 +813,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the type of the server.
       /// </summary>
       /// <value>The type of the server.</value>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       public ServerType ServerType
       {
          get
@@ -762,6 +838,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                      RaiseServerChanged(new ServerChangedEventArgs(previousServerType, previousServerName, (ServerType)serverType, serverName));
                   });
                }
+
                return _PreviousServerType;
             }
          }
@@ -800,19 +877,27 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Reads the specified object to a stream in its text format.
       /// </summary>
       /// <param name="navObjectType">Type of the Navision object.</param>
-      /// <param name="objectID">The object ID.</param>
+      /// <param name="objectId">The object Id.</param>
       /// <returns>A <see cref="System.IO.MemoryStream"/> containing the text for the specified object</returns>
-      public MemoryStream ReadObjectToStream(NavObjectType navObjectType, int objectID)
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">Either the client is busy, invalid or there was a license permission issue.</exception>
+      public MemoryStream ReadObjectToStream(NavObjectType navObjectType, int objectId)
       {
          lock (GetSyncObject())
          {
-            IStream pOutStm = null;
-            CreateStreamOnHGlobal(0, true, out pOutStm);
+            CreateStreamOnHGlobal(0, true, out var outStream);
+
             // We Use ReadObjects() here instead of ReadObject() because ReadObject() is very buggy and outputs bad files
-            int result = _ObjectDesigner.ReadObjects(string.Format("WHERE(Type=CONST({0}),ID=CONST({1}))", (int)navObjectType, objectID), pOutStm);
+            int result = _ObjectDesigner.ReadObjects(
+               string.Format(
+                  "WHERE(Type=CONST({0}),ID=CONST({1}))", 
+                  (int)navObjectType, 
+                  objectId), 
+               outStream);
+
             if (result != 0)
                throw CSideException.GetException(result);
-            return ToMemoryStream(pOutStm);
+
+            return ToMemoryStream(outStream);
          }
       }
 
@@ -820,20 +905,29 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Reads the specified objects to a stream in their text format.
       /// </summary>
       /// <param name="navObjectType">Type of the Navision object.</param>
-      /// <param name="fromObjectId">The object number to read from.</param>
-      /// <param name="toObjectId">The object number to read to.</param>
+      /// <param name="objectIdRangeStart">The object number to read from.</param>
+      /// <param name="objectIdRangeStop">The object number to read to.</param>
       /// <returns>A <see cref="System.IO.MemoryStream" /> containing the text for the specified objects</returns>
-      public MemoryStream ReadObjectsToStream(NavObjectType navObjectType, int fromObjectId, int toObjectId)
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">An error occurred while attempting the read.  A likely cause is a license permission issue.</exception>
+      public MemoryStream ReadObjectsToStream(NavObjectType navObjectType, int objectIdRangeStart, int objectIdRangeStop)
       {
          lock (GetSyncObject())
          {
-            IStream pOutStm = null;
-            CreateStreamOnHGlobal(0, true, out pOutStm);
+            CreateStreamOnHGlobal(0, true, out var outStream);
+
             // We Use ReadObjects() here instead of ReadObject() because ReadObject() is very buggy and outputs bad files
-            int result = _ObjectDesigner.ReadObjects(string.Format("WHERE(Type=CONST({0}),ID=FILTER({1}..{2}))", (int)navObjectType, fromObjectId, toObjectId), pOutStm);
+            int result = _ObjectDesigner.ReadObjects(
+               string.Format(
+                  "WHERE(Type=CONST({0}),ID=FILTER({1}..{2}))", 
+                  (int)navObjectType, 
+                  objectIdRangeStart, 
+                  objectIdRangeStop), 
+               outStream);
+
             if (result != 0)
                throw CSideException.GetException(result);
-            return ToMemoryStream(pOutStm);
+
+            return ToMemoryStream(outStream);
          }
       }
 
@@ -842,6 +936,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <param name="stream">The stream containing the text for a Navision object.</param>
       /// <remarks>The stream may contain one or more text objects to be written to the database.</remarks>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">An error occurred while attempting the read.  A likely cause is a license permission issue.</exception>
       public void WriteObjectsFromStream(Stream stream)
       {
          lock (GetSyncObject())
@@ -908,13 +1003,13 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             return null;
          CallbackEnumerator cbEnum = new CallbackEnumerator(this);
          EnumTables(cbEnum, tableID);
-         Dictionary<Int32, Table> tables = cbEnum.Tables;
+         Dictionary<int, Table> tables = cbEnum.Tables;
          if (tables.Count != 0)
             result = tables[tableID];
          else
          {
             result = new Table(tableID, VirtualTables.TryGetName(tableID) ?? "[Name Unavailable]", this);
-            Int32 error = appBase.GetTable(tableID, out backingTable);
+            int error = appBase.GetTable(tableID, out backingTable);
             if (error != 0)
                return null;  // maybe this should throw an exception instead
             result.SetBackingTable(backingTable);
@@ -1001,7 +1096,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>The tables returned will include some (but not all) of the virtual tables in the database. Some virtual tables that this will not include can still be obtained
       /// with a call to GetTable().</remarks>
       /// <value>The tables.</value>
-      public Dictionary<Int32, Table> Tables
+      public Dictionary<int, Table> Tables
       {
          get
          {
@@ -1024,7 +1119,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the objects in the database the client is attached to.
       /// </summary>
       /// <value>The objects.</value>
-      public Dictionary<NavObjectType, Dictionary<int, Object>> Objects
+      public Dictionary<NavObjectType, Dictionary<int, object>> Objects
       {
          get
          {
@@ -1041,9 +1136,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                   table.SetFilter(2, "=''");
                   // I'm leaving the below code as is instead of using LINQ for the readability of those new to C#
                   List<Record> records = table.FetchRecords();
-                  _Objects = new Dictionary<NavObjectType, Dictionary<int, Object>>();
+                  _Objects = new Dictionary<NavObjectType, Dictionary<int, object>>();
                   foreach (NavObjectType objectType in Enum.GetValues(typeof(NavObjectType)))
-                     _Objects.Add(objectType, new Dictionary<int, Object>());
+                     _Objects.Add(objectType, new Dictionary<int, object>());
                   foreach (Record record in records)
                   {
                      Object nObject = new Object(record);
@@ -1069,11 +1164,11 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             if (table == null)
                throw new CSideException("Unable to retrieve the Object table");
             // Filter for the type of object we are fetching
-            table.SetFilter(1, String.Format("={0}", (int)objectType));
+            table.SetFilter(1, string.Format("={0}", (int)objectType));
             table.SetFilter(2, "=''");
             // Filter for the specific object number if it was specified
             if (objectID != 0)
-               table.SetFilter(3, String.Format("={0}", objectID));
+               table.SetFilter(3, string.Format("={0}", objectID));
             return table.FetchRecords().ConvertAll<Object>(x => new Object(x));
          }
       }
@@ -1120,7 +1215,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the window handle for the Navision client instance.
       /// </summary>
       /// <value>The window handle.</value>
-      public Int32 WindowHandle { get; }
+      public int WindowHandle { get; }
 
       #endregion
 

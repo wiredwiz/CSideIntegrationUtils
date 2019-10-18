@@ -76,21 +76,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Exceptions
 
       #region Methods (1) 
 
-      // Static Methods (1) 
+      // Static Methods (1) 
 
       /// <summary>
       /// Gets the exception corresponding to the hresult.
       /// </summary>
-      /// <param name="hresult">The hresult.</param>
-      /// <returns>A <see cref="System.Exception"/></returns>
-      /// <remarks>If hresult is 0 then an Exception is thrown stating that it is not a valid error</remarks>
-      /// <exception cref="T:System.Exception">The hresult was invalid.</exception>
-      public static Exception GetException(int hresult)
+      /// <param name="errorCode">The error code.</param>
+      /// <returns>A <see cref="CSideException"/>.</returns>
+      /// <remarks>If the error code is 0 then an Exception is thrown stating that it is not a valid error</remarks>
+      /// <exception cref="T:System.ArgumentException">The error code was invalid.</exception>
+      public static CSideException GetException(int errorCode)
       {
-         if (hresult == 0)
-            throw new Exception(string.Format("{0} is not a valid error HRESULT", hresult));
+         if (errorCode == 0)
+            throw new ArgumentException(string.Format("{0} is not a valid error code", errorCode));
 
-         Exception innerException = Marshal.GetExceptionForHR(hresult); 
+         Exception innerException = Marshal.GetExceptionForHR(errorCode); 
          return new CSideException(innerException.Message, innerException);
       }
 
@@ -99,10 +99,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Exceptions
       /// <summary>
       /// Obtains the error information pointer set by the previous call to SetErrorInfo in the current logical thread.
       /// </summary>
-      /// <param name="dwReserved">Reserved for future use. Must be zero.</param>
-      /// <param name="ppIErrorInfo">Pointer to a pointer to an error object.</param>
+      /// <param name="reserved">Reserved for future use. Must be zero.</param>
+      /// <param name="errorInfo">Pointer to a pointer to an error object.</param>
       /// <returns>The return value obtained from the returned HRESULT is either S_OK if an error was obtained or S_FALSE if no error exists</returns>
       [DllImport("oleaut32.dll", CharSet = CharSet.Unicode)]
-      private static extern int GetErrorInfo(int dwReserved, [MarshalAs(UnmanagedType.Interface)] out IErrorInfo ppIErrorInfo);
+      private static extern int GetErrorInfo(int reserved, [MarshalAs(UnmanagedType.Interface)] out IErrorInfo errorInfo);
    }
 }
