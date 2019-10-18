@@ -25,6 +25,7 @@ using System.Threading;
 using Org.Edgerunner.Dynamics.Nav.CSide.EventArguments;
 using Org.Edgerunner.Dynamics.Nav.CSide.Exceptions;
 
+// ReSharper disable RedundantNameQualifier
 // ReSharper disable SuspiciousTypeConversion.Global
 // ReSharper disable RedundantCast
 namespace Org.Edgerunner.Dynamics.Nav.CSide
@@ -441,7 +442,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          }
 
          return clientList;
-
       }
 
       /// <summary>
@@ -1158,17 +1158,18 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                      _Objects[currentObject.Type].Add(currentObject.ID, currentObject);
                   }
                }
+
                return _Objects;
             }
          }
       }
 
-      /// <summary>Retrieves a list of <see cref="Object"/>(s)</summary>
+      /// <summary>Retrieves a list of <see cref="CSide.Object"/>(s)</summary>
       /// <param name="objectType">The object type to be retrieved</param>
-      /// <param name="objectID">The ID number of the object to retrieve</param>
-      /// <remarks>If you wish to retrieve all objects of a given type, the <see cref="objectID"/> should be 0.</remarks>
+      /// <param name="objectId">The Id number of the object to retrieve</param>
+      /// <remarks>If you wish to retrieve all objects of a given type, the <see cref="objectId"/> should be 0.</remarks>
       /// <returns>A List of objects</returns>
-      private List<Object> DoGetObjects(NavObjectType objectType, int objectID)
+      private List<CSide.Object> DoGetObjects(NavObjectType objectType, int objectId)
       {
          lock (GetSyncObject())
          {
@@ -1176,31 +1177,34 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             var table = GetTable(2000000001);
             if (table == null)
                throw new CSideException("Unable to retrieve the Object table");
+
             // Filter for the type of object we are fetching
             table.SetFilter(1, string.Format("={0}", (int)objectType));
             table.SetFilter(2, "=''");
+
             // Filter for the specific object number if it was specified
-            if (objectID != 0)
-               table.SetFilter(3, string.Format("={0}", objectID));
-            return table.FetchRecords().ConvertAll<Object>(x => new Object(x));
+            if (objectId != 0)
+               table.SetFilter(3, string.Format("={0}", objectId));
+
+            return table.FetchRecords().ConvertAll(x => new CSide.Object(x));
          }
       }
 
       /// <summary>Retrieves a specific Object instance.</summary>
       /// <param name="objectType">Object type you wish to retrieve.</param>
-      /// <param name="objectID">ID number of the object you wish to retrieve.</param>
+      /// <param name="objectId">Id number of the object you wish to retrieve.</param>
       /// <returns>An Object instance.</returns>
-      public Object GetObject(NavObjectType objectType, int objectID)
+      public CSide.Object GetObject(NavObjectType objectType, int objectId)
       {
-         return DoGetObjects(objectType, objectID).FirstOrDefault<Object>();
+         return DoGetObjects(objectType, objectId).FirstOrDefault();
       }
 
       /// <summary>Retrieves a dictionary containing objects indexed by their object number.</summary>
-      /// <param name="objectType">Object type you wish to retreive.</param>
+      /// <param name="objectType">Object type you wish to retrieve.</param>
       /// <returns>A dictionary of objects indexed by their number.</returns>
-      public Dictionary<int, Object> GetObjects(NavObjectType objectType)
+      public Dictionary<int, CSide.Object> GetObjects(NavObjectType objectType)
       {
-         return DoGetObjects(objectType, 0).ToDictionary<Object, int>(o => o.ID);
+         return DoGetObjects(objectType, 0).ToDictionary(o => o.ID);
       }
       #endregion
 
@@ -1219,8 +1223,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             if (string.IsNullOrEmpty(link))
                return;
             INSHyperlink app = _ObjectDesigner as INSHyperlink;
-            if (app != null)
-               app.Open(link);
+            app?.Open(link);
          }
       }
 
@@ -1237,7 +1240,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Gets the current open and active form inside the Navision client instance.
       /// </summary>
-      /// <value>The current <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Form"/>.</value>
+      /// <value>The current <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Form" />.</value>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">The client is busy or a license issue exists.</exception>
       public Form CurrentForm
       {
          get
@@ -1278,9 +1282,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             if (_Objects != null)
                foreach (NavObjectType objectType in _Objects.Keys)
-                  foreach (Object navObject in _Objects[objectType].Values)
+                  foreach (CSide.Object navObject in _Objects[objectType].Values)
                      navObject.Dispose();
          }
+
          // free unmanaged resources
          if (_ObjectDesigner != null)
             Marshal.ReleaseComObject(_ObjectDesigner);
@@ -1288,4 +1293,3 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       #endregion
    }
 }
-
