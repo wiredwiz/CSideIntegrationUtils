@@ -17,4 +17,5 @@ Dynamics Nav is a registered trademark of the Microsoft Corporation</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Edgerunner/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=hresult/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Navision/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/UserDictionary/Words/=Ryker/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=Ryker/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=tabledata/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

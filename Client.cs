@@ -25,6 +25,7 @@ using System.Threading;
 using Org.Edgerunner.Dynamics.Nav.CSide.EventArguments;
 using Org.Edgerunner.Dynamics.Nav.CSide.Exceptions;
 
+// ReSharper disable SuspiciousTypeConversion.Global
 // ReSharper disable RedundantCast
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
@@ -42,7 +43,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       private readonly IObjectDesigner _ObjectDesigner;
       private readonly ClientRepository _Repository;
 
-      private Dictionary<NavObjectType, Dictionary<int, object>> _Objects;
+      private Dictionary<NavObjectType, Dictionary<int, CSide.Object>> _Objects;
       private EventHandler<DatabaseChangedEventArgs> _DatabaseChanged;
       private EventHandler<CompanyChangedEventArgs> _CompanyChanged;
       private EventHandler<ServerChangedEventArgs> _ServerChanged;
@@ -954,9 +955,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Gets the specified table.
       /// </summary>
-      /// <param name="tableNo">The table ID.</param>
+      /// <param name="tableId">The table Id.</param>
       /// <returns>An instance of a <see cref="Org.Edgerunner.Dynamics.Nav.CSide.INSTable"/> or <c>null</c> if unable to get a reference</returns>
-      internal INSTable GetTableInternal(int tableID)
+      internal INSTable GetTableInternal(int tableId)
       {
          lock (GetSyncObject())
          {
@@ -964,7 +965,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             INSAppBase appBase = _ObjectDesigner as INSAppBase;
             if (appBase == null)
                return null;
-            appBase.GetTable(tableID, out table);
+            appBase.GetTable(tableId, out table);
             return table;
          }
       }
@@ -973,15 +974,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Enumerates the tables in the database the client is attached to.
       /// </summary>
       /// <param name="enumerator">The enumerator.</param>
-      /// <param name="tableID">The table ID.</param>
-      internal void EnumTables(CallbackEnumerator enumerator, int tableID)
+      /// <param name="tableId">The table Id.</param>
+      internal void EnumTables(CallbackEnumerator enumerator, int tableId)
       {
          lock (GetSyncObject())
          {
             INSAppBase appBase = _ObjectDesigner as INSAppBase;
             if (appBase == null)
                return;
-            appBase.EnumTables(enumerator, tableID);
+            appBase.EnumTables(enumerator, tableId);
          }
       }
 
@@ -989,27 +990,27 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Retrieves an Table instance that corresponds to the table ID provided.
       /// </summary>
-      /// <param name="tableID">The table ID.</param>
+      /// <param name="tableId">The table Id.</param>
       /// <returns>A <see cref="Table"/> instance</returns>
       /// <remarks>Attempts to retrieve the table name via EnumTables(), but some table names cannot be obtained this way.
       /// This is usually only for some virtual tables.  This method will first attempt to lookup the name based on known virtual tables.
       /// If the name cannot be retrieved this way, then it is set to "[Name Unavailable]"</remarks>
-      public Table GetTable(int tableID)
+      public Table GetTable(int tableId)
       {
          Table result;
          INSTable backingTable;
          INSAppBase appBase = _ObjectDesigner as INSAppBase;
          if (appBase == null)
             return null;
-         CallbackEnumerator cbEnum = new CallbackEnumerator(this);
-         EnumTables(cbEnum, tableID);
-         Dictionary<int, Table> tables = cbEnum.Tables;
+         var callbackEnumerator = new CallbackEnumerator(this);
+         EnumTables(callbackEnumerator, tableId);
+         Dictionary<int, Table> tables = callbackEnumerator.Tables;
          if (tables.Count != 0)
-            result = tables[tableID];
+            result = tables[tableId];
          else
          {
-            result = new Table(tableID, VirtualTables.TryGetName(tableID) ?? "[Name Unavailable]", this);
-            int error = appBase.GetTable(tableID, out backingTable);
+            result = new Table(tableId, VirtualTables.TryGetName(tableId) ?? "[Name Unavailable]", this);
+            int error = appBase.GetTable(tableId, out backingTable);
             if (error != 0)
                return null;  // maybe this should throw an exception instead
             result.SetBackingTable(backingTable);
@@ -1021,6 +1022,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <summary>
       /// Begins a transaction inside the Navision client instance.
       /// </summary>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideTransactionException">A transaction is already in progress.</exception>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">The client is either busy or there is a license permission issue.</exception>
       public void BeginTransaction()
       {
          lock (GetSyncObject())
@@ -1029,7 +1032,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             if (appBase == null)
                return;
             if (_TransactionInProgress)
-               throw new CSideException("A transaction is already in progress.");
+               throw new CSideTransactionException("A transaction is already in progress.");
             int result = appBase.StartTrans();
             if (result != 0)
                throw CSideException.GetException(result);
@@ -1041,6 +1044,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Triggers an error to be displayed inside the Navision client instance with the supplied message.
       /// </summary>
       /// <param name="message">The message to be displayed.</param>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">The supplied message is raised as an exception.</exception>
+      /// <exception cref="T:System.Runtime.InteropServices.COMException">There was a problem of some kind with the client.</exception>
       public void Error(string message)
       {
          lock (GetSyncObject())
@@ -1082,11 +1087,14 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Commits the current transaction and automatically begins a new one.
       /// </summary>
       /// <remarks>If you need to simply commit the current changes during a transaction, this method should be used rather than EndTransaction</remarks>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">The client is either busy or there is a license permission issue.</exception>
       public void Commit()
       {
+         // ReSharper disable once StyleCop.SA1305
          bool inProgress = _TransactionInProgress;
          EndTransaction(true);
          if (inProgress)
+            // ReSharper disable once ExceptionNotDocumented
             BeginTransaction();
       }
 
@@ -1108,9 +1116,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                INSAppBase appBase = _ObjectDesigner as INSAppBase;
                if (appBase == null)
                   return null;
-               CallbackEnumerator cbEnum = new CallbackEnumerator(this);
-               appBase.EnumTables(cbEnum, 0);
-               return cbEnum.Tables;
+               var callbackEnumerator = new CallbackEnumerator(this);
+               appBase.EnumTables(callbackEnumerator, 0);
+               return callbackEnumerator.Tables;
             }
          }
       }
@@ -1119,7 +1127,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the objects in the database the client is attached to.
       /// </summary>
       /// <value>The objects.</value>
-      public Dictionary<NavObjectType, Dictionary<int, object>> Objects
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">Unable to retrieve the Object table.</exception>
+      public Dictionary<NavObjectType, Dictionary<int, CSide.Object>> Objects
       {
          get
          {
@@ -1131,18 +1140,22 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                   Table table = GetTable(2000000001);
                   if (table == null)
                      throw new CSideException("Unable to retrieve the Object table");
+
                   // Filter for blank company and objects of type other than tabledata
                   table.SetFilter(1, ">0");
                   table.SetFilter(2, "=''");
+
                   // I'm leaving the below code as is instead of using LINQ for the readability of those new to C#
                   List<Record> records = table.FetchRecords();
-                  _Objects = new Dictionary<NavObjectType, Dictionary<int, object>>();
+                  _Objects = new Dictionary<NavObjectType, Dictionary<int, CSide.Object>>();
+
                   foreach (NavObjectType objectType in Enum.GetValues(typeof(NavObjectType)))
-                     _Objects.Add(objectType, new Dictionary<int, object>());
+                     _Objects.Add(objectType, new Dictionary<int, CSide.Object>());
+
                   foreach (Record record in records)
                   {
-                     Object nObject = new Object(record);
-                     _Objects[nObject.Type].Add(nObject.ID, nObject); ;
+                     var currentObject = new CSide.Object(record);
+                     _Objects[currentObject.Type].Add(currentObject.ID, currentObject);
                   }
                }
                return _Objects;
