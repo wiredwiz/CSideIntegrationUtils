@@ -1,4 +1,20 @@
-﻿using System;
+﻿// <copyright>Copyright 2019 Thaddeus L Ryker</copyright>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Dynamics Nav is a registered trademark of the Microsoft Corporation
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,20 +25,42 @@ using System.Threading;
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>
-   /// Class that acts as a repository of running clients.
+   ///    Class that acts as a repository of running clients.
    /// </summary>
    public class ClientRepository
    {
-      private static ClientRepository _Default;
-      private readonly Dictionary<long, Client> _RunningClients;
-      private readonly List<long> _ClosingClientIds;
-      internal readonly SynchronizationContext Context;
-      private Thread _PollingThread;
-      private int _PollingInterval;
-      private bool _PollClients;
+      #region Delegates
 
       /// <summary>
-      /// Initializes a new instance of the <see cref="ClientRepository"/> class.
+      ///    Delegate that defines a client event handler
+      /// </summary>
+      /// <param name="sender">The sender.</param>
+      /// <param name="client">The client.</param>
+      public delegate void ClientEventHandler(object sender, Client client);
+
+      #endregion
+
+      private static ClientRepository _Default;
+
+      /// <summary>
+      ///    The synchronization context
+      /// </summary>
+      internal readonly SynchronizationContext Context;
+
+      private readonly List<long> _ClosingClientIds;
+
+      private readonly Dictionary<long, Client> _RunningClients;
+
+      private bool _PollClients;
+
+      private int _PollingInterval;
+
+      private Thread _PollingThread;
+
+      #region Constructors And Finalizers
+
+      /// <summary>
+      ///    Initializes a new instance of the <see cref="ClientRepository" /> class.
       /// </summary>
       public ClientRepository()
       {
@@ -39,49 +77,16 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          StopPolling();
       }
 
+      #endregion
+
       /// <summary>
-      /// Gets the default repository instance.
+      ///    Gets the default repository instance.
       /// </summary>
       /// <value>The default repository.</value>
       public static ClientRepository Default => _Default ?? (_Default = new ClientRepository());
 
-
       /// <summary>
-      /// Delegate that defines a client event handler
-      /// </summary>
-      /// <param name="sender">The sender.</param>
-      /// <param name="client">The client.</param>
-      public delegate void ClientEventHandler(object sender, Client client);
-
-      /// <summary>
-      /// Event that occurs when the repository detects a new client instance.
-      /// </summary>
-      public event ClientEventHandler NewClientDetected;
-
-      /// <summary>
-      /// Event that occurs when a client, that the repository is aware of, closes.
-      /// </summary>
-      public event ClientEventHandler ClientClosed;
-
-      /// <summary>
-      /// Gets or sets the polling interval in which to look for client changes.
-      /// </summary>
-      /// <value>The polling interval.</value>
-      /// <exception cref="ArgumentException">Cannot be less than 100 - PollingInterval</exception>
-      public int PollingInterval
-      {
-         get => _PollingInterval;
-         set
-         {
-            if (value < 100)
-               throw new ArgumentException("Cannot be less than 100", nameof(PollingInterval));
-
-            _PollingInterval = value;
-         }
-      }
-
-      /// <summary>
-      /// Gets or sets a value indicating whether to poll for client changes.
+      ///    Gets or sets a value indicating whether to poll for client changes.
       /// </summary>
       /// <value><c>true</c> if polling for client changes; otherwise, <c>false</c>.</value>
       public bool PollClients
@@ -98,56 +103,63 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Gets the window thread process identifier.
+      ///    Gets or sets the polling interval in which to look for client changes.
       /// </summary>
-      /// <param name="hWnd">The hWnd.</param>
+      /// <value>The polling interval.</value>
+      /// <exception cref="ArgumentException">Cannot be less than 100 - PollingInterval</exception>
+      public int PollingInterval
+      {
+         get => _PollingInterval;
+         set
+         {
+            if (value < 100)
+               throw new ArgumentException("Cannot be less than 100", nameof(PollingInterval));
+
+            _PollingInterval = value;
+         }
+      }
+
+      #region Static
+
+      /// <summary>
+      ///    Returns a pointer to an implementation of IBindCtx (a bind context object).
+      ///    This object stores information about a particular moniker-binding operation.
+      /// </summary>
+      /// <param name="reserved">This parameter is reserved and must be 0.</param>
+      /// <param name="bindingContext">
+      ///    Address of an IBindCtx* pointer variable that receives
+      ///    the interface pointer to the new bind context object. When the function is
+      ///    successful, the caller is responsible for calling Release on the bind context.
+      ///    A NULL value for the bind context indicates that an error occurred.
+      /// </param>
+      [DllImport("ole32.dll")]
+      // ReSharper disable once StyleCop.SA1650
+      private static extern void CreateBindCtx(int reserved, out IBindCtx bindingContext);
+
+      /// <summary>
+      ///    Returns a pointer to the IRunningObjectTable interface on the local running object table (ROT).
+      /// </summary>
+      /// <param name="reserved">This parameter is reserved and must be 0.</param>
+      /// <param name="objectTable">
+      ///    The address of an IRunningObjectTable* pointer variable that receives the interface pointer to the local ROT.
+      ///    When the function is successful, the caller is responsible for calling Release on the interface pointer. If an error
+      ///    occurs, *pprot is undefined.
+      /// </param>
+      [DllImport("ole32.dll")]
+      // ReSharper disable once StyleCop.SA1650
+      private static extern void GetRunningObjectTable(int reserved, out IRunningObjectTable objectTable);
+
+      /// <summary>
+      ///    Gets the window thread process identifier.
+      /// </summary>
+      /// <param name="windowHandle">The window handle.</param>
       /// <param name="processId">The process identifier.</param>
-      /// <returns>System.UInt32.</returns>
+      /// <returns>The return value is the identifier of the thread that created the window.</returns>
       [DllImport("user32.dll", SetLastError = true)]
-      private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+      private static extern uint GetWindowThreadProcessId(IntPtr windowHandle, out uint processId);
 
       /// <summary>
-      /// Returns a pointer to the IRunningObjectTable interface on the local running object table (ROT).
-      /// </summary>
-      /// <param name="reserved">This parameter is reserved and must be 0.</param>
-      /// <param name="prot">The address of an IRunningObjectTable* pointer variable that receives the interface pointer to the local ROT.
-      /// When the function is successful, the caller is responsible for calling Release on the interface pointer. If an error occurs, *pprot is undefined.</param>
-      [DllImport("ole32.dll")]
-      private static extern void GetRunningObjectTable(int reserved, out IRunningObjectTable prot);
-
-      /// <summary>
-      /// Returns a pointer to an implementation of IBindCtx (a bind context object).
-      /// This object stores information about a particular moniker-binding operation.
-      /// </summary>
-      /// <param name="reserved">This parameter is reserved and must be 0.</param>
-      /// <param name="ppbc">Address of an IBindCtx* pointer variable that receives
-      /// the interface pointer to the new bind context object. When the function is
-      /// successful, the caller is responsible for calling Release on the bind context.
-      /// A NULL value for the bind context indicates that an error occurred.</param>
-      /// <returns>This function can return the standard return values E_OUTOFMEMORY and S_OK.</returns>
-      [DllImport("ole32.dll")]
-      private static extern void CreateBindCtx(int reserved, out IBindCtx ppbc);
-
-      /// <summary>
-      /// Posts the new client event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void PostNewClientDetectedEvent(object state)
-      {
-         NewClientDetected?.Invoke(this, state as Client);
-      }
-
-      /// <summary>
-      /// Posts the client closed event.
-      /// </summary>
-      /// <param name="state">The state.</param>
-      private void PostClientClosedEvent(object state)
-      {
-         ClientClosed?.Invoke(this, state as Client);
-      }
-
-      /// <summary>
-      /// Packs the key to identify a client instance.
+      ///    Packs the key to identify a client instance.
       /// </summary>
       /// <param name="windowHandle">The window handle.</param>
       /// <param name="processId">The process identifier.</param>
@@ -161,7 +173,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Unpacks the key that identifies a client instance.
+      ///    Unpacks the key that identifies a client instance.
       /// </summary>
       /// <param name="key">The key.</param>
       /// <param name="windowHandle">The window handle.</param>
@@ -172,44 +184,100 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          processId = (int)key;
       }
 
-      private void BeginPolling()
-      {
-         var start = new ThreadStart(HandlePolling);
-         _PollingThread = new Thread(start) { IsBackground = true };
-         _PollingThread.Start();
-      }
+      #endregion
 
-      private void StopPolling()
-      {
-         _PollingThread.Join(400);
-         _PollingThread = null;
-      }
+      /// <summary>
+      ///    Event that occurs when a client, that the repository is aware of, closes.
+      /// </summary>
+      public event ClientEventHandler ClientClosed;
 
-      private void HandlePolling()
+      /// <summary>
+      ///    Gets the specific running Navision client instance that corresponds to the supplied
+      ///    serverType/server/database/company.
+      /// </summary>
+      /// <param name="serverType">The server type.</param>
+      /// <param name="server">The server name.</param>
+      /// <param name="database">The database name.</param>
+      /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
+      /// <returns>
+      ///    The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the
+      ///    server/database/company given
+      /// </returns>
+      /// <exception cref="ArgumentNullException">
+      ///    <paramref name="server" /> or <paramref name="database" /> is
+      ///    <see langword="null" />
+      /// </exception>
+      public virtual Client GetClient(ServerType serverType, string server, string database, string company)
       {
-         while (_PollClients)
+         if (string.IsNullOrEmpty(server))
+            throw new ArgumentNullException(nameof(server));
+         if (string.IsNullOrEmpty(database))
+            throw new ArgumentNullException(nameof(database));
+
+         if (!_PollClients)
          {
             var designers = GetActiveClientList();
             UpdateClientCache(designers);
-            Thread.Sleep(_PollingInterval); 
          }
+
+         foreach (var client in _RunningClients.Values)
+         {
+            if (serverType != client.ServerType)
+               continue;
+            if (!string.IsNullOrEmpty(company) && company != client.Company)
+               continue;
+            if (server != client.Server)
+               continue;
+            if (database != client.Database)
+               continue;
+
+            return client;
+         }
+
+         return null;
       }
 
       /// <summary>
-      /// Cleans up designer instance by decrementing its COM reference count.
+      ///    Gets the specific Navision client instance by its unique identifier in the repository.
       /// </summary>
-      /// <param name="designer">The designer to clean up.</param>
-      private void CleanUpDesignerInstance(IObjectDesigner designer)
+      /// <param name="identifier">The identifier.</param>
+      /// <returns>The <see cref="Client" /> instance or null if no instance found.</returns>
+      public virtual Client GetClientById(long identifier)
       {
-         if (designer == null)
-            return;
+         if (!_PollClients)
+         {
+            var designers = GetActiveClientList();
+            UpdateClientCache(designers);
+         }
 
-         // decrement designer instance reference count since we are done with it
-         Marshal.ReleaseComObject(designer);
+         return _RunningClients.TryGetValue(identifier, out var client) ? client : null;
       }
 
       /// <summary>
-      /// Gets the active client list.
+      ///    Gets a list of the current Navision clients.
+      /// </summary>
+      /// <returns>
+      ///    A <see cref="List{T}" /> of <see cref="Client" /> instances corresponding to the currently running nav
+      ///    clients.
+      /// </returns>
+      public virtual List<Client> GetClients()
+      {
+         if (!_PollClients)
+         {
+            var designers = GetActiveClientList();
+            UpdateClientCache(designers);
+         }
+
+         return _RunningClients?.Values.ToList();
+      }
+
+      /// <summary>
+      ///    Event that occurs when the repository detects a new client instance.
+      /// </summary>
+      public event ClientEventHandler NewClientDetected;
+
+      /// <summary>
+      ///    Gets the active client list.
       /// </summary>
       /// <returns>A list of designer objects corresponding to running client instances</returns>
       /// <remarks>If there are multiple instances with the same database and company, only the first is exposed</remarks>
@@ -236,17 +304,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
                runningObjectTable.GetObject(monikers[0], out var runningObjectVal);
 
-               if (!string.IsNullOrEmpty(runningObjectName) && (runningObjectName.IndexOf("!C/SIDE!navision://client/run?", StringComparison.Ordinal) != -1) &&
-                   (runningObjectName.IndexOf("database=", StringComparison.Ordinal) != -1) &&
-                      !clientList.Contains(runningObjectVal))
-                  {
-                     clientList.Add(runningObjectVal);
-                  }
-                  else if (runningObjectVal != null)
-                     Marshal.ReleaseComObject(runningObjectVal);
+               if (!string.IsNullOrEmpty(runningObjectName)
+                   && runningObjectName.IndexOf("!C/SIDE!navision://client/run?", StringComparison.Ordinal) != -1
+                   && runningObjectName.IndexOf("database=", StringComparison.Ordinal) != -1
+                   && !clientList.Contains(runningObjectVal)) clientList.Add(runningObjectVal);
+               else if (runningObjectVal != null)
+                  Marshal.ReleaseComObject(runningObjectVal);
 
                if (ctx != null)
-                     Marshal.ReleaseComObject(ctx);
+                  Marshal.ReleaseComObject(ctx);
             }
          }
          finally
@@ -264,7 +330,20 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Updates the client cache.
+      ///    Gets the running process ids.
+      /// </summary>
+      /// <returns>A <see cref="List{T}" /> of integers representing process id's.</returns>
+      protected virtual List<int> GetRunningProcessIds()
+      {
+         var clientProcesses = new List<int>();
+         foreach (var process in Process.GetProcesses())
+            clientProcesses.Add(process.Id);
+
+         return clientProcesses;
+      }
+
+      /// <summary>
+      ///    Updates the client cache.
       /// </summary>
       /// <param name="clientList">The client list.</param>
       protected virtual void UpdateClientCache(List<object> clientList)
@@ -278,10 +357,10 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
          {
             var client = pair.Value;
             if (!pids.Contains(pair.Value.ProcessId))
-            {               
+            {
                _RunningClients.Remove(pair.Key);
                _ClosingClientIds.Add(pair.Key);
-               ThreadPool.QueueUserWorkItem(delegate { RaiseClientClosed(client); });               
+               ThreadPool.QueueUserWorkItem(delegate { RaiseClientClosed(client); });
             }
             else
             {
@@ -298,24 +377,28 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             int handle;
             try
             {
-               INSHyperlink applicationInstance = designer as INSHyperlink;
+               var applicationInstance = designer as INSHyperlink;
+
                // If we can't retrieve an INSHyperlink reference then the likely hood is that the client is no longer valid.
                if (applicationInstance == null)
                {
                   CleanUpDesignerInstance(designer);
                   continue;
                }
+
                applicationInstance.GetNavWindowHandle(out handle);
             }
             catch (COMException)
             {
                CleanUpDesignerInstance(designer);
+
                // The client is likely busy, in which case we are just going to come back to it once it is responding
                continue;
             }
             catch (Exception)
             {
                CleanUpDesignerInstance(designer);
+
                // Some other unknown issue is going on with this client, so we will skip it this pass
                continue;
             }
@@ -342,11 +425,12 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                // we do not release the designer reference here since the new client instance will be in charge of doing that
                client = new Client(this, designer, key, handle, (int)pid);
                _RunningClients[key] = client;
-               ThreadPool.QueueUserWorkItem(delegate { RaiseNewClientDetected(client); });               
+               ThreadPool.QueueUserWorkItem(delegate { RaiseNewClientDetected(client); });
             }
             else
             {
                CleanUpDesignerInstance(designer);
+
                // update existing client data
                client.UpdateServerDatabaseCompanyInfo();
             }
@@ -354,35 +438,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Gets the running process ids.
-      /// </summary>
-      /// <returns>A <see cref="List{T}"/> of integers representing process id's.</returns>
-      protected virtual List<int> GetRunningProcessIds()
-      {
-         var clientProcesses = new List<int>();
-         foreach (Process process in Process.GetProcesses())
-            clientProcesses.Add(process.Id);
-
-         return clientProcesses;
-      }
-
-      /// <summary>
-      /// Raises the new client detected event.
-      /// </summary>
-      /// <param name="client">The client.</param>
-      internal void RaiseNewClientDetected(Client client)
-      {
-         if (NewClientDetected != null)
-         {
-            if (Context != null)
-               Context.Post(PostNewClientDetectedEvent, client);
-            else
-               PostNewClientDetectedEvent(client);
-         }
-      }
-
-      /// <summary>
-      /// Raises the client closed event.
+      ///    Raises the client closed event.
       /// </summary>
       /// <param name="client">The client.</param>
       internal void RaiseClientClosed(Client client)
@@ -397,70 +453,72 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       }
 
       /// <summary>
-      /// Gets a list of the current Navision clients.
+      ///    Raises the new client detected event.
       /// </summary>
-      /// <returns>A <see cref="List{T}"/> of <see cref="Client"/> instances corresponding to the currently running nav clients.</returns>
-      public virtual List<Client> GetClients()
+      /// <param name="client">The client.</param>
+      internal void RaiseNewClientDetected(Client client)
       {
-         if (!_PollClients)
+         if (NewClientDetected != null)
          {
-            var designers = GetActiveClientList();
-            UpdateClientCache(designers);
+            if (Context != null)
+               Context.Post(PostNewClientDetectedEvent, client);
+            else
+               PostNewClientDetectedEvent(client);
          }
-         return _RunningClients?.Values.ToList();
+      }
+
+      private void BeginPolling()
+      {
+         var start = new ThreadStart(HandlePolling);
+         _PollingThread = new Thread(start) { IsBackground = true };
+         _PollingThread.Start();
       }
 
       /// <summary>
-      /// Gets the specific running Navision client instance that corresponds to the supplied serverType/server/database/company.
+      ///    Cleans up designer instance by decrementing its COM reference count.
       /// </summary>
-      /// <param name="serverType">The server type.</param>
-      /// <param name="server">The server name.</param>
-      /// <param name="database">The database name.</param>
-      /// <param name="company">The company.  If company is an empty string or <c>null</c>, it is ignored</param>
-      /// <returns>The CSide <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Client"></see> instance corresponding to the server/database/company given</returns>
-      /// <exception cref="ArgumentNullException"><paramref name="server"/> or <paramref name="database"/> is <see langword="null"/></exception>
-      public virtual Client GetClient(ServerType serverType, string server, string database, string company)
+      /// <param name="designer">The designer to clean up.</param>
+      private void CleanUpDesignerInstance(IObjectDesigner designer)
       {
-         if (string.IsNullOrEmpty(server))
-            throw new ArgumentNullException(nameof(server));
-         if (string.IsNullOrEmpty(database))
-            throw new ArgumentNullException(nameof(database));
+         if (designer == null)
+            return;
 
-         if (!_PollClients)
+         // decrement designer instance reference count since we are done with it
+         Marshal.ReleaseComObject(designer);
+      }
+
+      private void HandlePolling()
+      {
+         while (_PollClients)
          {
             var designers = GetActiveClientList();
             UpdateClientCache(designers);
+            Thread.Sleep(_PollingInterval);
          }
-         foreach (var client in _RunningClients.Values)
-         {
-            if (serverType != client.ServerType)
-               continue;
-            if (!string.IsNullOrEmpty(company) && company != client.Company)
-               continue;
-            if (server != client.Server)
-               continue;
-            if (database != client.Database)
-               continue;
-            
-            return client;
-         }
-
-         return null;
       }
 
       /// <summary>
-      /// Gets the specific Navision client instance by its unique identifier in the repository.
+      ///    Posts the client closed event.
       /// </summary>
-      /// <param name="identifier">The identifier.</param>
-      /// <returns>The <see cref="Client"/> instance or null if no instance found.</returns>
-      public virtual Client GetClientById(long identifier)
+      /// <param name="state">The state.</param>
+      private void PostClientClosedEvent(object state)
       {
-         if (!_PollClients)
-         {
-            var designers = GetActiveClientList();
-            UpdateClientCache(designers);
-         }
-         return _RunningClients.TryGetValue(identifier, out var client) ? client : null;
+         ClientClosed?.Invoke(this, state as Client);
+      }
+
+      /// <summary>
+      ///    Posts the new client event.
+      /// </summary>
+      /// <param name="state">The state.</param>
+      private void PostNewClientDetectedEvent(object state)
+      {
+         NewClientDetected?.Invoke(this, state as Client);
+      }
+
+      private void StopPolling()
+      {
+         _PollingThread.Join(400);
+         _PollingThread = null;
       }
    }
 }

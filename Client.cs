@@ -359,8 +359,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
       #region Other Methods (24)
 
-      // Static Methods (9) 
-
       /// <summary>
       /// Returns a pointer to an implementation of IBindCtx (a bind context object).
       /// This object stores information about a particular moniker-binding operation.
@@ -373,7 +371,6 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       [DllImport("ole32.dll")]
       // ReSharper disable once StyleCop.SA1650
       private static extern void CreateBindCtx(int reserved, out IBindCtx bindContext);
-
 
       /// <summary>
       /// The CreateStreamOnHGlobal function creates a stream object that uses an HGLOBAL memory handle to store the stream contents.
@@ -396,6 +393,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <returns>A list of designer objects corresponding to running client instances</returns>
       /// <remarks>If there are multiple instances with the same database and company, only the first is exposed</remarks>
+      // ReSharper disable once StyleCop.SA1204
       internal static List<object> GetActiveClientList()
       {
          List<object> clientList = new List<object>();
@@ -416,11 +414,9 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             {
                CreateBindCtx(0, out ctx);
 
-               string runningObjectName;
-               monikers[0].GetDisplayName(ctx, null, out runningObjectName);
+               monikers[0].GetDisplayName(ctx, null, out var runningObjectName);
 
-               object runningObjectVal;
-               runningObjectTable.GetObject(monikers[0], out runningObjectVal);
+               runningObjectTable.GetObject(monikers[0], out var runningObjectVal);
 
                if ((runningObjectName.IndexOf("!C/SIDE!navision://client/run?") != -1) &&
                    !clientList.Contains(runningObjectVal))
@@ -683,6 +679,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <returns>
       /// A string that represents the current object.
       /// </returns>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       public override string ToString()
       {
          return string.Format(@"{0}\{1}-{2}", Server, Database, Company);
@@ -1015,8 +1012,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                return null;  // maybe this should throw an exception instead
             result.SetBackingTable(backingTable);
          }
-         return result;
 
+         return result;
       }
 
       /// <summary>
@@ -1092,6 +1089,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          // ReSharper disable once StyleCop.SA1305
          bool inProgress = _TransactionInProgress;
+
          EndTransaction(true);
          if (inProgress)
             // ReSharper disable once ExceptionNotDocumented
@@ -1116,6 +1114,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
                INSAppBase appBase = _ObjectDesigner as INSAppBase;
                if (appBase == null)
                   return null;
+
                var callbackEnumerator = new CallbackEnumerator(this);
                appBase.EnumTables(callbackEnumerator, 0);
                return callbackEnumerator.Tables;
