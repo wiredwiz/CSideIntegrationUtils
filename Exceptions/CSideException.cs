@@ -1,5 +1,5 @@
-﻿//
-// Copyright 2010 Thaddeus L Ryker
+﻿#region Apache License 2.0
+// <copyright>Copyright 2010 Thaddeus Ryker</copyright>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 // Dynamics Nav is a registered trademark of the Microsoft Corporation
-//
+#endregion
 
 using System;
 using System.Runtime.InteropServices;

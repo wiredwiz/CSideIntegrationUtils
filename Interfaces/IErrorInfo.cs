@@ -1,5 +1,5 @@
-﻿//
-// Copyright 2010 Thaddeus L Ryker
+﻿#region Apache License 2.0
+// <copyright>Copyright 2010 Thaddeus Ryker</copyright>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,13 +14,16 @@
 // limitations under the License.
 //
 // Dynamics Nav is a registered trademark of the Microsoft Corporation
-//
+#endregion
 
 using System.Runtime.InteropServices;
 using System.Security;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
 {
+   /// <summary>
+   /// Interface IErrorInfo
+   /// </summary>
    [ComImport, SuppressUnmanagedCodeSecurity, Guid("1CF2B120-547D-101B-8E65-08002B2BD119"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
    internal interface IErrorInfo
    {
@@ -30,9 +33,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
       int GetGUID();
 
       #endregion Operations
+
+      /// <summary>
+      /// Gets the error source.
+      /// </summary>
+      /// <param name="errorSource">A string containing the source.</param>
+      /// <returns>An integer value of either 0, indicating success or a non-zero error code for failure.</returns>
       [PreserveSig]
-      int GetSource([MarshalAs(UnmanagedType.BStr)] out string pBstrSource);
+      int GetSource([MarshalAs(UnmanagedType.BStr)] out string errorSource);
+
+      /// <summary>
+      /// Gets the description.
+      /// </summary>
+      /// <param name="errorDescription">A string containing the error description.</param>
+      /// <returns>An integer value of either 0, indicating success or a non-zero error code for failure.</returns>
       [PreserveSig]
-      int GetDescription([MarshalAs(UnmanagedType.BStr)] out string pBstrDescription);
+      int GetDescription([MarshalAs(UnmanagedType.BStr)] out string errorDescription);
    }
 }
