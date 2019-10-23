@@ -22,6 +22,8 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 
+using Org.Edgerunner.Dynamics.Nav.CSide.Interfaces;
+
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>

@@ -24,6 +24,7 @@ using System.Threading;
 
 using Org.Edgerunner.Dynamics.Nav.CSide.EventArguments;
 using Org.Edgerunner.Dynamics.Nav.CSide.Exceptions;
+using Org.Edgerunner.Dynamics.Nav.CSide.Interfaces;
 
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable SuspiciousTypeConversion.Global
@@ -450,13 +451,13 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       internal static extern void GetRunningObjectTable(int reserved, out IRunningObjectTable prot);
 
       /// <summary>
-      /// Gets the specific <see cref="Org.Edgerunner.Dynamics.Nav.CSide.IObjectDesigner"/> instance that corresponds to the supplied serverType/server/database/company.
+      /// Gets the specific <see cref="IObjectDesigner"/> instance that corresponds to the supplied serverType/server/database/company.
       /// </summary>
       /// <param name="serverType">The server type.</param>
       /// <param name="server">The server.</param>
       /// <param name="database">The database.</param>
       /// <param name="company">The company.</param>
-      /// <returns>The matching <see cref="Org.Edgerunner.Dynamics.Nav.CSide.IObjectDesigner"/>.</returns>
+      /// <returns>The matching <see cref="IObjectDesigner"/>.</returns>
       internal static IObjectDesigner GetDesigner(ServerType serverType, string server, string database, string company)
       {
          List<object> runningObjects = GetActiveClientList();
