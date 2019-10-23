@@ -1,4 +1,4 @@
-﻿#region Dansko LLC License
+﻿#region Apache License 2.0
 // <copyright>Copyright 2019 Thaddeus Ryker</copyright>
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
