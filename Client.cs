@@ -954,7 +954,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the specified table.
       /// </summary>
       /// <param name="tableId">The table Id.</param>
-      /// <returns>An instance of a <see cref="Org.Edgerunner.Dynamics.Nav.CSide.INSTable"/> or <c>null</c> if unable to get a reference</returns>
+      /// <returns>An instance of a <see cref="INSTable"/> or <c>null</c> if unable to get a reference</returns>
       internal INSTable GetTableInternal(int tableId)
       {
          lock (GetSyncObject())

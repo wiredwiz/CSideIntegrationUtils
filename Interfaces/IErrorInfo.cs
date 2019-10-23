@@ -15,11 +15,11 @@
 //
 // Dynamics Nav is a registered trademark of the Microsoft Corporation
 //
-using System;
-using System.Security;
-using System.Runtime.InteropServices;
 
-namespace Org.Edgerunner.Dynamics.Nav.CSide
+using System.Runtime.InteropServices;
+using System.Security;
+
+namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
 {
    [ComImport, SuppressUnmanagedCodeSecurity, Guid("1CF2B120-547D-101B-8E65-08002B2BD119"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
    internal interface IErrorInfo

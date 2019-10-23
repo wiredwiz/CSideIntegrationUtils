@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+using Org.Edgerunner.Dynamics.Nav.CSide.Interfaces;
+
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
    /// <summary>

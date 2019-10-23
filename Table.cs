@@ -21,6 +21,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 
 using Org.Edgerunner.Dynamics.Nav.CSide.Exceptions;
+using Org.Edgerunner.Dynamics.Nav.CSide.Interfaces;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {

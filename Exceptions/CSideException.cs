@@ -20,6 +20,8 @@ using System;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
+using Org.Edgerunner.Dynamics.Nav.CSide.Interfaces;
+
 namespace Org.Edgerunner.Dynamics.Nav.CSide.Exceptions
 {
    /// <summary>

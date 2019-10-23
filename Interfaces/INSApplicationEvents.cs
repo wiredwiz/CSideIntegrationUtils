@@ -22,7 +22,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Org.Edgerunner.Dynamics.Nav.CSide
+namespace Org.Edgerunner.Dynamics.Nav.CSide.Interfaces
 {
    [ComImport, Guid("50000004-0000-1000-0004-0000836BD2D2"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
    internal interface INSApplicationEvents

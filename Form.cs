@@ -20,6 +20,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 using Org.Edgerunner.Dynamics.Nav.CSide.Exceptions;
+using Org.Edgerunner.Dynamics.Nav.CSide.Interfaces;
 
 namespace Org.Edgerunner.Dynamics.Nav.CSide
 {
