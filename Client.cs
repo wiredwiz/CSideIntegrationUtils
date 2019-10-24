@@ -925,11 +925,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="navObjectType">Type of the Navision object.</param>
       /// <param name="objectId">The object Id.</param>
       /// <returns>A <see cref="System.IO.MemoryStream"/> containing the text for the specified object</returns>
-      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">Either the client is busy, invalid or there was a license permission issue.</exception>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">Either the client is invalid or there was a license permission issue.</exception>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public MemoryStream ReadObjectToStream(NavObjectType navObjectType, int objectId)
       {
-         lock (GetSyncObject())
-         {
+         // ReSharper disable once ExceptionNotDocumented
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(5), out LockManager manager);
+         if (lockObtained)
+            using (manager)
+            {
             CreateStreamOnHGlobal(0, true, out var outStream);
 
             // We Use ReadObjects() here instead of ReadObject() because ReadObject() is very buggy and outputs bad files
@@ -945,6 +949,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
 
             return ToMemoryStream(outStream);
          }
+
+         throw new TimeoutException();
       }
 
       /// <summary>
@@ -955,26 +961,32 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="objectIdRangeStop">The object number to read to.</param>
       /// <returns>A <see cref="System.IO.MemoryStream" /> containing the text for the specified objects</returns>
       /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">An error occurred while attempting the read.  A likely cause is a license permission issue.</exception>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public MemoryStream ReadObjectsToStream(NavObjectType navObjectType, int objectIdRangeStart, int objectIdRangeStop)
       {
-         lock (GetSyncObject())
-         {
-            CreateStreamOnHGlobal(0, true, out var outStream);
+         // ReSharper disable once ExceptionNotDocumented
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(5), out LockManager manager);
+         if (lockObtained)
+            using (manager)
+            {
+               CreateStreamOnHGlobal(0, true, out var outStream);
 
-            // We Use ReadObjects() here instead of ReadObject() because ReadObject() is very buggy and outputs bad files
-            int result = _ObjectDesigner.ReadObjects(
-               string.Format(
-                  "WHERE(Type=CONST({0}),ID=FILTER({1}..{2}))", 
-                  (int)navObjectType, 
-                  objectIdRangeStart, 
-                  objectIdRangeStop), 
-               outStream);
+               // We Use ReadObjects() here instead of ReadObject() because ReadObject() is very buggy and outputs bad files
+               int result = _ObjectDesigner.ReadObjects(
+                  string.Format(
+                     "WHERE(Type=CONST({0}),ID=FILTER({1}..{2}))",
+                     (int)navObjectType,
+                     objectIdRangeStart,
+                     objectIdRangeStop),
+                  outStream);
 
-            if (result != 0)
-               throw CSideException.GetException(result);
+               if (result != 0)
+                  throw CSideException.GetException(result);
 
-            return ToMemoryStream(outStream);
-         }
+               return ToMemoryStream(outStream);
+            }
+
+         throw new TimeoutException();
       }
 
       /// <summary>
