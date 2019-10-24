@@ -1100,21 +1100,27 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Begins a transaction inside the Navision client instance.
       /// </summary>
       /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideTransactionException">A transaction is already in progress.</exception>
-      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">The client is either busy or there is a license permission issue.</exception>
+      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">There is a license permission issue.</exception>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public void BeginTransaction()
       {
-         lock (GetSyncObject())
-         {
-            INSAppBase appBase = _ObjectDesigner as INSAppBase;
-            if (appBase == null)
-               return;
-            if (_TransactionInProgress)
-               throw new CSideTransactionException("A transaction is already in progress.");
-            int result = appBase.StartTrans();
-            if (result != 0)
-               throw CSideException.GetException(result);
-            _TransactionInProgress = true;
-         }
+         // ReSharper disable once ExceptionNotDocumented
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
+         if (lockObtained)
+            using (manager)
+            {
+               INSAppBase appBase = _ObjectDesigner as INSAppBase;
+               if (appBase == null)
+                  return;
+               if (_TransactionInProgress)
+                  throw new CSideTransactionException("A transaction is already in progress.");
+               int result = appBase.StartTrans();
+               if (result != 0)
+                  throw CSideException.GetException(result);
+               _TransactionInProgress = true;
+            }
+
+         throw new TimeoutException();
       }
 
       /// <summary>
@@ -1123,41 +1129,53 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="message">The message to be displayed.</param>
       /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">The supplied message is raised as an exception.</exception>
       /// <exception cref="T:System.Runtime.InteropServices.COMException">There was a problem of some kind with the client.</exception>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public void Error(string message)
       {
-         lock (GetSyncObject())
-         {
-            INSAppBase appBase = _ObjectDesigner as INSAppBase;
-            if (appBase == null)
-               return;
-            try
+         // ReSharper disable once ExceptionNotDocumented
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
+         if (lockObtained)
+            using (manager)
             {
-               int result = appBase.Error(message);
-               if (result != 0)
-                  throw CSideException.GetException(result);
+               INSAppBase appBase = _ObjectDesigner as INSAppBase;
+               if (appBase == null)
+                  return;
+               try
+               {
+                  int result = appBase.Error(message);
+                  if (result != 0)
+                     throw CSideException.GetException(result);
+               }
+               catch (COMException ex)
+               {
+                  if (ex.Message != message)
+                     throw ex;
+               }
             }
-            catch (COMException ex)
-            {
-               if (ex.Message != message)
-                  throw ex;
-            }
-         }
+
+         throw new TimeoutException();
       }
 
       /// <summary>
       /// Ends current the transaction.
       /// </summary>
       /// <param name="commitChanges">if set to <c>true</c> any pending modifications are committed, else they are discarded.</param>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public void EndTransaction(bool commitChanges)
       {
-         lock (GetSyncObject())
-         {
-            _TransactionInProgress = false;
-            INSAppBase appBase = _ObjectDesigner as INSAppBase;
-            if (appBase == null)
-               return;
-            appBase.EndTransaction(commitChanges);
-         }
+         // ReSharper disable once ExceptionNotDocumented
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
+         if (lockObtained)
+            using (manager)
+            {
+               _TransactionInProgress = false;
+               INSAppBase appBase = _ObjectDesigner as INSAppBase;
+               if (appBase == null)
+                  return;
+               appBase.EndTransaction(commitChanges);
+            }
+
+         throw new TimeoutException();
       }
 
       /// <summary>
@@ -1165,15 +1183,24 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <remarks>If you need to simply commit the current changes during a transaction, this method should be used rather than EndTransaction</remarks>
       /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">The client is either busy or there is a license permission issue.</exception>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public void Commit()
       {
-         // ReSharper disable once StyleCop.SA1305
-         bool inProgress = _TransactionInProgress;
+         // ReSharper disable once ExceptionNotDocumented
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
+         if (lockObtained)
+            using (manager)
+            {
+               // ReSharper disable once StyleCop.SA1305
+               bool inProgress = _TransactionInProgress;
 
-         EndTransaction(true);
-         if (inProgress)
-            // ReSharper disable once ExceptionNotDocumented
-            BeginTransaction();
+               EndTransaction(true);
+               if (inProgress)
+                  // ReSharper disable once ExceptionNotDocumented
+                  BeginTransaction();
+            }
+
+         throw new TimeoutException();
       }
 
       /// <summary>
@@ -1327,21 +1354,27 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <value>The current <see cref="Org.Edgerunner.Dynamics.Nav.CSide.Form" />.</value>
       /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">The client is busy or a license issue exists.</exception>
+      /// <exception cref="T:System.TimeoutException" accessor="get">The request timed out due to a busy client.</exception>
       public Form CurrentForm
       {
          get
          {
-            lock (GetSyncObject())
-            {
-               INSApplication app = _ObjectDesigner as INSApplication;
-               if (app == null)
-                  return null;
-               INSForm form;
-               int result = app.GetCurrentForm(out form);
-               if (result != 0)
-                  throw CSideException.GetException(result);
-               return new Form(this, form);
-            }
+            // ReSharper disable once ExceptionNotDocumented
+            var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
+            if (lockObtained)
+               using (manager)
+               {
+                  INSApplication app = _ObjectDesigner as INSApplication;
+                  if (app == null)
+                     return null;
+                  INSForm form;
+                  int result = app.GetCurrentForm(out form);
+                  if (result != 0)
+                     throw CSideException.GetException(result);
+                  return new Form(this, form);
+               }
+
+            throw new TimeoutException();
          }
       }
       #endregion

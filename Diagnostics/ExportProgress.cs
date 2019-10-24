@@ -105,7 +105,7 @@ namespace CSide_Library_Diagnostics_Tool
             }
 
             Watch.Stop();
-            Invoke((MethodInvoker)delegate { Close(); });
+            Invoke((MethodInvoker)Close);
          }
       }
 
