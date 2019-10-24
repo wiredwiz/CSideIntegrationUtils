@@ -1209,6 +1209,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <remarks>The tables returned will include some (but not all) of the virtual tables in the database. Some virtual tables that this will not include can still be obtained
       /// with a call to GetTable().</remarks>
       /// <value>The tables.</value>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public Dictionary<int, Table> Tables
       {
          get
@@ -1216,16 +1217,22 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             // I toyed with adding caching logic here to lower the overhead of repeated fetches but there were too many
             // problems with responding to table deletes/additions/changes.  Might add something later Due to this overhead.
             // It is recommended that you use FetchTable() to get a specific table.
-            lock (GetSyncObject())
-            {
-               INSAppBase appBase = _ObjectDesigner as INSAppBase;
-               if (appBase == null)
-                  return null;
 
-               var callbackEnumerator = new CallbackEnumerator(this);
-               appBase.EnumTables(callbackEnumerator, 0);
-               return callbackEnumerator.Tables;
-            }
+            // ReSharper disable once ExceptionNotDocumented
+            var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
+            if (lockObtained)
+               using (manager)
+               {
+                  INSAppBase appBase = _ObjectDesigner as INSAppBase;
+                  if (appBase == null)
+                     return null;
+
+                  var callbackEnumerator = new CallbackEnumerator(this);
+                  appBase.EnumTables(callbackEnumerator, 0);
+                  return callbackEnumerator.Tables;
+               }
+
+            throw new TimeoutException();
          }
       }
 
@@ -1234,39 +1241,45 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <value>The objects.</value>
       /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">Unable to retrieve the Object table.</exception>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public Dictionary<NavObjectType, Dictionary<int, CSide.Object>> Objects
       {
          get
          {
-            lock (GetSyncObject())
-            {
-               if (_Objects == null)
+            // ReSharper disable once ExceptionNotDocumented
+            var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
+            if (lockObtained)
+               using (manager)
                {
-                  // first we fetch the Object table
-                  Table table = GetTable(2000000001);
-                  if (table == null)
-                     throw new CSideException("Unable to retrieve the Object table");
-
-                  // Filter for blank company and objects of type other than tabledata
-                  table.SetFilter(1, ">0");
-                  table.SetFilter(2, "=''");
-
-                  // I'm leaving the below code as is instead of using LINQ for the readability of those new to C#
-                  List<Record> records = table.FetchRecords();
-                  _Objects = new Dictionary<NavObjectType, Dictionary<int, CSide.Object>>();
-
-                  foreach (NavObjectType objectType in Enum.GetValues(typeof(NavObjectType)))
-                     _Objects.Add(objectType, new Dictionary<int, CSide.Object>());
-
-                  foreach (Record record in records)
+                  if (_Objects == null)
                   {
-                     var currentObject = new CSide.Object(record);
-                     _Objects[currentObject.Type].Add(currentObject.ID, currentObject);
+                     // first we fetch the Object table
+                     Table table = GetTable(2000000001);
+                     if (table == null)
+                        throw new CSideException("Unable to retrieve the Object table");
+
+                     // Filter for blank company and objects of type other than tabledata
+                     table.SetFilter(1, ">0");
+                     table.SetFilter(2, "=''");
+
+                     // I'm leaving the below code as is instead of using LINQ for the readability of those new to C#
+                     List<Record> records = table.FetchRecords();
+                     _Objects = new Dictionary<NavObjectType, Dictionary<int, CSide.Object>>();
+
+                     foreach (NavObjectType objectType in Enum.GetValues(typeof(NavObjectType)))
+                        _Objects.Add(objectType, new Dictionary<int, CSide.Object>());
+
+                     foreach (Record record in records)
+                     {
+                        var currentObject = new CSide.Object(record);
+                        _Objects[currentObject.Type].Add(currentObject.ID, currentObject);
+                     }
                   }
+
+                  return _Objects;
                }
 
-               return _Objects;
-            }
+            throw new TimeoutException();
          }
       }
 
