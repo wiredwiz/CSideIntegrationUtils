@@ -25,6 +25,7 @@ using System.Threading;
 using Org.Edgerunner.Dynamics.Nav.CSide.EventArguments;
 using Org.Edgerunner.Dynamics.Nav.CSide.Exceptions;
 using Org.Edgerunner.Dynamics.Nav.CSide.Interfaces;
+using Org.Edgerunner.Dynamics.Nav.CSide.Threading;
 
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable SuspiciousTypeConversion.Global
@@ -280,6 +281,52 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
             if ((timeoutPeriod != TimeSpan.Zero) && ((startTime - DateTime.Now) > timeoutPeriod))
                return null;
          }
+      }
+
+      /// <summary>
+      /// Tries the get lock for the client, while waiting for a specified timeout period.
+      /// </summary>
+      /// <param name="timeoutPeriod">The period to wait for a lock before timing out.</param>
+      /// <param name="lockManager">The lock manager.</param>
+      /// <returns><c>true</c> if a lock is acquired, <c>false</c> otherwise.</returns>
+      internal bool TryGetLock(TimeSpan timeoutPeriod, out LockManager lockManager)
+      {
+         var start = DateTime.Now;
+         bool success = false;
+         lockManager = null;
+         Monitor.TryEnter(_SyncLock, timeoutPeriod, ref success);
+
+         if (!success)
+            return false;
+
+         if (!IsBusy)
+         {
+            lockManager = new LockManager(_SyncLock);
+            return true;
+         }
+
+         if (timeoutPeriod != TimeSpan.Zero)
+            while (IsBusy && timeoutPeriod < start - DateTime.Now)
+               Thread.Sleep(500);
+
+         if (IsBusy)
+         {
+            Monitor.Exit(_SyncLock);
+            return false;
+         }
+
+         lockManager = new LockManager(_SyncLock);
+         return true;
+      }
+
+      /// <summary>
+      /// Tries the get lock for the client.
+      /// </summary>
+      /// <param name="lockManager">The lock manager.</param>
+      /// <returns><c>true</c> if a lock is acquired, <c>false</c> otherwise.</returns>
+      internal bool TryGetLock(out LockManager lockManager)
+      {
+         return TryGetLock(TimeSpan.Zero, out lockManager);
       }
 
       /// <summary>
