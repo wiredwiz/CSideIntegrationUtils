@@ -43,6 +43,8 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       // ReSharper disable once UnusedMember.Local
       private const string NavisionClientInterfaceGuid = "50000004-0000-1000-0004-0000836BD2D2";
 
+      private const uint SecondsTimeout = 5;
+
       private readonly IObjectDesigner _ObjectDesigner;
       private readonly ClientRepository _Repository;
 
@@ -743,14 +745,20 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="navObjectType">Type of the Nav object.</param>
       /// <param name="objectId">The object Id.</param>
       /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">Either the client is busy, invalid or there was a license permission issue.</exception>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public void CompileObject(NavObjectType navObjectType, int objectId)
       {
-         lock (GetSyncObject())
-         {
-            int result = _ObjectDesigner.CompileObject((int)navObjectType, objectId);
-            if (result != 0)
-               throw CSideException.GetException(result);
-         }
+         // ReSharper disable once ExceptionNotDocumented
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
+         if (lockObtained)
+            using (manager)
+            {
+               int result = _ObjectDesigner.CompileObject((int)navObjectType, objectId);
+               if (result != 0)
+                  throw CSideException.GetException(result);
+            }
+
+         throw new TimeoutException();
       }
 
       /// <summary>
@@ -758,14 +766,20 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// </summary>
       /// <param name="filter">The filter.</param>
       /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">Either the client is busy, invalid or there was a license permission issue.</exception>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public void CompileObjects(string filter)
       {
-         lock (GetSyncObject())
-         {
-            int result = _ObjectDesigner.CompileObjects(filter);
-            if (result != 0)
-               throw CSideException.GetException(result);
-         }
+         // ReSharper disable once ExceptionNotDocumented
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
+         if (lockObtained)
+            using (manager)
+            {
+               int result = _ObjectDesigner.CompileObjects(filter);
+               if (result != 0)
+                  throw CSideException.GetException(result);
+            }
+
+         throw new TimeoutException();
       }
 
       /// <summary>
@@ -930,25 +944,25 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public MemoryStream ReadObjectToStream(NavObjectType navObjectType, int objectId)
       {
          // ReSharper disable once ExceptionNotDocumented
-         var lockObtained = TryGetLock(TimeSpan.FromSeconds(5), out LockManager manager);
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
          if (lockObtained)
             using (manager)
             {
-            CreateStreamOnHGlobal(0, true, out var outStream);
+               CreateStreamOnHGlobal(0, true, out var outStream);
 
-            // We Use ReadObjects() here instead of ReadObject() because ReadObject() is very buggy and outputs bad files
-            int result = _ObjectDesigner.ReadObjects(
-               string.Format(
-                  "WHERE(Type=CONST({0}),ID=CONST({1}))", 
-                  (int)navObjectType, 
-                  objectId), 
-               outStream);
+               // We Use ReadObjects() here instead of ReadObject() because ReadObject() is very buggy and outputs bad files
+               int result = _ObjectDesigner.ReadObjects(
+                  string.Format(
+                     "WHERE(Type=CONST({0}),ID=CONST({1}))", 
+                     (int)navObjectType, 
+                     objectId), 
+                  outStream);
 
-            if (result != 0)
-               throw CSideException.GetException(result);
+               if (result != 0)
+                  throw CSideException.GetException(result);
 
-            return ToMemoryStream(outStream);
-         }
+               return ToMemoryStream(outStream);
+            }
 
          throw new TimeoutException();
       }
@@ -965,7 +979,7 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       public MemoryStream ReadObjectsToStream(NavObjectType navObjectType, int objectIdRangeStart, int objectIdRangeStop)
       {
          // ReSharper disable once ExceptionNotDocumented
-         var lockObtained = TryGetLock(TimeSpan.FromSeconds(5), out LockManager manager);
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
          if (lockObtained)
             using (manager)
             {
@@ -995,15 +1009,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="stream">The stream containing the text for a Navision object.</param>
       /// <remarks>The stream may contain one or more text objects to be written to the database.</remarks>
       /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException">An error occurred while attempting the read.  A likely cause is a license permission issue.</exception>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public void WriteObjectsFromStream(Stream stream)
       {
-         lock (GetSyncObject())
-         {
-            IStream source = ToIStream(stream);
-            int result = _ObjectDesigner.WriteObjects(source);
-            if (result != 0)
-               throw CSideException.GetException(result);
-         }
+         // ReSharper disable once ExceptionNotDocumented
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
+         if (lockObtained)
+            using (manager)
+            {
+               IStream source = ToIStream(stream);
+               int result = _ObjectDesigner.WriteObjects(source);
+               if (result != 0)
+                  throw CSideException.GetException(result);
+            }
+
+         throw new TimeoutException();
       }
       #endregion
 
@@ -1275,15 +1295,21 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// <param name="link">The hyperlink.</param>
       /// <remarks>This hyperlink should be a navision hyperlink (begins with navision://client/run?). It may contain instructions to open a specific form or report as well as a
       /// pointer to a specific record.  You may use the <see cref="ClientLink"/> class to easily construct valid client links.</remarks>
+      /// <exception cref="T:System.TimeoutException">The request timed out due to a busy client.</exception>
       public void OpenLink(string link)
       {
-         lock (GetSyncObject())
-         {
-            if (string.IsNullOrEmpty(link))
-               return;
-            INSHyperlink app = _ObjectDesigner as INSHyperlink;
-            app?.Open(link);
-         }
+         // ReSharper disable once ExceptionNotDocumented
+         var lockObtained = TryGetLock(TimeSpan.FromSeconds(SecondsTimeout), out LockManager manager);
+         if (lockObtained)
+            using (manager)
+            {
+               if (string.IsNullOrEmpty(link))
+                  return;
+               INSHyperlink app = _ObjectDesigner as INSHyperlink;
+               app?.Open(link);
+            }
+
+         throw new TimeoutException();
       }
 
       /// <summary>
