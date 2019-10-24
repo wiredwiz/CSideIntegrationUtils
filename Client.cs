@@ -772,15 +772,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the company name.
       /// </summary>
       /// <value>The company.</value>
-      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       public string Company
       {
          get
          {
-            if (IsBusy)
+            var lockObtained = TryGetLock(out LockManager manager);
+            if (!lockObtained)
                return _PreviousCompany;
 
-            lock (GetSyncObject())
+            using (manager)
             {
                _ObjectDesigner.GetCompanyName(out var companyName);
                companyName = companyName ?? string.Empty;
@@ -800,15 +800,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the database name.
       /// </summary>
       /// <value>The database.</value>
-      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       public string Database
       {
          get
          {
-            if (IsBusy)
+            var lockObtained = TryGetLock(out LockManager manager);
+            if (!lockObtained)
                return _PreviousDatabase;
 
-            lock (GetSyncObject())
+            using (manager)
             {
                _ObjectDesigner.GetDatabaseName(out var databaseName);
                databaseName = databaseName ?? string.Empty;
@@ -828,15 +828,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the server name.
       /// </summary>
       /// <value>The server.</value>
-      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       public string Server
       {
          get
          {
-            if (IsBusy)
+            var lockObtained = TryGetLock(out LockManager manager);
+            if (!lockObtained)
                return _PreviousServer;
 
-            lock (GetSyncObject())
+            using (manager)
             {
                _ObjectDesigner.GetServerName(out var serverName);
                serverName = serverName ?? string.Empty;
@@ -859,15 +859,15 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       /// Gets the type of the server.
       /// </summary>
       /// <value>The type of the server.</value>
-      /// <exception cref="T:Org.Edgerunner.Dynamics.Nav.CSide.Exceptions.CSideException" accessor="get">Thrown if the timeoutPeriod expires and the client is still busy.</exception>
       public ServerType ServerType
       {
          get
          {
-            if (IsBusy)
+            var lockObtained = TryGetLock(out LockManager manager);
+            if (!lockObtained)
                return _PreviousServerType;
 
-            lock (GetSyncObject())
+            using (manager)
             {
                _ObjectDesigner.GetServerType(out var serverType);
                _PreviousServerType = (ServerType)serverType;
@@ -904,13 +904,13 @@ namespace Org.Edgerunner.Dynamics.Nav.CSide
       {
          get
          {
-            if (IsBusy)
+            var lockObtained = TryGetLock(out LockManager manager);
+            if (!lockObtained)
                return _ApplicationVersion;
 
-            lock (GetSyncObject())
+            using (manager)
             {
-               string appVersion;
-               int result = _ObjectDesigner.GetApplicationVersion(out appVersion);
+               int result = _ObjectDesigner.GetApplicationVersion(out var appVersion);
                if (result != 0)
                   throw CSideException.GetException(result);
                _ApplicationVersion = appVersion ?? string.Empty;
